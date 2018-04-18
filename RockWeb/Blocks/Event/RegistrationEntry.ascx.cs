@@ -3158,7 +3158,7 @@ namespace RockWeb.Blocks.Event
                 decimal currentStep = ( FormCount * CurrentRegistrantIndex ) + CurrentFormIndex + 1;
                 PercentComplete = ( currentStep / ProgressBarSteps ) * 100.0m;
                 pnlRegistrantProgressBar.Visible = GetAttributeValue( "DisplayProgressBar" ).AsBoolean();
-
+                
                 if ( SignInline && CurrentFormIndex >= FormCount )
                 {
                     string registrantName = RegistrantTerm;
@@ -3186,53 +3186,50 @@ namespace RockWeb.Blocks.Event
                         return;
                     }
 
-                    pnlRegistrantFields.Visible = false;
                     pnlDigitalSignature.Visible = true;
                     lbRegistrantNext.Visible = false;
                 }
                 else
                 {
-                    pnlRegistrantFields.Visible = true;
                     pnlDigitalSignature.Visible = false;
                     lbRegistrantNext.Visible = true;
-
+                }
+                
+                if ( CurrentFormIndex == 0 && RegistrationState != null && RegistrationTemplate.ShowCurrentFamilyMembers ) //&& RegistrationState.RegistrantCount > CurrentRegistrantIndex )
+                {
                     ddlFamilyMembers.Items.Clear();
-
-                    if ( CurrentFormIndex == 0 && RegistrationState != null && RegistrationState.RegistrantCount > CurrentRegistrantIndex )
+                    var registrant = RegistrationState.Registrants[CurrentRegistrantIndex];
+                    if ( registrant.Id <= 0 &&
+                        CurrentFormIndex == 0 &&
+                        RegistrationTemplate.RegistrantsSameFamily != RegistrantsSameFamily.No &&
+                        RegistrationTemplate.ShowCurrentFamilyMembers && CurrentPerson != null )
                     {
-                        var registrant = RegistrationState.Registrants[CurrentRegistrantIndex];
-                        if ( registrant.Id <= 0 &&
-                            CurrentFormIndex == 0 &&
-                            RegistrationTemplate.RegistrantsSameFamily != RegistrantsSameFamily.No &&
-                            RegistrationTemplate.ShowCurrentFamilyMembers && CurrentPerson != null )
-                        {
-                            var familyMembers = CurrentPerson.GetFamilyMembers( true )
-                                .Select( m => m.Person )
-                                .ToList();
+                        var familyMembers = CurrentPerson.GetFamilyMembers( true )
+                            .Select( m => m.Person )
+                            .ToList();
 
-                            for ( int i = 0; i < CurrentRegistrantIndex; i++ )
+                        for ( int i = 0; i <= CurrentRegistrantIndex; i++ )
+                        {
+                            int? personId = RegistrationState.Registrants[i].PersonId;
+                            if ( personId.HasValue )
                             {
-                                int? personId = RegistrationState.Registrants[i].PersonId;
-                                if ( personId.HasValue )
+                                foreach ( var familyMember in familyMembers.Where( p => p.Id == personId.Value ).ToList() )
                                 {
-                                    foreach ( var familyMember in familyMembers.Where( p => p.Id == personId.Value ).ToList() )
-                                    {
-                                        familyMembers.Remove( familyMember );
-                                    }
+                                    familyMembers.Remove( familyMember );
                                 }
                             }
+                        }
 
-                            if ( familyMembers.Any() )
+                        if ( familyMembers.Any() )
+                        {
+                            ddlFamilyMembers.Visible = true;
+                            ddlFamilyMembers.Items.Add( new ListItem() );
+
+                            foreach ( var familyMember in familyMembers )
                             {
-                                ddlFamilyMembers.Visible = true;
-                                ddlFamilyMembers.Items.Add( new ListItem() );
-
-                                foreach ( var familyMember in familyMembers )
-                                {
-                                    ListItem listItem = new ListItem( familyMember.FullName, familyMember.Id.ToString() );
-                                    listItem.Selected = familyMember.Id == registrant.PersonId;
-                                    ddlFamilyMembers.Items.Add( listItem );
-                                }
+                                ListItem listItem = new ListItem( familyMember.FullName, familyMember.Id.ToString() );
+                                listItem.Selected = familyMember.Id == registrant.PersonId;
+                                ddlFamilyMembers.Items.Add( listItem );
                             }
                         }
                     }
@@ -3470,10 +3467,13 @@ namespace RockWeb.Blocks.Event
 
     // Adjust the Family Member dropdown when registrant chooses none of the above
     $('#{23}').on('change', function() {{  
-        var selectedNone = $(""input[name$='rblFamilyOptions']:checked"").parent('label').text().startsWith('None');
-        if ( selectedNone || $('#{24}').css('display') == 'none' ) {{
-            $('#{24}').slideToggle();
-        }}
+        var selectedFamilyGuid = $(""input[name$='rblFamilyOptions']:checked"").val();
+        console.log( selectedFamilyGuid );
+        $('#{24}').slideToggle();
+        //var selectedNone = $(""input[name$='rblFamilyOptions']:checked"").parent('label').text().startsWith('None');
+        //if ( selectedNone || $('#{24}').css('display') == 'none' ) {{
+        //    $('#{24}').slideToggle();
+        //}}
     }});
 
     $('#{0}').on('change', function() {{
@@ -3704,19 +3704,19 @@ namespace RockWeb.Blocks.Event
             phRegistrantControls.Controls.Clear();
             phFees.Controls.Clear();
 
-            if ( FormCount > CurrentFormIndex )
+            if ( FormCount >= CurrentFormIndex )
             {
                 // Get the current and previous registrant ( previous is used when a field has the 'IsSharedValue' property )
                 // so that current registrant can use the previous registrants value
                 RegistrantInfo registrant = null;
                 RegistrantInfo previousRegistrant = null;
 
-                if ( RegistrationState != null && RegistrationState.RegistrantCount > CurrentRegistrantIndex )
+                if ( RegistrationState != null && RegistrationState.RegistrantCount >= CurrentRegistrantIndex )
                 {
                     registrant = RegistrationState.Registrants[CurrentRegistrantIndex];
 
                     // If this is not the first person, then check to see if option for asking about family should be displayed
-                    if ( CurrentFormIndex == 0 && CurrentRegistrantIndex > 0 &&
+                    if ( CurrentFormIndex == 0 && CurrentRegistrantIndex >= 0 &&
                         RegistrationTemplate.RegistrantsSameFamily != RegistrantsSameFamily.No )
                     {
                         var familyOptions = RegistrationState.GetFamilyOptions( RegistrationTemplate, CurrentRegistrantIndex );
@@ -3726,6 +3726,7 @@ namespace RockWeb.Blocks.Event
                                 Guid.NewGuid() :
                                 registrant.FamilyGuid.Equals( Guid.Empty ) ? Guid.NewGuid() : registrant.FamilyGuid,
                                 "None of the above" );
+                            
                             rblFamilyOptions.DataSource = familyOptions;
                             rblFamilyOptions.DataBind();
                             rblFamilyOptions.Label = string.Format( "{0} is in the same immediate family as", lRegistrantTitle.Text );

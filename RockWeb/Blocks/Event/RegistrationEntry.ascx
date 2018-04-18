@@ -50,7 +50,7 @@
                 </asp:Panel>
             </div>
         
-            <asp:Panel ID="pnlFamilyMembers" runat="server" Visible="false" CssClass="row" >
+            <asp:Panel ID="pnlFamilyMembers" runat="server" CssClass="row" style="display:none" >
                 <div class="col-md-6">
                     <Rock:RockDropDownList ID="ddlFamilyMembers" runat="server" Label="Family Member" AutoPostBack="true" OnSelectedIndexChanged="ddlFamilyMembers_SelectedIndexChanged" />
                 </div>
