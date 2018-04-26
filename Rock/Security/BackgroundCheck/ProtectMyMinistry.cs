@@ -32,7 +32,6 @@ namespace Rock.Security.BackgroundCheck
 {
     /// <summary>
     /// Protect My Ministry Background Check 
-    /// Note: This component requires 
     /// </summary>
     [Description( "Protect My Ministry Background Check" )]
     [Export( typeof( BackgroundCheckComponent ) )]
