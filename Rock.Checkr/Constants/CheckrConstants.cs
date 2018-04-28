@@ -21,7 +21,7 @@ namespace Rock.Checkr.Constants
     /// </summary>
     public static class CheckrConstants
     {
-        public static readonly string CHECKR_IMAGE_URL = "~/Assets/Images/";
+        public static readonly string CHECKR_IMAGE_URL = "~/Assets/Images/Checkr.svg";
         /// <summary>
         /// The URL where the user create their account
         /// </summary>
@@ -31,5 +31,10 @@ namespace Rock.Checkr.Constants
         /// The URL where the Token for the account is retrieved
         /// </summary>
         public static readonly string CHECKR_TOKEN_URL = "https://api.checkr.com/oauth/tokens";
+
+        /// <summary>
+        /// The Typename prefix
+        /// </summary>
+        public static readonly string TYPENAME_PREFIX = "Checkr - ";
     }
 }
