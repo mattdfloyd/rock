@@ -41,6 +41,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
     {
         private const string GET_STARTED_URL = "http://www.rockrms.com/Redirect/PMMSignup";
         private const string PROMOTION_IMAGE_URL = "https://rockrms.blob.core.windows.net/resources/pmm-integration/pmm-integration-banner.png";
+        private const string TYPENAME_PREFIX = "PMM - ";
 
         #region Control Methods
 
@@ -216,7 +217,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 using ( var rockContext = new RockContext() )
                 {
                     var definedValueService = new DefinedValueService( rockContext );
-                    var definedValues = definedValueService.Queryable().Where( a => a.DefinedTypeId == definedType.Id ).OrderBy( a => a.Order ).ThenBy( a => a.Value );
+                    var definedValues = definedValueService.Queryable().Where( a => a.DefinedTypeId == definedType.Id ).Where( a => a.Value.StartsWith( TYPENAME_PREFIX ) ).OrderBy( a => a.Order ).ThenBy( a => a.Value );
                     changedIds = definedValueService.Reorder( definedValues.ToList(), e.OldIndex, e.NewIndex );
                     rockContext.SaveChanges();
                 }
@@ -296,7 +297,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                         service.Add( definedValue );
                     }
 
-                    definedValue.Value = tbTitle.Text;
+                    definedValue.Value = TYPENAME_PREFIX + tbTitle.Text;
                     definedValue.Description = tbDescription.Text;
                     rockContext.SaveChanges();
 
@@ -411,7 +412,8 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 var packages = new DefinedValueService( rockContext )
                     .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
-                    .Select( v => v.Value )
+                    .Where( v => v.Value.StartsWith( TYPENAME_PREFIX ) )
+                    .Select( v => v.Value.Substring( TYPENAME_PREFIX.Length) )
                     .ToList();
                 lPackages.Text = packages.AsDelimited( "<br/>" );
             }
@@ -459,6 +461,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 var definedValues = new DefinedValueService( rockContext )
                     .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
+                    .Where( a => a.Value.StartsWith( TYPENAME_PREFIX ) )
                     .ToList();
 
                 foreach( var definedValue in definedValues )
@@ -469,7 +472,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 gDefinedValues.DataSource = definedValues.Select( v => new
                 {
                     v.Id,
-                    v.Value,
+                    Value = v.Value.Substring( TYPENAME_PREFIX.Length ),
                     v.Description,
                     PackageName = v.GetAttributeValue( "PMMPackageName" ),
                     DefaultCounty = v.GetAttributeValue( "DefaultCounty" ),
@@ -502,7 +505,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 if ( definedValue != null )
                 {
                     hfDefinedValueId.Value = definedValue.Id.ToString();
-                    dlgPackage.Title = definedValue.Value;
+                    dlgPackage.Title = definedValue.Value.Substring( TYPENAME_PREFIX.Length );
                 }
                 else
                 {
@@ -512,7 +515,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                     dlgPackage.Title = "New Package";
                 }
 
-                tbTitle.Text = definedValue.Value;
+                tbTitle.Text = definedValue.Value.Substring( TYPENAME_PREFIX.Length );
                 tbDescription.Text = definedValue.Description;
 
                 definedValue.LoadAttributes();

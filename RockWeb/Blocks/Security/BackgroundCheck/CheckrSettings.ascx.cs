@@ -108,16 +108,46 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnUpdate_Click( object sender, EventArgs e )
         {
+            List<string> errorMessages = new List<string>();
+            if ( !Checkr.UpdatePackages( errorMessages ) )
+            {
+                nbNotification.Text = "<p>" + errorMessages.AsDelimited( "</p><p>" ) + "</p>";
+                nbNotification.Visible = true;
+                foreach ( string errorMessage in errorMessages )
+                {
+                    ExceptionLogService.LogException( new Exception( errorMessage ), null );
+                }
+
+            }
+
+            UpdatePackages();
         }
         #endregion
 
         #region Internal Methods
 
         /// <summary>
+        /// Updates the packages.
+        /// </summary>
+        private void UpdatePackages()
+        {
+            using ( var rockContext = new RockContext() )
+            {
+                var packages = new DefinedValueService( rockContext )
+                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
+                    .Where( v => v.Value.StartsWith( CheckrConstants.TYPENAME_PREFIX ) )
+                    .Select( v => v.Value.Substring( CheckrConstants.TYPENAME_PREFIX.Length ) )
+                    .ToList();
+
+
+                lPackages.Text = packages.AsDelimited( "<br/>" );
+            }
+        }
+
+        /// <summary>
         /// Shows the detail.
         /// </summary>
-        /// <param name="restUserId">The rest user identifier.</param>
-        public void ShowDetail()
+        private void ShowDetail()
         {
             imgCheckrImage.ImageUrl = CheckrConstants.CHECKR_IMAGE_URL;
             string accessToken = Rock.Web.SystemSettings.GetValue( SystemSetting.ACCESS_TOKEN );
@@ -133,14 +163,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 lViewColumnLeft.Text = new DescriptionList()
                     .Add( "Access Token", accessToken )
                     .Html;
-                using ( var rockContext = new RockContext() )
-                {
-                    var packages = new DefinedValueService( rockContext )
-                        .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
-                        .Select( v => v.Value )
-                        .ToList();
-                    lPackages.Text = packages.AsDelimited( "<br/>" );
-                }
+                UpdatePackages();
             }
         }
 

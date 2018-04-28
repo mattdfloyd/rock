@@ -28,15 +28,19 @@ using Rock.Data;
 using Rock.Model;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
+using Rock.Checkr;
+using Rock.Cache;
+using Rock.Checkr.Constants;
+using Rock.Checkr.SystemKey;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
-    [DisplayName( "Request List" )]
+    [DisplayName( "Checkr Request List" )]
     [Category( "Security > Background Check" )]
-    [Description( "Lists all the background check requests." )]
+    [Description( "Lists all the Checkr background check requests." )]
 
     [LinkedPage( "Workflow Detail Page", "The page to view details about the background check workflow" )]
-    public partial class RequestList : RockBlock, ISecondaryBlock, ICustomGridColumns
+    public partial class CheckrRequestList : RockBlock, ISecondaryBlock, ICustomGridColumns
     {
         #region Control Methods
 
@@ -181,8 +185,10 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 var bc = new BackgroundCheckService( rockContext ).Get( e.RowKeyId );
                 if ( bc != null )
                 {
-                    tbResponseData.Text = bc.ResponseData;
-                    dlgResponse.Show();
+                    string url = Checkr.GetDocumentUrl( "28a51846c3b826679a99774a" );
+                    Response.Redirect( url, false );
+                    Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+
                 }
             }
         }
@@ -234,7 +240,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                         g.PersonAlias != null &&
                         g.PersonAlias.Person != null )
                     .Where( g =>
-                        g.ForeignId == 1);
+                        g.ForeignId == 2);
 
                 // FirstName
                 string firstName = fRequest.GetUserPreference( "First Name" );
@@ -326,7 +332,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                             string.Empty,
                         HasResponseData = !string.IsNullOrWhiteSpace( b.ResponseData ),
                         ResponseDocumentText = b.ResponseDocumentId.HasValue ? "<i class='fa fa-file-pdf-o fa-lg'></i>" : "",
-                        ResponseDocumentId = b.ResponseDocumentId ?? 0
+                    ResponseId = b.ResponseId
                     } ).ToList();
 
                 gRequest.DataBind();
@@ -369,7 +375,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
 
             public string ResponseDocumentText { get; set; }
 
-            public int ResponseDocumentId { get; set; }
+            public string ResponseId { get; set; }
         }
     }
 }

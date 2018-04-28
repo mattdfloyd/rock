@@ -30,70 +30,76 @@ namespace Rock.Migrations
         {
             #region Update PPM Config
             // Rename Seven Year Auto Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM_Seven Year Automatic",
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Seven Year Automatic",
                 "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false );
 
             // Rename BASIC Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM_BASIC",
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - BASIC",
                 "The Basic Package is the minimum recommended package for all volunteer and staff screenings. It includes SSN Verification and Address History, National Criminal Database Search, National Sex Offender Search, Re-verification of criminal records, Alias Names.",
                 "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false );
 
             // Rename PLUS Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM_PLUS",
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - PLUS",
                 "Depending on your state, it may be recommended to use the PLUS package instead of the Basic. The PLUS package includes everything in the BASIC package with the addition of one county or statewide criminal court search.",
                 "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false );
 
             // Rename PA 153 Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM_Pennsylvania Act 153",
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Pennsylvania Act 153",
                 "If your organization is located in Pennsylvania, This package should be used when screening any volunteers or staff that will interact with children. This package includes all of the screening and reporting requirements mandated by Pennsylvania Act 153.",
                 "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false );
 
             // Rename MVR Only Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM_Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false );
 
             Sql( @"UPDATE [dbo].[BackgroundCheck] SET [ForeignId] = 1 WHERE [ForeignId] is null" );
             #endregion
 
             #region Update Checkr Config
             // tasker_standard Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr Tasker Standard", "Background search with 1 county criminal search", "640F10F6-1507-47C3-8819-1194F9EDF705", false );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "D280200E-4D42-AB85-4ACC-535C4A7FFEFF", "tasker_standard" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "049A9E85-FF14-67BC-4BE2-4A8F1436A113", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "2C4C2D1F-FF85-7E8A-4490-AD62A3972579", "False" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "426EA37D-40FB-5E9C-4640-517E2959017F", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "A5B8EC2E-FDEE-C997-47EA-C700D0A8747B", "False" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "798F61BD-125D-0194-4713-135B1EDABE7C", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "C314BB5D-ADCA-4E86-4520-75FF5EE10C50", "False" );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Standard", "Background search with 1 county criminal search", "640F10F6-1507-47C3-8819-1194F9EDF705", false );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "tasker_standard" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "EC942623-3B32-4EF4-A371-D4312A7AF3F8", "False" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "17093E08-F287-4A77-87B7-5FFA2337A8B7", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "96B3451B-4851-4509-8130-231A2042A4A1", "False" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "1169005D-662B-4380-9FFD-BD6177037329", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "9F7FD96A-BE7C-4CA3-91F8-10A0D1D6C1D0", "False" );
 
             // tasker_pro Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr Tasker Pro", "Background search with unlimited county criminal searches", "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", false );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "12028BB9-8C8B-2E9A-48F5-2CDB2945073F", "tasker_pro" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "7FE2CB83-FA98-4BAD-49C1-47972E19796F", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "6E95BB50-5F93-4DB6-4020-9F45493F6E7A", "False" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "5F2D3CE5-2D89-ECBB-43CC-4E0F7CF712DF", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "5B3338E9-D0F9-8892-45FA-F1C097DA42B3", "False" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "22457E34-3CBA-68B5-46DF-A40E174707C8", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "FBFBB371-8A09-8EB4-4484-287F61890C31", "False" );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Pro", "Background search with unlimited county criminal searches", "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", false );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "tasker_pro" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "EC942623-3B32-4EF4-A371-D4312A7AF3F8", "False" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "17093E08-F287-4A77-87B7-5FFA2337A8B7", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "96B3451B-4851-4509-8130-231A2042A4A1", "False" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "1169005D-662B-4380-9FFD-BD6177037329", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "9F7FD96A-BE7C-4CA3-91F8-10A0D1D6C1D0", "False" );
 
             // driver_standard Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr Driver Standard", "Adds Motor Vehicle Report to tasker_standard", "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", false );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "EB9FAF9B-FA24-0097-4915-F901862F6D5B", "driver_standard" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "69E860A6-B11A-CA93-45B2-70B4126DDC66", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "84B4343F-7660-9A86-4030-DCAD066CAE60", "False" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "C03BF497-CEAE-37B7-4D28-9A80E67734DF", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "20E1EB47-EDD8-E0A8-459B-FE55E8ACA92E", "False" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "DF3664E0-BF61-C0AA-44E0-C6A84802D50F", "" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "0DA78A49-EA78-68A5-4EFC-3BA6449D9459", "False" );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Driver Standard", "Adds Motor Vehicle Report to tasker_standard", "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", false );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "driver_standard" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "EC942623-3B32-4EF4-A371-D4312A7AF3F8", "False" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "17093E08-F287-4A77-87B7-5FFA2337A8B7", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "96B3451B-4851-4509-8130-231A2042A4A1", "False" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "1169005D-662B-4380-9FFD-BD6177037329", "" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "9F7FD96A-BE7C-4CA3-91F8-10A0D1D6C1D0", "False" );
 
             // driver_pro Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr Driver Pro", "Adds Motor Vehicle Report to tasker_pro", "7FFF5A8C-2708-0181-4FB4-262F53323BD7", false );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "09A219AF-6352-55A6-4CF1-2E90AEBE2E4A", "driver_pro" );
-            RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "EC6B0726-BBF9-5B94-44D3-1F165B293F8B", "" );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Driver Pro", "Adds Motor Vehicle Report to tasker_pro", "7FFF5A8C-2708-0181-4FB4-262F53323BD7", false );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "driver_pro" );
+            RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "AB2466EA-3F77-62B4-46A7-C5CC8C5B016E", "False" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "983351E7-A473-69BA-4AC4-DCBDBD2A02B6", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "1720FADB-2A5E-2EA0-46EC-14E1BCF0E326", "False" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "532D6FF3-00A4-FBA5-4FDF-F6AAD60BF20C", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "ACB25678-BC6D-31B7-4D0B-52D319CA102D", "False" );
+
+            // Attrib for BlockType: Request List:Workflow Detail Page
+            //RockMigrationHelper.AddBlockTypeAttribute( "A25BE440-6A54-4A8C-9359-74DB5AE7E5F3", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Workflow Detail Page", "WorkflowDetailPage", "", "The page to view details about the background check workflow", 0, @"", "EBD0D19C-E73D-41AE-82D4-C89C21C35998" );
+
+            // Attrib for BlockType: Request List:Workflow Detail Page
+            //RockMigrationHelper.AddBlockTypeAttribute( "A25BE440-6A54-4A8C-9359-74DB5AE7E5F3", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Workflow Detail Page", "WorkflowDetailPage", "", "The page to view details about the background check workflow", 0, @"", "EBD0D19C-E73D-41AE-82D4-C89C21C35998" );
             #endregion
         }
 
