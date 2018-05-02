@@ -22,10 +22,6 @@ namespace Rock.Checkr.Constants
     public static class CheckrConstants
     {
         public static readonly string CHECKR_IMAGE_URL = "~/Assets/Images/Checkr.svg";
-        /// <summary>
-        /// The URL where the user create their account
-        /// </summary>
-        public static readonly string CHECKR_SIGNUP_URL = "https://partners.checkr.com/authorize/2a31ffad21e3674bae090026/signup?ref=dashboard";
 
         /// <summary>
         /// The URL where the Token for the account is retrieved
@@ -36,5 +32,35 @@ namespace Rock.Checkr.Constants
         /// The Typename prefix
         /// </summary>
         public static readonly string TYPENAME_PREFIX = "Checkr - ";
+
+        /// <summary>
+        /// The login URL
+        /// </summary>
+        public static readonly string LOGIN_URL = "https://api.checkr.com";
+
+        /// <summary>
+        /// The candidates URL
+        /// </summary>
+        public static readonly string CANDIDATES_URL = "https://api.checkr.com/v1/candidates";
+
+        /// <summary>
+        /// The invitations URL
+        /// </summary>
+        public static readonly string INVITATIONS_URL = "https://api.checkr.com/v1/invitations";
+
+        /// <summary>
+        /// The report URL
+        /// </summary>
+        public static readonly string REPORT_URL = "https://api.checkr.com/v1/reports";
+
+        /// <summary>
+        /// The packages URL
+        /// </summary>
+        public static readonly string PACKAGES_URL = "https://api.checkr.com/v1/packages";
+
+        /// <summary>
+        /// The document URL
+        /// </summary>
+        public static readonly string DOCUMENT_URL = "https://api.checkr.com/v1/documents";
     }
 }

@@ -46,6 +46,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -56,6 +57,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Checkr.cs" />
+    <Compile Include="CheckrApi\CheckrApiUtility.cs" />
+    <Compile Include="CheckrApi\CreateCandidateRequest.cs" />
+    <Compile Include="CheckrApi\CreateReportResponse.cs" />
+    <Compile Include="CheckrApi\GetReportResponse.cs" />
+    <Compile Include="CheckrApi\CreateCandidateResponse.cs" />
+    <Compile Include="CheckrApi\CreateInvitationRequest.cs" />
+    <Compile Include="CheckrApi\CreateInvitationResponse.cs" />
+    <Compile Include="CheckrApi\Enums.cs" />
+    <Compile Include="CheckrApi\ReportWebhook.cs" />
+    <Compile Include="CheckrApi\InvitationWebhook.cs" />
+    <Compile Include="CheckrApi\GenericWebhook.cs" />
+    <Compile Include="CheckrApi\GetDocumentResponse.cs" />
+    <Compile Include="CheckrApi\GetPackagesDataResponse.cs" />
+    <Compile Include="CheckrApi\GetPackagesResponse.cs" />
     <Compile Include="Constants\CheckrConstants.cs" />
     <Compile Include="Migrations\01_Checkr.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -32,7 +32,7 @@
                         <Rock:Grid ID="gRequest" runat="server" AllowSorting="true" PersonIdField="PersonId">
                             <Columns>
 
-                                <Rock:RockBoundField DataField="Name" HeaderText="Name" SortExpression="Name" HtmlEncode="false" />
+                                <Rock:RockBoundField DataField="Name" HeaderText="Name" SortExpression="Name" HtmlEncode="false" ItemStyle-HorizontalAlign="left" />
                                 <Rock:DateField DataField="RequestDate" HeaderText="Requested" SortExpression="RequestDate" />
                                 <Rock:DateField DataField="ResponseDate" HeaderText="Completed" SortExpression="ResponseDate" />
                                 <Rock:RockBoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" DataField="RecordFoundLabel" HeaderText="Record Found" SortExpression="RecordFound" HtmlEncode="false" />

@@ -83,6 +83,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         protected void btnEdit_Click( object sender, EventArgs e )
         {
             pnlToken.Visible = true;
+            imgCheckrImage.Visible = false;
             pnlPackages.Visible = false;
             HideSecondaryBlocks( true );
         }
@@ -117,10 +118,10 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 {
                     ExceptionLogService.LogException( new Exception( errorMessage ), null );
                 }
-
             }
 
             UpdatePackages();
+            modalUpdated.Show();
         }
         #endregion
 
@@ -135,7 +136,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 var packages = new DefinedValueService( rockContext )
                     .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
-                    .Where( v => v.Value.StartsWith( CheckrConstants.TYPENAME_PREFIX ) )
+                    .Where( v => v.ForeignId == 2 )
                     .Select( v => v.Value.Substring( CheckrConstants.TYPENAME_PREFIX.Length ) )
                     .ToList();
 
@@ -154,6 +155,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             if (accessToken.IsNullOrWhiteSpace())
             {
                 pnlToken.Visible = true;
+                imgCheckrImage.Visible = true;
                 pnlPackages.Visible = false;
                 HideSecondaryBlocks( true );
             }
