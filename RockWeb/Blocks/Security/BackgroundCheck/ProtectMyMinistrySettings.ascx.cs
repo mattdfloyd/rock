@@ -217,7 +217,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 using ( var rockContext = new RockContext() )
                 {
                     var definedValueService = new DefinedValueService( rockContext );
-                    var definedValues = definedValueService.Queryable().Where( a => a.DefinedTypeId == definedType.Id ).Where( a => a.Value.StartsWith( TYPENAME_PREFIX ) ).OrderBy( a => a.Order ).ThenBy( a => a.Value );
+                    var definedValues = definedValueService.Queryable().Where( a => a.DefinedTypeId == definedType.Id ).Where( a => a.ForeignId == 1 ).OrderBy( a => a.Order ).ThenBy( a => a.Value );
                     changedIds = definedValueService.Reorder( definedValues.ToList(), e.OldIndex, e.NewIndex );
                     rockContext.SaveChanges();
                 }
@@ -412,7 +412,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 var packages = new DefinedValueService( rockContext )
                     .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
-                    .Where( v => v.Value.StartsWith( TYPENAME_PREFIX ) )
+                    .Where( v => v.ForeignId == 1 )
                     .Select( v => v.Value.Substring( TYPENAME_PREFIX.Length) )
                     .ToList();
                 lPackages.Text = packages.AsDelimited( "<br/>" );
@@ -461,7 +461,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 var definedValues = new DefinedValueService( rockContext )
                     .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
-                    .Where( a => a.Value.StartsWith( TYPENAME_PREFIX ) )
+                    .Where( a => a.ForeignId == 1 )
                     .ToList();
 
                 foreach( var definedValue in definedValues )

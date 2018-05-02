@@ -328,6 +328,7 @@ namespace Rock.Security.BackgroundCheck
                             backgroundCheck = new Rock.Model.BackgroundCheck();
                             backgroundCheck.PersonAliasId = personAliasId.Value;
                             backgroundCheck.WorkflowId = workflow.Id;
+                            backgroundCheck.ForeignId = 1;
                             backgroundCheckService.Add( backgroundCheck );
                         }
 

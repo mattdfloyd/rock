@@ -23,6 +23,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Net;
 
 using Rock;
 using Rock.Data;
@@ -37,68 +38,45 @@ namespace RockWeb.Webhooks
     {
         public void ProcessRequest( HttpContext context )
         {
-        }
-        /*
-        HttpRequest request = context.Request;
-        HttpResponse response = context.Response;
+            HttpRequest request = context.Request;
+            HttpResponse response = context.Response;
 
-        response.ContentType = "text/plain";
+            response.ContentType = "text/plain";
 
-        if ( request.HttpMethod != "POST" )
-        {
-            response.Write( "Invalid request type." );
-            return;
-        }
+            if ( request.HttpMethod != "POST" )
+            {
+                response.Write( "Invalid request type." );
+                response.StatusCode = (int)HttpStatusCode.NotImplemented;
+                return;
+            }
 
-        if ( request.Form["REQUEST"] != null )
-        {
             try
             {
                 var rockContext = new Rock.Data.RockContext();
 
-                XDocument xResult = null;
-                string orderId = string.Empty;
-
-                xResult = XDocument.Parse( HttpUtility.UrlDecode( request.Form["REQUEST"] ) );
-
-                // Get the orderid from the XML
-                orderId = ( from o in xResult.Descendants( "OrderDetail" ) select (string)o.Attribute( "OrderId" ) ).FirstOrDefault() ?? "OrderIdUnknown";
-
-                if ( !string.IsNullOrEmpty( orderId ) && orderId != "OrderIdUnknown" )
+                if ( !request.UserAgent.StartsWith( "Checkr-Webhook/" ) )
                 {
-                    // Find and update the associated workflow
-                    var workflowService = new WorkflowService( rockContext );
-                    var workflow = new WorkflowService( rockContext ).Get( orderId.AsInteger() );
-                    if ( workflow != null && workflow.IsActive )
-                    {
-                        workflow.LoadAttributes();
+                    response.Write( "Invalid User-Agent." );
+                    response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return;
+                }
 
-                        Rock.Security.BackgroundCheck.Checkr.SaveResults( xResult, workflow, rockContext );
+                string postedData = string.Empty;
+                using ( var reader = new StreamReader( request.InputStream ) )
+                {
+                    postedData = reader.ReadToEnd();
+                }
 
-                        rockContext.WrapTransaction( () =>
-                        {
-                            rockContext.SaveChanges();
-                            workflow.SaveAttributeValues( rockContext );
-                            foreach ( var activity in workflow.Activities )
-                            {
-                                activity.SaveAttributeValues( rockContext );
-                            }
-                        } );
-
-                    }
+                if ( !Rock.Checkr.Checkr.SaveWebhookResults( postedData ) )
+                {
+                    response.Write( "Invalid Data." );
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return;
                 }
 
                 try
                 {
-                    // Return the success XML to PMM
-                    XDocument xdocResult = new XDocument( new XDeclaration( "1.0", "UTF-8", "yes" ),
-                        new XElement( "OrderXML",
-                            new XElement( "Success", "TRUE" ) ) );
-
-                    response.StatusCode = 200;
-                    response.ContentType = "text/xml";
-                    response.AddHeader( "Content-Type", "text/xml" );
-                    xdocResult.Save( response.OutputStream );
+                    response.StatusCode = (int)HttpStatusCode.OK;
                 }
                 catch { }
             }
@@ -107,8 +85,6 @@ namespace RockWeb.Webhooks
                 ExceptionLogService.LogException( ex, context );
             }
         }
-    }
-*/
 
         public bool IsReusable
         {

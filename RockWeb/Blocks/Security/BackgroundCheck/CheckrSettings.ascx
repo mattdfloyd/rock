@@ -23,7 +23,7 @@
                                     <Rock:NotificationBox ID="nbExampleInfo" runat="server" Text="To register for a Checkr account go to the Rock Website." NotificationBoxType="Info" />
                                 </div>
                                 <div class="col-md-6">
-                                    <Rock:RockTextBox ID="tbAccessToken" runat="server" Label="Checkr Access Token" Required="true" RequiredErrorMessage="A Checkr Access Token is Required" Help="The Checkr Access Token is generated when a Checkr Account is created on the Rock website." />
+                                    <Rock:RockTextBox ID="tbAccessToken" runat="server" Label="Checkr Access Token" Required="false" RequiredErrorMessage="A Checkr Access Token is Required" Help="The Checkr Access Token is generated when a Checkr Account is created on the Rock website." />
                                         <div class="actions">
                                             <asp:LinkButton ID="btnSave" runat="server" CssClass="btn btn-primary btn-xs" OnClick="btnSave_Click">Save</asp:LinkButton>
                                         </div>
@@ -51,8 +51,12 @@
                             </div>
                         </div>
                     </div>
+                    <Rock:ModalDialog ID="modalUpdated" runat="server" Title="Update Finished">
+                        <Content>
+                        </Content>
+                    </Rock:ModalDialog>
                 </asp:Panel>
             </div>        
-        </asp:Panel>
+        </asp:Panel>        
     </ContentTemplate>
 </asp:UpdatePanel>

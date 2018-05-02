@@ -185,7 +185,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 var bc = new BackgroundCheckService( rockContext ).Get( e.RowKeyId );
                 if ( bc != null )
                 {
-                    string url = Checkr.GetDocumentUrl( "28a51846c3b826679a99774a" );
+                    string url = Checkr.GetDocumentUrl( bc.ResponseId );
                     Response.Redirect( url, false );
                     Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
 

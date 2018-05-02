@@ -55,8 +55,9 @@ namespace Rock.Migrations
             #endregion
 
             #region Update Checkr Config
+            /*
             // tasker_standard Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Standard", "Background search with 1 county criminal search", "640F10F6-1507-47C3-8819-1194F9EDF705", false );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Standard", "Background search with 1 county criminal search", "640F10F6-1507-47C3-8819-1194F9EDF705", false, 2 );
             RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "tasker_standard" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "EC942623-3B32-4EF4-A371-D4312A7AF3F8", "False" );
@@ -66,7 +67,7 @@ namespace Rock.Migrations
             RockMigrationHelper.AddDefinedValueAttributeValue( "640F10F6-1507-47C3-8819-1194F9EDF705", "9F7FD96A-BE7C-4CA3-91F8-10A0D1D6C1D0", "False" );
 
             // tasker_pro Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Pro", "Background search with unlimited county criminal searches", "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", false );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Pro", "Background search with unlimited county criminal searches", "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", false, 2 );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "tasker_pro" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "EC942623-3B32-4EF4-A371-D4312A7AF3F8", "False" );
@@ -76,7 +77,7 @@ namespace Rock.Migrations
             RockMigrationHelper.AddDefinedValueAttributeValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777", "9F7FD96A-BE7C-4CA3-91F8-10A0D1D6C1D0", "False" );
 
             // driver_standard Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Driver Standard", "Adds Motor Vehicle Report to tasker_standard", "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", false );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Driver Standard", "Adds Motor Vehicle Report to tasker_standard", "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", false, 2 );
             RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "driver_standard" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "EC942623-3B32-4EF4-A371-D4312A7AF3F8", "False" );
@@ -86,7 +87,7 @@ namespace Rock.Migrations
             RockMigrationHelper.AddDefinedValueAttributeValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557", "9F7FD96A-BE7C-4CA3-91F8-10A0D1D6C1D0", "False" );
 
             // driver_pro Package with attribute values
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Driver Pro", "Adds Motor Vehicle Report to tasker_pro", "7FFF5A8C-2708-0181-4FB4-262F53323BD7", false );
+            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Driver Pro", "Adds Motor Vehicle Report to tasker_pro", "7FFF5A8C-2708-0181-4FB4-262F53323BD7", false, 2 );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "01E4D61D-6E23-4EF3-8AE1-6919590B0E70", "driver_pro" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "39AEB614-BA28-485D-B033-3DD52055DC20", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "AB2466EA-3F77-62B4-46A7-C5CC8C5B016E", "False" );
@@ -94,6 +95,7 @@ namespace Rock.Migrations
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "1720FADB-2A5E-2EA0-46EC-14E1BCF0E326", "False" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "532D6FF3-00A4-FBA5-4FDF-F6AAD60BF20C", "" );
             RockMigrationHelper.AddDefinedValueAttributeValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7", "ACB25678-BC6D-31B7-4D0B-52D319CA102D", "False" );
+            */
 
             // Attrib for BlockType: Request List:Workflow Detail Page
             //RockMigrationHelper.AddBlockTypeAttribute( "A25BE440-6A54-4A8C-9359-74DB5AE7E5F3", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Workflow Detail Page", "WorkflowDetailPage", "", "The page to view details about the background check workflow", 0, @"", "EBD0D19C-E73D-41AE-82D4-C89C21C35998" );
