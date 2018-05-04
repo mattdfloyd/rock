@@ -227,7 +227,7 @@ public static bool CreateCandidate( Person person, out CreateCandidateResponse c
         public static bool GetDocument( string documentId, out GetDocumentResponse getDocumentResponse, List<string> errorMessages )
         {
             getDocumentResponse = null;
-            RestClient restClient = RestClient( CheckrConstants.DOCUMENT_URL + "/" + documentId );
+            RestClient restClient = RestClient( CheckrConstants.DOCUMENT_URL + "/" + documentId);
             RestRequest restRequest = new RestRequest();
             IRestResponse restResponse = restClient.Execute( restRequest );
 
@@ -252,7 +252,6 @@ public static bool CreateCandidate( Person person, out CreateCandidateResponse c
 
             return true;
         }
-
 
         /// <summary>
         /// Gets the report.
@@ -290,6 +289,7 @@ public static bool CreateCandidate( Person person, out CreateCandidateResponse c
             return true;
         }
 
+        /*
         public static bool CreateReport(string candidateId , string packageName, out CreateReportResponse createReportResponse, List<string> errorMessages, out string request, out string response )
         {
             createReportResponse = null;
@@ -329,5 +329,6 @@ public static bool CreateCandidate( Person person, out CreateCandidateResponse c
 
             return true;
         }
+        */
     }
 }

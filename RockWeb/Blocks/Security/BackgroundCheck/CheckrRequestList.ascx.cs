@@ -93,6 +93,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             fRequest.SaveUserPreference( "Last Name", tbLastName.Text );
             fRequest.SaveUserPreference( "Request Date Range", drpRequestDates.DelimitedValues );
             fRequest.SaveUserPreference( "Response Date Range", drpResponseDates.DelimitedValues );
+            fRequest.SaveUserPreference( "Report Status", tbReportStatus.Text );
             fRequest.SaveUserPreference( "Record Found", ddlRecordFound.SelectedValue );
 
             BindGrid();
@@ -137,17 +138,17 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
 
                 if ( !request.HasWorkflow )
                 {
-                    foreach ( var lb in e.Row.Cells[6].ControlsOfTypeRecursive<LinkButton>() )
+                    foreach ( var lbWorkflow in e.Row.Cells[6].ControlsOfTypeRecursive<LinkButton>() )
                     {
-                        lb.Visible = false;
+                        lbWorkflow.Visible = false;
                     }
                 }
 
-                if ( !request.HasResponseData )
+                if ( !request.RecordFound.HasValue || request.RecordFound.Value == false )
                 {
-                    foreach ( var lb in e.Row.Cells[5].ControlsOfTypeRecursive<LinkButton>() )
+                    foreach ( var lbReport in e.Row.Cells[5].ControlsOfTypeRecursive<LinkButton>() )
                     {
-                        lb.Visible = false;
+                        lbReport.Visible = false;
                     }
                 }
             }
@@ -186,9 +187,11 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 if ( bc != null )
                 {
                     string url = Checkr.GetDocumentUrl( bc.ResponseId );
-                    Response.Redirect( url, false );
-                    Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
-
+                    if ( url.IsNotNullOrWhitespace() )
+                    {
+                        Response.Redirect( url, false );
+                        Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                    }
                 }
             }
         }
@@ -224,6 +227,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             tbLastName.Text = fRequest.GetUserPreference( "Last Name" );
             drpRequestDates.DelimitedValues = fRequest.GetUserPreference( "Request Date Range" );
             drpResponseDates.DelimitedValues = fRequest.GetUserPreference( "Response Date Range" );
+            tbReportStatus.Text = fRequest.GetUserPreference( "Report Status" );
             ddlRecordFound.SetValue( fRequest.GetUserPreference( "ddlRecordFound" ) );
         }
 
@@ -287,6 +291,13 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                     qry = qry.Where( t => t.ResponseDate < upperDate );
                 }
 
+                // Report Status
+                string reportStatus = fRequest.GetUserPreference( "Report Status" );
+                if ( !string.IsNullOrWhiteSpace( reportStatus ) )
+                {
+                    qry = qry.Where( t => t.Status == reportStatus );
+                }
+
                 // Record Found
                 string recordFound = fRequest.GetUserPreference( "Record Found" );
                 if ( !string.IsNullOrWhiteSpace( recordFound ) )
@@ -332,7 +343,8 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                             string.Empty,
                         HasResponseData = !string.IsNullOrWhiteSpace( b.ResponseData ),
                         ResponseDocumentText = b.ResponseDocumentId.HasValue ? "<i class='fa fa-file-pdf-o fa-lg'></i>" : "",
-                    ResponseId = b.ResponseId
+                    ResponseId = b.ResponseId,
+                    ReportStatus = b.Status.SplitCase()
                     } ).ToList();
 
                 gRequest.DataBind();
@@ -376,6 +388,8 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             public string ResponseDocumentText { get; set; }
 
             public string ResponseId { get; set; }
+
+            public string ReportStatus { get; set; }
         }
     }
 }

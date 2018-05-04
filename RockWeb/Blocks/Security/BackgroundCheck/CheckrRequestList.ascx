@@ -20,6 +20,7 @@
                             <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" />
                             <Rock:DateRangePicker ID="drpRequestDates" runat="server" Label="Requested Date Range" />
                             <Rock:DateRangePicker ID="drpResponseDates" runat="server" Label="Completed Date Range" />
+                            <Rock:RockTextBox ID="tbReportStatus" runat="server" Label="Report Status" />
                             <Rock:RockDropDownList ID="ddlRecordFound" runat="server" Label="Record Found">
                                 <asp:ListItem Text="" Value=""></asp:ListItem>
                                 <asp:ListItem Text="Yes" Value="Yes"></asp:ListItem>
@@ -33,8 +34,9 @@
                             <Columns>
 
                                 <Rock:RockBoundField DataField="Name" HeaderText="Name" SortExpression="Name" HtmlEncode="false" ItemStyle-HorizontalAlign="left" />
-                                <Rock:DateField DataField="RequestDate" HeaderText="Requested" SortExpression="RequestDate" />
-                                <Rock:DateField DataField="ResponseDate" HeaderText="Completed" SortExpression="ResponseDate" />
+                                <Rock:DateField DataField="RequestDate" HeaderText="Requested" SortExpression="RequestDate" ItemStyle-HorizontalAlign="left"/>
+                                <Rock:DateField DataField="ResponseDate" HeaderText="Completed" SortExpression="ResponseDate" ItemStyle-HorizontalAlign="left"/>
+                                <Rock:RockBoundField DataField="ReportStatus" HeaderText="Report Status" SortExpression="Status" HtmlEncode="false" ItemStyle-HorizontalAlign="left" />
                                 <Rock:RockBoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" DataField="RecordFoundLabel" HeaderText="Record Found" SortExpression="RecordFound" HtmlEncode="false" />
                                 <Rock:LinkButtonField HeaderText="Report" Text="<i class='fa fa-file-pdf-o fa-lg'></i>" OnClick="gRequest_Data" HeaderStyle-CssClass="" ItemStyle-CssClass="" ColumnPriority="DesktopLarge" />
                                 <Rock:EditField OnClick="gRequest_ViewWorkflow" IconCssClass="fa fa-cogs" ToolTip="View Workflow" />

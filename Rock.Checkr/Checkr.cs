@@ -60,7 +60,7 @@ namespace Rock.Checkr
         {
             CreateCandidateResponse createCandidateResponse;
             candidateId = null;
-            if ( CheckrApiUtility.CreateCandidate( person, out createCandidateResponse, errorMessages , out request, out response) )
+            if ( CheckrApiUtility.CreateCandidate( person, out createCandidateResponse, errorMessages, out request, out response ) )
             {
                 candidateId = createCandidateResponse.Id;
                 return true;
@@ -69,7 +69,7 @@ namespace Rock.Checkr
             return false;
         }
 
-        public static bool CreateInvitation( string candidateId, string package, List<string> errorMessages, out string request, out string response)
+        public static bool CreateInvitation( string candidateId, string package, List<string> errorMessages, out string request, out string response )
         {
             CreateInvitationResponse createInvitationResponse;
             if ( CheckrApiUtility.CreateInvitation( candidateId, package, out createInvitationResponse, errorMessages, out request, out response ) )
@@ -156,10 +156,7 @@ namespace Rock.Checkr
 
             return null;
         }
-
-
-
-
+        
         /// <summary>
         /// Saves the attribute value.
         /// </summary>
@@ -227,7 +224,7 @@ namespace Rock.Checkr
         }
 
 
-        private static void UpdateWorkflow(int id, string recommendation, string reportLink, string reportStatus, RockContext rockContext )
+        private static void UpdateWorkflow( int id, string recommendation, string reportLink, string reportStatus, RockContext rockContext )
         {
             bool createdNewAttribute = false;
             var workflowService = new WorkflowService( rockContext );
@@ -257,12 +254,15 @@ namespace Rock.Checkr
                     }
                 }
 
-                // Save the status
-                if ( SaveAttributeValue( workflow, "ReportStatus", reportStatus,
+                if ( !string.IsNullOrWhiteSpace( reportStatus ) )
+                {
+                    // Save the status
+                    if ( SaveAttributeValue( workflow, "ReportStatus", reportStatus,
                     CacheFieldType.Get( Rock.SystemGuid.FieldType.SINGLE_SELECT.AsGuid() ), rockContext,
                     new Dictionary<string, string> { { "fieldtype", "ddl" }, { "values", "Pass,Fail,Review" } } ) )
-                {
-                    createdNewAttribute = true;
+                    {
+                        createdNewAttribute = true;
+                    }
                 }
 
                 rockContext.WrapTransaction( () =>
@@ -284,7 +284,78 @@ namespace Rock.Checkr
             }
         }
 
-        public static bool SaveWebhookResults( string postedData )
+        private static bool UpdateBackgroundCheckAndWorkFlow( string candidateId, Enums.WebhookTypes webhookTypes, string packageName = null, string status = null, string documentId = null )
+        {
+            using ( var rockContext = new RockContext() )
+            {
+                var backgroundCheck = new BackgroundCheckService( rockContext )
+                    .Queryable( "PersonAlias.Person" )
+                    .Where( g => g.RequestId == candidateId )
+                    .Where( g => g.ForeignId == 2 )
+                    .FirstOrDefault();
+
+                if ( backgroundCheck == null )
+                {
+                    string errorMessage = "Background Check not found: Candidate ID: " + candidateId;
+                    ExceptionLogService.LogException( new Exception( errorMessage ), null );
+                    return false;
+                }
+
+                backgroundCheck.Status = webhookTypes.ToString();
+                if ( packageName != null )
+                {
+                    backgroundCheck.PackageName = packageName;
+                }
+
+                if ( documentId == string.Empty)
+                {
+                    backgroundCheck.RecordFound = false;
+                }
+                else if ( documentId != null )
+                {
+                    backgroundCheck.ResponseId = documentId;
+                    backgroundCheck.RecordFound = true;
+                }
+
+                //rockContext.SqlLogging( true );
+
+                rockContext.SaveChanges();
+
+                //rockContext.SqlLogging( false );
+
+                if ( backgroundCheck.WorkflowId.HasValue && backgroundCheck.WorkflowId > 0 )
+                {
+                    string recommendation = null;
+                    string reportStatus = null; //Pass,Fail,Review
+                    switch ( status )
+                    {
+                        case "pending":
+                            recommendation = "Report Pending";
+                            break;
+                        case "clear":
+                            recommendation = "Candidate Pass";
+                            reportStatus = "Pass";
+                            break;
+                        case "consider":
+                            recommendation = "Candidate Review";
+                            reportStatus = "Review";
+                            break;
+                        case "suspended":
+                            recommendation = "Report Suspended";
+                            break;
+                        case "dispute":
+                            recommendation = "Report Disputed";
+                            break;
+                    }
+
+                    UpdateWorkflow( backgroundCheck.WorkflowId.Value, recommendation, null, reportStatus, rockContext );
+                }
+            }
+
+            return true;
+        }
+
+            public static bool SaveWebhookResults( string postedData )
         {
             GenericWebhook genericWebhook = JsonConvert.DeserializeObject<GenericWebhook>( postedData );
             if ( genericWebhook == null )
@@ -304,31 +375,17 @@ namespace Rock.Checkr
                     return false;
                 }
 
-                using ( var rockContext = new RockContext() )
-                {
-                    var backgroundCheck = new BackgroundCheckService( rockContext )
-                        .Queryable( "PersonAlias.Person" ).AsNoTracking()
-                        .Where( g => g.RequestId == invitationWebhook.Data.Object.CandidateId )
-                        .Where( g => g.ForeignId == 2 )
-                        .FirstOrDefault();
-
-                    if (backgroundCheck == null)
-                    {
-                        string errorMessage = "Background Check not found: Candidate ID: " + invitationWebhook.Data.Object.CandidateId;
-                        ExceptionLogService.LogException( new Exception( errorMessage ), null );
-                        return false;
-                    }
-
-                    backgroundCheck.ResponseData = backgroundCheck.ResponseData + string.Format( @"
-Webhook Data ({0}): 
------------------------- 
-{1}
-
-", RockDateTime.Now.ToString(), postedData );
-                    backgroundCheck.Status = genericWebhook.Type.ToString().SplitCase();
-                }
+                return UpdateBackgroundCheckAndWorkFlow( invitationWebhook.Data.Object.CandidateId, genericWebhook.Type );
             }
-            else if ( genericWebhook.Type == Enums.WebhookTypes.ReportCreated )
+            else if ( genericWebhook.Type == Enums.WebhookTypes.ReportCreated ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportCompleted ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportDisputed ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportEngaged ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportPostAdverseAction ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportPreAdverseAction ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportResumed ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportSuspended ||
+                genericWebhook.Type == Enums.WebhookTypes.ReportUpgraded )
             {
                 ReportWebhook reportWebhook = JsonConvert.DeserializeObject<ReportWebhook>( postedData );
                 if ( reportWebhook == null )
@@ -338,61 +395,19 @@ Webhook Data ({0}):
                     return false;
                 }
 
-                using ( var rockContext = new RockContext() )
+                if ( genericWebhook.Type == Enums.WebhookTypes.ReportCompleted )
                 {
-                    var backgroundCheck = new BackgroundCheckService( rockContext )
-                        .Queryable( "PersonAlias.Person" ).AsNoTracking()
-                        .Where( g => g.RequestId == reportWebhook.Data.Object.CandidateId )
-                        .Where( g => g.ForeignId == 2 )
-                        .ToList()
-                        .FirstOrDefault();
-
-                    backgroundCheck.Status = genericWebhook.Type.ToString().SplitCase();
-                    backgroundCheck.ResponseDate = RockDateTime.Now;
-                    //backgroundCheck.RecordFound = reportStatus == "Review";
+                    string documentId = GetDocumentIdFromReport( reportWebhook.Id ) ?? string.Empty;
 
                 }
+
+                return UpdateBackgroundCheckAndWorkFlow( reportWebhook.Data.Object.CandidateId, genericWebhook.Type, reportWebhook.Data.Object.Package, reportWebhook.Data.Object.Status );
+
+                    //backgroundCheck.RecordFound = reportStatus == "Review";
             }
 
             return true;
-            /*
-            // Get the orderid from the XML
-                orderId = ( from o in xResult.Descendants( "OrderDetail" ) select (string)o.Attribute( "OrderId" ) ).FirstOrDefault() ?? "OrderIdUnknown";
-
-            if ( !string.IsNullOrEmpty( orderId ) && orderId != "OrderIdUnknown" )
-            {
-                // Find and update the associated workflow
-                var workflowService = new WorkflowService( rockContext );
-                var workflow = new WorkflowService( rockContext ).Get( orderId.AsInteger() );
-                if ( workflow != null && workflow.IsActive )
-                {
-                    workflow.LoadAttributes();
-
-                    Rock.Security.BackgroundCheck.ProtectMyMinistry.SaveResults( xResult, workflow, rockContext );
-
-                    rockContext.WrapTransaction( () =>
-                    {
-                        rockContext.SaveChanges();
-                        workflow.SaveAttributeValues( rockContext );
-                        foreach ( var activity in workflow.Activities )
-                        {
-                            activity.SaveAttributeValues( rockContext );
-                        }
-                    } );
-
-                }
-            }
-            */
         }
-
-
-
-
-
-
-
-
-
 
         public static string GetDocumentIdFromReport( string reportId )
         {
@@ -419,6 +434,7 @@ Webhook Data ({0}):
             return documentId;
         }
 
+        /*
         private bool CreateReport( string candidateId, RockContext rockContext, Model.Workflow workflow, CacheAttribute requestTypeAttribute, out string reportId, List<string> errorMessages, out string request, out string response )
         {
             reportId = null;
@@ -458,9 +474,10 @@ Webhook Data ({0}):
             reportId = createReportResponse.Id;
             return true;
         }
+        */
 
 
-
+/*
         private void UpdateBackgroundCheck( RockContext rockContext, string request, string response, BackgroundCheck backgroundCheck )
         {
             backgroundCheck.RequestDate = RockDateTime.Now;
@@ -476,22 +493,109 @@ Response ({2}):
 ", RockDateTime.Now, request, RockDateTime.Now, response );
             rockContext.SaveChanges();
         }
+        */
 
+        /// <summary>
+        /// Get the background check type that the request is for
+        /// </summary>
+        /// <param name="rockContext">The rock context.</param>
+        /// <param name="workflow">The Workflow initiating the request.</param>
+        /// <param name="requestTypeAttribute">The request type attribute.</param>
+        /// <param name="packageName"></param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>If the package name have been return successfully.</returns>
+        private bool GetPackageName( RockContext rockContext, Model.Workflow workflow, CacheAttribute requestTypeAttribute, out string packageName, List<string> errorMessages )
+        {
+            packageName = null;
+            if ( requestTypeAttribute == null )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider requires a background check type." );
+                return false;
+            }
 
-/// <summary>
-/// Sends a background request to Checkr
-/// </summary>
-/// <param name="rockContext">The rock context.</param>
-/// <param name="workflow">The Workflow initiating the request.</param>
-/// <param name="personAttribute">The person attribute.</param>
-/// <param name="ssnAttribute">The SSN attribute.</param>
-/// <param name="requestTypeAttribute">The request type attribute.</param>
-/// <param name="billingCodeAttribute">The billing code attribute.</param>
-/// <param name="errorMessages">The error messages.</param>
-/// <returns>
-/// True/False value of whether the request was successfully sent or not
-/// </returns>
-public override bool SendRequest( RockContext rockContext, Model.Workflow workflow,
+            CacheDefinedValue pkgTypeDefinedValue = CacheDefinedValue.Get( workflow.GetAttributeValue( requestTypeAttribute.Key ).AsGuid() );
+            if ( pkgTypeDefinedValue == null )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider couldn't load background check type." );
+                return false;
+            }
+
+            if ( pkgTypeDefinedValue.Attributes == null )
+            {
+                pkgTypeDefinedValue.LoadAttributes( rockContext );
+            }
+
+            packageName = pkgTypeDefinedValue.GetAttributeValue( "PMMPackageName" );
+            return true;
+        }
+
+        /// <summary>
+        /// Get the person that the request is for
+        /// </summary>
+        /// <param name="rockContext">The rock context.</param>
+        /// <param name="workflow">The Workflow initiating the request.</param>
+        /// <param name="personAttribute">The person attribute.</param>
+        /// <param name="person">Return the person</param>
+        /// <param name="personAliasId">Return the person alias ID</param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>If the person have been returned succesfully.</returns>
+        private bool GetPerson( RockContext rockContext, Model.Workflow workflow, CacheAttribute personAttribute, out Person person, out int? personAliasId, List<string> errorMessages )
+        {
+            person = null;
+            personAliasId = null;
+            if ( personAttribute != null )
+            {
+                Guid? personAliasGuid = workflow.GetAttributeValue( personAttribute.Key ).AsGuidOrNull();
+                if ( personAliasGuid.HasValue )
+                {
+                    person = new PersonAliasService( rockContext ).Queryable()
+                        .Where( p => p.Guid.Equals( personAliasGuid.Value ) )
+                        .Select( p => p.Person )
+                        .FirstOrDefault();
+                    person.LoadAttributes( rockContext );
+                }
+            }
+
+            if ( person == null )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
+                return false;
+            }
+
+            personAliasId = person.PrimaryAliasId;
+            if ( !personAliasId.HasValue )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SetWorkflowRequestStatus( Model.Workflow workflow, RockContext rockContext, string requestStatus )
+        {
+            if ( SaveAttributeValue( workflow, "RequestStatus", requestStatus,
+                CacheFieldType.Get( Rock.SystemGuid.FieldType.TEXT.AsGuid() ), rockContext, null ) )
+            {
+                rockContext.SaveChanges();
+                CacheAttribute.RemoveEntityAttributes();
+            }
+        }
+
+        /// <summary>
+        /// Sends a background request to Checkr
+        /// </summary>
+        /// <param name="rockContext">The rock context.</param>
+        /// <param name="workflow">The Workflow initiating the request.</param>
+        /// <param name="personAttribute">The person attribute.</param>
+        /// <param name="ssnAttribute">The SSN attribute.</param>
+        /// <param name="requestTypeAttribute">The request type attribute.</param>
+        /// <param name="billingCodeAttribute">The billing code attribute.</param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>
+        /// True/False value of whether the request was successfully sent or not
+        /// </returns>
+        public override bool SendRequest( RockContext rockContext, Model.Workflow workflow,
                     CacheAttribute personAttribute, CacheAttribute ssnAttribute, CacheAttribute requestTypeAttribute,
                     CacheAttribute billingCodeAttribute, out List<string> errorMessages )
         {
@@ -506,100 +610,64 @@ public override bool SendRequest( RockContext rockContext, Model.Workflow workfl
                     return false;
                 }
 
-                // Get the person that the request is for
-                Person person = null;
-                if ( personAttribute != null )
+                Person person;
+                int? personAliasId;
+                if ( !GetPerson( rockContext, workflow, personAttribute, out person, out personAliasId, errorMessages ) )
                 {
-                    Guid? personAliasGuid = workflow.GetAttributeValue( personAttribute.Key ).AsGuidOrNull();
-                    if ( personAliasGuid.HasValue )
-                    {
-                        person = new PersonAliasService( rockContext ).Queryable()
-                            .Where( p => p.Guid.Equals( personAliasGuid.Value ) )
-                            .Select( p => p.Person )
-                            .FirstOrDefault();
-                        person.LoadAttributes( rockContext );
-                    }
-                }
-
-                if ( person == null )
-                {
-                    errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
+                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
-                int? personAliasId = person.PrimaryAliasId;
-                BackgroundCheck backgroundCheck;
-                if ( personAliasId.HasValue )
+                string packageName;
+                if ( !GetPackageName( rockContext, workflow, requestTypeAttribute, out packageName, errorMessages ) )
                 {
-                    using ( var newRockContext = new RockContext() )
-                    {
-                        var backgroundCheckService = new BackgroundCheckService( newRockContext );
-                        backgroundCheck = backgroundCheckService.Queryable()
-                            .Where( c =>
-                                c.WorkflowId.HasValue &&
-                                c.WorkflowId.Value == workflow.Id )
-                            .FirstOrDefault();
-
-                        if ( backgroundCheck == null )
-                        {
-                            backgroundCheck = new Rock.Model.BackgroundCheck();
-                            backgroundCheck.PersonAliasId = personAliasId.Value;
-                            backgroundCheck.WorkflowId = workflow.Id;
-                            backgroundCheck.ForeignId = 2;
-                            backgroundCheckService.Add( backgroundCheck );
-                        }
-
-                        backgroundCheck.RequestDate = RockDateTime.Now;
-                        newRockContext.SaveChanges();
-                    }
-                }
-                else
-                {
-                    errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
+                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
                 string candidateId;
                 string request;
                 string response;
-                using ( var newRockContext = new RockContext() )
+                if ( !CreateCandidate( person, out candidateId, errorMessages, out request, out response ) )
                 {
-                    bool result = CreateCandidate( person, out candidateId, errorMessages, out request, out response );
-                    UpdateBackgroundCheck( newRockContext, request, response, backgroundCheck );
-                    if ( !result )
-                    {
-                        return false;
-                    }
-
-                    if ( requestTypeAttribute != null )
-                    {
-                        CacheDefinedValue pkgTypeDefinedValue = CacheDefinedValue.Get( workflow.GetAttributeValue( requestTypeAttribute.Key ).AsGuid() );
-                        if ( pkgTypeDefinedValue != null )
-                        {
-                            if ( pkgTypeDefinedValue.Attributes == null )
-                            {
-                                pkgTypeDefinedValue.LoadAttributes( rockContext );
-                            }
-
-                            string packageName = pkgTypeDefinedValue.GetAttributeValue( "PMMPackageName" );
-                            result = CreateInvitation( candidateId, packageName, errorMessages, out request, out response );
-                            UpdateBackgroundCheck( newRockContext, request, response, backgroundCheck );
-                            if ( result )
-                            {
-                                if ( SaveAttributeValue( workflow, "RequestStatus", "SUCCESS",
-                                    CacheFieldType.Get( Rock.SystemGuid.FieldType.TEXT.AsGuid() ), newRockContext, null ) )
-                                {
-                                    newRockContext.SaveChanges();
-                                    CacheAttribute.RemoveEntityAttributes();
-                                }
-
-                                return true;
-                            }
-                        }
-                    }
+                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
+                    return false;
                 }
 
-                return false;
+                if ( !CreateInvitation( candidateId, packageName, errorMessages, out request, out response ) )
+                {
+                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
+                    return false;
+                }
+
+                using ( var newRockContext = new RockContext() )
+                {
+                    var backgroundCheckService = new BackgroundCheckService( newRockContext );
+                    var backgroundCheck = backgroundCheckService.Queryable()
+                            .Where( c =>
+                                c.WorkflowId.HasValue &&
+                                c.WorkflowId.Value == workflow.Id )
+                            .FirstOrDefault();
+
+                    if ( backgroundCheck == null )
+                    {
+                        backgroundCheck = new Rock.Model.BackgroundCheck();
+                        backgroundCheck.WorkflowId = workflow.Id;
+                        backgroundCheckService.Add( backgroundCheck );
+                    }
+
+                    backgroundCheck.PersonAliasId = personAliasId.Value;
+                    backgroundCheck.ForeignId = 2;
+                    backgroundCheck.PackageName = packageName;
+                    backgroundCheck.RequestDate = RockDateTime.Now;
+                    backgroundCheck.RequestId = candidateId;
+                    newRockContext.SaveChanges();
+
+                    SetWorkflowRequestStatus( workflow, newRockContext, "SUCCESS" );
+                    CacheAttribute.RemoveEntityAttributes();
+                    return true;
+                }
+
             }
             catch ( Exception ex )
             {
