@@ -21,17 +21,13 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
 using Rock;
 using Rock.Attribute;
+using Rock.Checkr;
 using Rock.Data;
 using Rock.Model;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
-using Rock.Checkr;
-using Rock.Cache;
-using Rock.Checkr.Constants;
-using Rock.Checkr.SystemKey;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
@@ -120,7 +116,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void gRequest_GridRebind( object sender, EventArgs e )
+        protected void gRequest_GridRebind( object sender, EventArgs e )
         {
             BindGrid();
         }
@@ -135,7 +131,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             if ( e.Row.RowType == DataControlRowType.DataRow )
             {
                 BackgroundCheckRow request = e.Row.DataItem as BackgroundCheckRow;
-
                 if ( !request.HasWorkflow )
                 {
                     foreach ( var lbWorkflow in e.Row.Cells[6].ControlsOfTypeRecursive<LinkButton>() )
