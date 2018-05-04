@@ -416,11 +416,11 @@ namespace Rock.Checkr
         /// <param name="candidateId">The candidate identifier.</param>
         /// <param name="errorMessages">The error messages.</param>
         /// <returns>True/False value of whether the request was successfully sent or not.</returns>
-        public static bool CreateCandidate( Person person, out string candidateId, List<string> errorMessages, out string request, out string response )
+        public static bool CreateCandidate( Person person, out string candidateId, List<string> errorMessages )
         {
             CreateCandidateResponse createCandidateResponse;
             candidateId = null;
-            if ( CheckrApiUtility.CreateCandidate( person, out createCandidateResponse, errorMessages, out request, out response ) )
+            if ( CheckrApiUtility.CreateCandidate( person, out createCandidateResponse, errorMessages ) )
             {
                 candidateId = createCandidateResponse.Id;
                 return true;
@@ -438,10 +438,10 @@ namespace Rock.Checkr
         /// <param name="request">The request.</param>
         /// <param name="response">The response.</param>
         /// <returns>True/False value of whether the request was successfully sent or not.</returns>
-        public static bool CreateInvitation( string candidateId, string package, List<string> errorMessages, out string request, out string response )
+        public static bool CreateInvitation( string candidateId, string package, List<string> errorMessages )
         {
             CreateInvitationResponse createInvitationResponse;
-            if ( CheckrApiUtility.CreateInvitation( candidateId, package, out createInvitationResponse, errorMessages, out request, out response ) )
+            if ( CheckrApiUtility.CreateInvitation( candidateId, package, out createInvitationResponse, errorMessages ) )
             {
                 candidateId = createInvitationResponse.Id;
                 return true;
@@ -601,15 +601,13 @@ namespace Rock.Checkr
                 }
 
                 string candidateId;
-                string request;
-                string response;
-                if ( !CreateCandidate( person, out candidateId, errorMessages, out request, out response ) )
+                if ( !CreateCandidate( person, out candidateId, errorMessages ) )
                 {
                     UpdateWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
-                if ( !CreateInvitation( candidateId, packageName, errorMessages, out request, out response ) )
+                if ( !CreateInvitation( candidateId, packageName, errorMessages ) )
                 {
                     UpdateWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;

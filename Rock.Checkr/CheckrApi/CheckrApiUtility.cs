@@ -134,7 +134,7 @@ namespace Rock.Checkr.CheckrApi
         /// <param name="createCandidateResponse">The create candidate response.</param>
         /// <param name="errorMessages">The error messages.</param>
         /// <returns>True/False value of whether the request was successfully sent or not.</returns>
-        internal static bool CreateCandidate( Person person, out CreateCandidateResponse createCandidateResponse, List<string> errorMessages, out string request, out string response )
+        internal static bool CreateCandidate( Person person, out CreateCandidateResponse createCandidateResponse, List<string> errorMessages )
         {
             createCandidateResponse = null;
             RestClient restClient = RestClient( CheckrConstants.CANDIDATES_URL );
@@ -144,9 +144,9 @@ namespace Rock.Checkr.CheckrApi
             restRequest.AddParameter( "no_middle_name", person.MiddleName.IsNullOrWhiteSpace() );
             restRequest.AddParameter( "email", person.Email );
 
-            request = RequestToString( restClient, restRequest );
+            // request = RequestToString( restClient, restRequest ); // For debugging
             IRestResponse restResponse = restClient.Execute( restRequest );
-            response = ResponseToString( restResponse );
+            // response = ResponseToString( restResponse ); // For debugging
 
             if ( restResponse.StatusCode == HttpStatusCode.Unauthorized )
             {
@@ -178,7 +178,7 @@ namespace Rock.Checkr.CheckrApi
         /// <param name="createInvitationResponse">The create invitation response.</param>
         /// <param name="errorMessages">The error messages.</param>
         /// <returns>True/False value of whether the request was successfully sent or not.</returns>
-        internal static bool CreateInvitation( string candidateId, string package, out CreateInvitationResponse createInvitationResponse, List<string> errorMessages, out string request, out string response )
+        internal static bool CreateInvitation( string candidateId, string package, out CreateInvitationResponse createInvitationResponse, List<string> errorMessages )
         {
             createInvitationResponse = null;
             RestClient restClient = RestClient( CheckrConstants.INVITATIONS_URL );
@@ -186,9 +186,9 @@ namespace Rock.Checkr.CheckrApi
             restRequest.AddParameter( "candidate_id", candidateId );
             restRequest.AddParameter( "package", package );
 
-            request = RequestToString( restClient, restRequest );
+            // request = RequestToString( restClient, restRequest ); // For debugging
             IRestResponse restResponse = restClient.Execute( restRequest );
-            response = ResponseToString( restResponse );
+            // response = ResponseToString( restResponse ); // For debugging
 
             if ( restResponse.StatusCode == HttpStatusCode.Unauthorized )
             {
