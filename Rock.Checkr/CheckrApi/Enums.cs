@@ -23,34 +23,82 @@ namespace Rock.Checkr.CheckrApi
     class Enums
     {
         /// <summary>
-         /// Webhook Invitation Events
+         /// Webhook invitation events
          /// </summary>
         [JsonConverter( typeof( StringEnumConverter ) )]
         public enum WebhookTypes
         {
             /// <summary>
-            /// Invitation Created
+            /// Invitation created
             /// </summary>
             [EnumMember( Value = "invitation.created" )]
             InvitationCreated,
 
             /// <summary>
-            /// Invitation Completed
+            /// Invitation completed
             /// </summary>
             [EnumMember( Value = "invitation.completed" )]
             InvitationCompleted,
 
             /// <summary>
-            /// Invitation Expired
+            /// Invitation expired
             /// </summary>
             [EnumMember( Value = "invitation.expired" )]
             InvitationExpired,
 
             /// <summary>
-            /// Report Created
+            /// Report created
             /// </summary>
             [EnumMember( Value = "report.created" )]
-            ReportCreated
+            ReportCreated,
+
+            /// <summary>
+            /// Report upgraded
+            /// </summary>
+            [EnumMember( Value = "report.upgraded" )]
+            ReportUpgraded,
+
+            /// <summary>
+            /// Report suspended
+            /// </summary>
+            [EnumMember( Value = "report.suspended" )]
+            ReportSuspended,
+
+            /// <summary>
+            /// Report resumed
+            /// </summary>
+            [EnumMember( Value = "report.resumed" )]
+            ReportResumed,
+
+            /// <summary>
+            /// Report disputed
+            /// </summary>
+            [EnumMember( Value = "report.disputed" )]
+            ReportDisputed,
+
+            /// <summary>
+            /// Report pre-adverse action
+            /// </summary>
+            [EnumMember( Value = "report.pre_adverse_action" )]
+            ReportPreAdverseAction,
+
+            /// <summary>
+            /// Report post-adverse action
+            /// </summary>
+            [EnumMember( Value = "report.post_adverse_action" )]
+            ReportPostAdverseAction,
+
+            /// <summary>
+            /// Report engaged
+            /// </summary>
+            [EnumMember( Value = "report.engaged" )]
+            ReportEngaged,
+            
+            /// <summary>
+            /// Report created
+            /// </summary>
+            [EnumMember( Value = "report.completed" )]
+            ReportCompleted
         }
     }
 }

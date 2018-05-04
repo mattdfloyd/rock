@@ -67,10 +67,19 @@ namespace Rock.Checkr.CheckrApi
         public string Status { get; set; }
 
         /// <summary>
-        /// Gets or sets the Data Object.
+        /// Gets or sets the package.
         /// </summary>
         /// <value>
-        /// The Data Object.
+        /// The package.
+        /// </value>
+        [JsonProperty( "package" )]
+        public string Package { get; set; }
+
+        /// <summary>
+        /// Gets or sets the candidate ID.
+        /// </summary>
+        /// <value>
+        /// The candidate ID.
         /// </value>
         [JsonProperty( "candidate_id" )]
         public string CandidateId { get; set; }
