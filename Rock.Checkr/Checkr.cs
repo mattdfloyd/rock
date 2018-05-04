@@ -19,22 +19,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Xml.Linq;
 using Newtonsoft.Json;
-using RestSharp;
-using RestSharp.Authenticators;
-using Rock.Attribute;
 using Rock.Cache;
+using Rock.Checkr.CheckrApi;
+using Rock.Checkr.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Security;
-using Rock.Web.Cache;
-using Rock.Checkr.Constants;
-using Rock.Checkr.SystemKey;
-using System.Net;
-using Newtonsoft.Json.Linq;
-using Rock.Checkr.CheckrApi;
-using System.Data.Entity;
 
 namespace Rock.Checkr
 {
@@ -45,118 +36,9 @@ namespace Rock.Checkr
     [Export( typeof( BackgroundCheckComponent ) )]
     [ExportMetadata( "ComponentName", "Checkr" )]
 
-    [UrlLinkField( "Request URL", "The Checkr URL to send requests to.", true, "https://services.priorityresearch.com/webservice/default.cfm", "", 0 )]
-    [UrlLinkField( "Return URL", "The Web Hook URL for Checkr to send results to (e.g. 'http://www.mysite.com/Webhooks/Checkr.ashx').", true, "", "", 1 )]
     public class Checkr : BackgroundCheckComponent
     {
-        /// <summary>
-        /// Creates the candidate.
-        /// </summary>
-        /// <param name="person">The person.</param>
-        /// <param name="candidateId">The candidate identifier.</param>
-        /// <param name="errorMessages">The error messages.</param>
-        /// <returns></returns>
-        public static bool CreateCandidate( Person person, out string candidateId, List<string> errorMessages, out string request, out string response )
-        {
-            CreateCandidateResponse createCandidateResponse;
-            candidateId = null;
-            if ( CheckrApiUtility.CreateCandidate( person, out createCandidateResponse, errorMessages, out request, out response ) )
-            {
-                candidateId = createCandidateResponse.Id;
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool CreateInvitation( string candidateId, string package, List<string> errorMessages, out string request, out string response )
-        {
-            CreateInvitationResponse createInvitationResponse;
-            if ( CheckrApiUtility.CreateInvitation( candidateId, package, out createInvitationResponse, errorMessages, out request, out response ) )
-            {
-                candidateId = createInvitationResponse.Id;
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Get the Checkr packages and update the list on the server.
-        /// </summary>
-        /// <param name="errorMessages">The error messages.</param>
-        /// <returns></returns>
-        public static bool UpdatePackages( List<string> errorMessages )
-        {
-            GetPackagesResponse getPackagesResponse;
-            if ( !CheckrApiUtility.GetPackages( out getPackagesResponse, errorMessages ) )
-            {
-                return false;
-            }
-
-            List<string> packages;
-            using ( var rockContext = new RockContext() )
-            {
-
-                var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() );
-
-                DefinedValueService definedValueService = new DefinedValueService( rockContext );
-                packages = definedValueService
-                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
-                    .Where( v => v.ForeignId == 2 )
-                    .ToList()
-                    .Select( v => { v.LoadAttributes( rockContext ); return v.GetAttributeValue( "PMMPackageName" ).ToString(); } ) // v => v.Value.Substring( CheckrConstants.TYPENAME_PREFIX.Length ) )
-                    .ToList();
-
-                foreach ( var packageRestResponse in getPackagesResponse.Data )
-                {
-                    string packageName = packageRestResponse.Slug;
-                    if ( !packages.Contains( packageName ) )
-                    {
-                        DefinedValue definedValue = null;
-
-                        definedValue = new DefinedValue();
-                        definedValue.DefinedTypeId = definedType.Id;
-                        definedValue.ForeignId = 2;
-                        definedValueService.Add( definedValue );
-
-                        definedValue.Value = CheckrConstants.TYPENAME_PREFIX + packageName.Replace( '_', ' ' ).FixCase();
-
-                        definedValue.Description = packageRestResponse.Name == "Educatio Report" ? "Education Report" : packageRestResponse.Name;
-                        rockContext.SaveChanges();
-
-                        definedValue.LoadAttributes( rockContext );
-
-                        definedValue.SetAttributeValue( "PMMPackageName", packageName );
-                        definedValue.SetAttributeValue( "DefaultCounty", string.Empty );
-                        definedValue.SetAttributeValue( "SendHomeCounty", "False" );
-                        definedValue.SetAttributeValue( "DefaultState", string.Empty );
-                        definedValue.SetAttributeValue( "SendHomeState", "False" );
-                        definedValue.SetAttributeValue( "MVRJurisdiction", string.Empty );
-                        definedValue.SetAttributeValue( "SendHomeStateMVR", "False" );
-                        definedValue.SaveAttributeValues( rockContext );
-
-                        CacheDefinedValue.Remove( definedValue.Id );
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public static string GetDocumentUrl( string documentId )
-        {
-            GetDocumentResponse getDocumentResponse;
-            List<string> errorMessages = new List<string>();
-
-            if ( CheckrApiUtility.GetDocument( documentId, out getDocumentResponse, errorMessages ) )
-            {
-                return getDocumentResponse.DownloadUri;
-            }
-
-            return null;
-        }
-        
+        #region Internal Methods
         /// <summary>
         /// Saves the attribute value.
         /// </summary>
@@ -166,7 +48,7 @@ namespace Rock.Checkr
         /// <param name="fieldType">Type of the field.</param>
         /// <param name="rockContext">The rock context.</param>
         /// <param name="qualifiers">The qualifiers.</param>
-        /// <returns></returns>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
         private static bool SaveAttributeValue( Rock.Model.Workflow workflow, string key, string value,
             CacheFieldType fieldType, RockContext rockContext, Dictionary<string, string> qualifiers = null )
         {
@@ -223,7 +105,14 @@ namespace Rock.Checkr
             return createdNewAttribute;
         }
 
-
+        /// <summary>
+        /// Updates the workflow.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="recommendation">The recommendation.</param>
+        /// <param name="reportLink">The report link.</param>
+        /// <param name="reportStatus">The report status.</param>
+        /// <param name="rockContext">The rock context.</param>
         private static void UpdateWorkflow( int id, string recommendation, string reportLink, string reportStatus, RockContext rockContext )
         {
             bool createdNewAttribute = false;
@@ -284,6 +173,15 @@ namespace Rock.Checkr
             }
         }
 
+        /// <summary>
+        /// Updates the background check and workflow values.
+        /// </summary>
+        /// <param name="candidateId">The candidate identifier.</param>
+        /// <param name="webhookTypes">The webhook types.</param>
+        /// <param name="packageName">Name of the package.</param>
+        /// <param name="status">The status.</param>
+        /// <param name="documentId">The document identifier.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
         private static bool UpdateBackgroundCheckAndWorkFlow( string candidateId, Enums.WebhookTypes webhookTypes, string packageName = null, string status = null, string documentId = null )
         {
             using ( var rockContext = new RockContext() )
@@ -307,7 +205,7 @@ namespace Rock.Checkr
                     backgroundCheck.PackageName = packageName;
                 }
 
-                if ( documentId == string.Empty)
+                if ( documentId == string.Empty )
                 {
                     backgroundCheck.RecordFound = false;
                 }
@@ -355,7 +253,227 @@ namespace Rock.Checkr
             return true;
         }
 
-            public static bool SaveWebhookResults( string postedData )
+        /// <summary>
+        /// Sets the workflow requeststatus attribute.
+        /// </summary>
+        /// <param name="workflow">The workflow.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <param name="requestStatus">The request status.</param>
+        private void UpdateWorkflowRequestStatus( Model.Workflow workflow, RockContext rockContext, string requestStatus )
+        {
+            if ( SaveAttributeValue( workflow, "RequestStatus", requestStatus,
+                CacheFieldType.Get( Rock.SystemGuid.FieldType.TEXT.AsGuid() ), rockContext, null ) )
+            {
+                rockContext.SaveChanges();
+                CacheAttribute.RemoveEntityAttributes();
+            }
+        }
+
+        /// <summary>
+        /// Get the background check type that the request is for.
+        /// </summary>
+        /// <param name="rockContext">The rock context.</param>
+        /// <param name="workflow">The Workflow initiating the request.</param>
+        /// <param name="requestTypeAttribute">The request type attribute.</param>
+        /// <param name="packageName"></param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
+        private bool GetPackageName( RockContext rockContext, Model.Workflow workflow, CacheAttribute requestTypeAttribute, out string packageName, List<string> errorMessages )
+        {
+            packageName = null;
+            if ( requestTypeAttribute == null )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider requires a background check type." );
+                return false;
+            }
+
+            CacheDefinedValue pkgTypeDefinedValue = CacheDefinedValue.Get( workflow.GetAttributeValue( requestTypeAttribute.Key ).AsGuid() );
+            if ( pkgTypeDefinedValue == null )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider couldn't load background check type." );
+                return false;
+            }
+
+            if ( pkgTypeDefinedValue.Attributes == null )
+            {
+                pkgTypeDefinedValue.LoadAttributes( rockContext );
+            }
+
+            packageName = pkgTypeDefinedValue.GetAttributeValue( "PMMPackageName" );
+            return true;
+        }
+
+        /// <summary>
+        /// Get the person that the request is for.
+        /// </summary>
+        /// <param name="rockContext">The rock context.</param>
+        /// <param name="workflow">The Workflow initiating the request.</param>
+        /// <param name="personAttribute">The person attribute.</param>
+        /// <param name="person">Return the person.</param>
+        /// <param name="personAliasId">Return the person alias ID.</param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
+        private bool GetPerson( RockContext rockContext, Model.Workflow workflow, CacheAttribute personAttribute, out Person person, out int? personAliasId, List<string> errorMessages )
+        {
+            person = null;
+            personAliasId = null;
+            if ( personAttribute != null )
+            {
+                Guid? personAliasGuid = workflow.GetAttributeValue( personAttribute.Key ).AsGuidOrNull();
+                if ( personAliasGuid.HasValue )
+                {
+                    person = new PersonAliasService( rockContext ).Queryable()
+                        .Where( p => p.Guid.Equals( personAliasGuid.Value ) )
+                        .Select( p => p.Person )
+                        .FirstOrDefault();
+                    person.LoadAttributes( rockContext );
+                }
+            }
+
+            if ( person == null )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
+                return false;
+            }
+
+            personAliasId = person.PrimaryAliasId;
+            if ( !personAliasId.HasValue )
+            {
+                errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
+
+        /// <summary>
+        /// Get the Checkr packages and update the list on the server.
+        /// </summary>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
+        public static bool UpdatePackages( List<string> errorMessages )
+        {
+            GetPackagesResponse getPackagesResponse;
+            if ( !CheckrApiUtility.GetPackages( out getPackagesResponse, errorMessages ) )
+            {
+                return false;
+            }
+
+            List<string> packages;
+            using ( var rockContext = new RockContext() )
+            {
+                var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() );
+
+                DefinedValueService definedValueService = new DefinedValueService( rockContext );
+                packages = definedValueService
+                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
+                    .Where( v => v.ForeignId == 2 )
+                    .ToList()
+                    .Select( v => { v.LoadAttributes( rockContext ); return v.GetAttributeValue( "PMMPackageName" ).ToString(); } ) // v => v.Value.Substring( CheckrConstants.TYPENAME_PREFIX.Length ) )
+                    .ToList();
+
+                foreach ( var packageRestResponse in getPackagesResponse.Data )
+                {
+                    string packageName = packageRestResponse.Slug;
+                    if ( !packages.Contains( packageName ) )
+                    {
+                        DefinedValue definedValue = null;
+
+                        definedValue = new DefinedValue();
+                        definedValue.DefinedTypeId = definedType.Id;
+                        definedValue.ForeignId = 2;
+                        definedValueService.Add( definedValue );
+
+                        definedValue.Value = CheckrConstants.TYPENAME_PREFIX + packageName.Replace( '_', ' ' ).FixCase();
+
+                        definedValue.Description = packageRestResponse.Name == "Educatio Report" ? "Education Report" : packageRestResponse.Name;
+                        rockContext.SaveChanges();
+
+                        definedValue.LoadAttributes( rockContext );
+
+                        definedValue.SetAttributeValue( "PMMPackageName", packageName );
+                        definedValue.SetAttributeValue( "DefaultCounty", string.Empty );
+                        definedValue.SetAttributeValue( "SendHomeCounty", "False" );
+                        definedValue.SetAttributeValue( "DefaultState", string.Empty );
+                        definedValue.SetAttributeValue( "SendHomeState", "False" );
+                        definedValue.SetAttributeValue( "MVRJurisdiction", string.Empty );
+                        definedValue.SetAttributeValue( "SendHomeStateMVR", "False" );
+                        definedValue.SaveAttributeValues( rockContext );
+
+                        CacheDefinedValue.Remove( definedValue.Id );
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates the candidate.
+        /// </summary>
+        /// <param name="person">The person.</param>
+        /// <param name="candidateId">The candidate identifier.</param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
+        public static bool CreateCandidate( Person person, out string candidateId, List<string> errorMessages, out string request, out string response )
+        {
+            CreateCandidateResponse createCandidateResponse;
+            candidateId = null;
+            if ( CheckrApiUtility.CreateCandidate( person, out createCandidateResponse, errorMessages, out request, out response ) )
+            {
+                candidateId = createCandidateResponse.Id;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Creates the invitation.
+        /// </summary>
+        /// <param name="candidateId">The candidate identifier.</param>
+        /// <param name="package">The package.</param>
+        /// <param name="errorMessages">The error messages.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="response">The response.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
+        public static bool CreateInvitation( string candidateId, string package, List<string> errorMessages, out string request, out string response )
+        {
+            CreateInvitationResponse createInvitationResponse;
+            if ( CheckrApiUtility.CreateInvitation( candidateId, package, out createInvitationResponse, errorMessages, out request, out response ) )
+            {
+                candidateId = createInvitationResponse.Id;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the document URL.
+        /// </summary>
+        /// <param name="documentId">The document identifier.</param>
+        /// <returns>The document URL.</returns>
+        public static string GetDocumentUrl( string documentId )
+        {
+            GetDocumentResponse getDocumentResponse;
+            List<string> errorMessages = new List<string>();
+
+            if ( CheckrApiUtility.GetDocument( documentId, out getDocumentResponse, errorMessages ) )
+            {
+                return getDocumentResponse.DownloadUri;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Saves the webhook results.
+        /// </summary>
+        /// <param name="postedData">The posted data.</param>
+        /// <returns>True/False value of whether the request was successfully sent or not.</returns>
+        public static bool SaveWebhookResults( string postedData )
         {
             GenericWebhook genericWebhook = JsonConvert.DeserializeObject<GenericWebhook>( postedData );
             if ( genericWebhook == null )
@@ -365,7 +483,9 @@ namespace Rock.Checkr
                 return false;
             }
 
-            if ( genericWebhook.Type == Enums.WebhookTypes.InvitationCompleted || genericWebhook.Type == Enums.WebhookTypes.InvitationCreated || genericWebhook.Type == Enums.WebhookTypes.InvitationExpired )
+            if ( genericWebhook.Type == Enums.WebhookTypes.InvitationCompleted ||
+                genericWebhook.Type == Enums.WebhookTypes.InvitationCreated ||
+                genericWebhook.Type == Enums.WebhookTypes.InvitationExpired )
             {
                 InvitationWebhook invitationWebhook = JsonConvert.DeserializeObject<InvitationWebhook>( postedData );
                 if ( invitationWebhook == null )
@@ -402,13 +522,16 @@ namespace Rock.Checkr
                 }
 
                 return UpdateBackgroundCheckAndWorkFlow( reportWebhook.Data.Object.CandidateId, genericWebhook.Type, reportWebhook.Data.Object.Package, reportWebhook.Data.Object.Status );
-
-                    //backgroundCheck.RecordFound = reportStatus == "Review";
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Gets the document identifier from report.
+        /// </summary>
+        /// <param name="reportId">The report identifier.</param>
+        /// <returns>The document identifier.</returns>
         public static string GetDocumentIdFromReport( string reportId )
         {
             List<string> errorMessages = new List<string>();
@@ -434,156 +557,8 @@ namespace Rock.Checkr
             return documentId;
         }
 
-        /*
-        private bool CreateReport( string candidateId, RockContext rockContext, Model.Workflow workflow, CacheAttribute requestTypeAttribute, out string reportId, List<string> errorMessages, out string request, out string response )
-        {
-            reportId = null;
-            CacheDefinedValue pkgTypeDefinedValue = null;
-            request = string.Empty;
-            response = string.Empty;
-            string packageName = "tasker_pro";
-
-            if ( requestTypeAttribute == null )
-            {
-                string errorMessage = "Failed to retrieve Checkr Package Type Attribute";
-                errorMessages.Add( errorMessage );
-                return false;
-            }
-
-            pkgTypeDefinedValue = CacheDefinedValue.Get( workflow.GetAttributeValue( requestTypeAttribute.Key ).AsGuid() );
-            if ( pkgTypeDefinedValue == null )
-            {
-                string errorMessage = "Failed to retrieve Checkr Package Type Defined Value";
-                errorMessages.Add( errorMessage );
-
-                return false;
-            }
-
-            if ( pkgTypeDefinedValue.Attributes == null )
-            {
-                pkgTypeDefinedValue.LoadAttributes( rockContext );
-            }
-
-            packageName = pkgTypeDefinedValue.GetAttributeValue( "PMMPackageName" );
-            CreateReportResponse createReportResponse;
-            if ( !CheckrApiUtility.CreateReport( candidateId, packageName, out createReportResponse, errorMessages, out request, out response ) )
-            {
-                return false;
-            }
-
-            reportId = createReportResponse.Id;
-            return true;
-        }
-        */
-
-
-/*
-        private void UpdateBackgroundCheck( RockContext rockContext, string request, string response, BackgroundCheck backgroundCheck )
-        {
-            backgroundCheck.RequestDate = RockDateTime.Now;
-            backgroundCheck.ResponseData = string.Format( @"
-Request ({0}): 
------------------------- 
-{1}
-
-Response ({2}): 
------------------------- 
-{3}
-
-", RockDateTime.Now, request, RockDateTime.Now, response );
-            rockContext.SaveChanges();
-        }
-        */
-
         /// <summary>
-        /// Get the background check type that the request is for
-        /// </summary>
-        /// <param name="rockContext">The rock context.</param>
-        /// <param name="workflow">The Workflow initiating the request.</param>
-        /// <param name="requestTypeAttribute">The request type attribute.</param>
-        /// <param name="packageName"></param>
-        /// <param name="errorMessages">The error messages.</param>
-        /// <returns>If the package name have been return successfully.</returns>
-        private bool GetPackageName( RockContext rockContext, Model.Workflow workflow, CacheAttribute requestTypeAttribute, out string packageName, List<string> errorMessages )
-        {
-            packageName = null;
-            if ( requestTypeAttribute == null )
-            {
-                errorMessages.Add( "The 'Checkr' background check provider requires a background check type." );
-                return false;
-            }
-
-            CacheDefinedValue pkgTypeDefinedValue = CacheDefinedValue.Get( workflow.GetAttributeValue( requestTypeAttribute.Key ).AsGuid() );
-            if ( pkgTypeDefinedValue == null )
-            {
-                errorMessages.Add( "The 'Checkr' background check provider couldn't load background check type." );
-                return false;
-            }
-
-            if ( pkgTypeDefinedValue.Attributes == null )
-            {
-                pkgTypeDefinedValue.LoadAttributes( rockContext );
-            }
-
-            packageName = pkgTypeDefinedValue.GetAttributeValue( "PMMPackageName" );
-            return true;
-        }
-
-        /// <summary>
-        /// Get the person that the request is for
-        /// </summary>
-        /// <param name="rockContext">The rock context.</param>
-        /// <param name="workflow">The Workflow initiating the request.</param>
-        /// <param name="personAttribute">The person attribute.</param>
-        /// <param name="person">Return the person</param>
-        /// <param name="personAliasId">Return the person alias ID</param>
-        /// <param name="errorMessages">The error messages.</param>
-        /// <returns>If the person have been returned succesfully.</returns>
-        private bool GetPerson( RockContext rockContext, Model.Workflow workflow, CacheAttribute personAttribute, out Person person, out int? personAliasId, List<string> errorMessages )
-        {
-            person = null;
-            personAliasId = null;
-            if ( personAttribute != null )
-            {
-                Guid? personAliasGuid = workflow.GetAttributeValue( personAttribute.Key ).AsGuidOrNull();
-                if ( personAliasGuid.HasValue )
-                {
-                    person = new PersonAliasService( rockContext ).Queryable()
-                        .Where( p => p.Guid.Equals( personAliasGuid.Value ) )
-                        .Select( p => p.Person )
-                        .FirstOrDefault();
-                    person.LoadAttributes( rockContext );
-                }
-            }
-
-            if ( person == null )
-            {
-                errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
-                return false;
-            }
-
-            personAliasId = person.PrimaryAliasId;
-            if ( !personAliasId.HasValue )
-            {
-                errorMessages.Add( "The 'Checkr' background check provider requires the workflow to have a 'Person' attribute that contains the person who the background check is for." );
-                return false;
-            }
-
-            return true;
-        }
-
-        private void SetWorkflowRequestStatus( Model.Workflow workflow, RockContext rockContext, string requestStatus )
-        {
-            if ( SaveAttributeValue( workflow, "RequestStatus", requestStatus,
-                CacheFieldType.Get( Rock.SystemGuid.FieldType.TEXT.AsGuid() ), rockContext, null ) )
-            {
-                rockContext.SaveChanges();
-                CacheAttribute.RemoveEntityAttributes();
-            }
-        }
-
-        /// <summary>
-        /// Sends a background request to Checkr
+        /// Sends a background request to Checkr.
         /// </summary>
         /// <param name="rockContext">The rock context.</param>
         /// <param name="workflow">The Workflow initiating the request.</param>
@@ -593,7 +568,7 @@ Response ({2}):
         /// <param name="billingCodeAttribute">The billing code attribute.</param>
         /// <param name="errorMessages">The error messages.</param>
         /// <returns>
-        /// True/False value of whether the request was successfully sent or not
+        /// True/False value of whether the request was successfully sent or not.
         /// </returns>
         public override bool SendRequest( RockContext rockContext, Model.Workflow workflow,
                     CacheAttribute personAttribute, CacheAttribute ssnAttribute, CacheAttribute requestTypeAttribute,
@@ -614,14 +589,14 @@ Response ({2}):
                 int? personAliasId;
                 if ( !GetPerson( rockContext, workflow, personAttribute, out person, out personAliasId, errorMessages ) )
                 {
-                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
+                    UpdateWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
                 string packageName;
                 if ( !GetPackageName( rockContext, workflow, requestTypeAttribute, out packageName, errorMessages ) )
                 {
-                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
+                    UpdateWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
@@ -630,13 +605,13 @@ Response ({2}):
                 string response;
                 if ( !CreateCandidate( person, out candidateId, errorMessages, out request, out response ) )
                 {
-                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
+                    UpdateWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
                 if ( !CreateInvitation( candidateId, packageName, errorMessages, out request, out response ) )
                 {
-                    SetWorkflowRequestStatus( workflow, rockContext, "FAIL" );
+                    UpdateWorkflowRequestStatus( workflow, rockContext, "FAIL" );
                     return false;
                 }
 
@@ -663,11 +638,10 @@ Response ({2}):
                     backgroundCheck.RequestId = candidateId;
                     newRockContext.SaveChanges();
 
-                    SetWorkflowRequestStatus( workflow, newRockContext, "SUCCESS" );
+                    UpdateWorkflowRequestStatus( workflow, newRockContext, "SUCCESS" );
                     CacheAttribute.RemoveEntityAttributes();
                     return true;
                 }
-
             }
             catch ( Exception ex )
             {

@@ -98,7 +98,31 @@ namespace Rock.Checkr.CheckrApi
             /// Report created
             /// </summary>
             [EnumMember( Value = "report.completed" )]
-            ReportCompleted
+            ReportCompleted,
+
+            /// <summary>
+            /// Candidate created
+            /// </summary>
+            [EnumMember( Value = "candidate.created" )]
+            candidateCreated,
+
+            /// <summary>
+            /// Candidate ID required
+            /// </summary>
+            [EnumMember( Value = "candidate.id_required" )]
+            candidateIdRequired,
+
+            /// <summary>
+            /// Candidate driver license required
+            /// </summary>
+            [EnumMember( Value = "candidate.driver_license_required" )]
+            candidateDriverLicenseRequired,
+
+            /// <summary>
+            /// Adverse action notice not delivered
+            /// </summary>
+            [EnumMember( Value = "adverse_action.notice_not_delivered" )]
+            AdverseActNoticeNotDelivered
         }
     }
 }

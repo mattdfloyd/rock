@@ -18,15 +18,8 @@
 
 using System;
 using System.Web;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
-using System.Xml.Linq;
 using System.Net;
-
-using Rock;
-using Rock.Data;
 using Rock.Model;
 
 namespace RockWeb.Webhooks
@@ -36,6 +29,11 @@ namespace RockWeb.Webhooks
     /// </summary>
     public class Checkr : IHttpHandler
     {
+        /// <summary>
+        /// Enables processing of HTTP Web requests by a custom HttpHandler that implements the <see cref="T:System.Web.IHttpHandler" /> interface.
+        /// </summary>
+        /// <param name="context">An <see cref="T:System.Web.HttpContext" /> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
         public void ProcessRequest( HttpContext context )
         {
             HttpRequest request = context.Request;
@@ -86,6 +84,9 @@ namespace RockWeb.Webhooks
             }
         }
 
+        /// <summary>
+        /// These webhooks are not reusable and must only be used once.
+        /// </summary>
         public bool IsReusable
         {
             get
@@ -93,6 +94,5 @@ namespace RockWeb.Webhooks
                 return false;
             }
         }
-
     }
 }
