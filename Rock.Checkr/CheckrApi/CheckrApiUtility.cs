@@ -91,7 +91,7 @@ namespace Rock.Checkr.CheckrApi
             return JsonConvert.SerializeObject( responseToLog );
         }
         #endregion
-
+        #region Public Methods
         /// <summary>
         /// Gets the packages.
         /// </summary>
@@ -283,5 +283,6 @@ namespace Rock.Checkr.CheckrApi
 
             return true;
         }
+        #endregion
     }
 }

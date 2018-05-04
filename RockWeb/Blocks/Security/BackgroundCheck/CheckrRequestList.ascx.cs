@@ -210,7 +210,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         }
 
         #endregion
-
         #region Internal Methods
 
         /// <summary>
@@ -355,12 +354,10 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             pnlContent.Visible = visible;
         }
 
-        #endregion
-
         /// <summary>
         /// 
         /// </summary>
-        public class BackgroundCheckRow
+        private class BackgroundCheckRow
         {
             public string Name { get; set; }
 
@@ -386,5 +383,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
 
             public string ReportStatus { get; set; }
         }
+        #endregion
     }
 }

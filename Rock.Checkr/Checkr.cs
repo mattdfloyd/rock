@@ -346,7 +346,7 @@ namespace Rock.Checkr
             return true;
         }
         #endregion
-
+        #region Public Methods
         /// <summary>
         /// Get the Checkr packages and update the list on the server.
         /// </summary>
@@ -475,7 +475,15 @@ namespace Rock.Checkr
         /// <returns>True/False value of whether the request was successfully sent or not.</returns>
         public static bool SaveWebhookResults( string postedData )
         {
-            GenericWebhook genericWebhook = JsonConvert.DeserializeObject<GenericWebhook>( postedData );
+            GenericWebhook genericWebhook = JsonConvert.DeserializeObject<GenericWebhook>( postedData, new JsonSerializerSettings()
+            {
+                Error = ( sender, errorEventArgs ) =>
+                {
+                    errorEventArgs.ErrorContext.Handled = true;
+                    ExceptionLogService.LogException( new Exception( errorEventArgs.ErrorContext.Error.Message ), null );
+                }
+            } );
+
             if ( genericWebhook == null )
             {
                 string errorMessage = "Webhook data is not valid: " + postedData;
@@ -648,5 +656,6 @@ namespace Rock.Checkr
                 return false;
             }
         }
+        #endregion
     }
 }
