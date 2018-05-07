@@ -991,7 +991,7 @@ namespace Rock.Web.UI.Controls
 
                 _validationSummary = new ValidationSummary();
                 _validationSummary.ID = "valiationSummary";
-                _validationSummary.CssClass = "alert alert-danger";
+                _validationSummary.CssClass = "alert alert-validation";
                 _validationSummary.HeaderText = "Please correct the following:";
                 Controls.Add( _validationSummary );
 
@@ -1122,7 +1122,7 @@ namespace Rock.Web.UI.Controls
                 _btnCancel = new LinkButton();
                 _btnCancel.ID = "btnCancel";
                 _btnCancel.Text = "Cancel";
-                _btnCancel.CssClass = "btn btn-link";
+                _btnCancel.CssClass = "btn btn-default";
                 _btnCancel.CausesValidation = false;
                 _btnCancel.Click += btnCancel_Click;
                 Controls.Add( _btnCancel );
@@ -1158,10 +1158,9 @@ namespace Rock.Web.UI.Controls
             base.OnPreRender( e );
 
             // Reload qualifiers in case any postback events caused them to change.
-            if ( ReloadQualifiers )
+            if ( ReloadQualifiers && FieldTypeId.HasValue )
             {
-                var fieldTypeId = ViewState["FieldTypeId"] as int? ?? FieldTypeId.Value;
-                UpdateQualifiers( fieldTypeId );
+                UpdateQualifiers( FieldTypeId.Value );
             }
 
             // Recreate the qualifiers and default control in case they changed due to new field type or
@@ -1522,7 +1521,9 @@ namespace Rock.Web.UI.Controls
                 int i = 0;
                 foreach ( var control in configControls )
                 {
-                    control.ID = string.Format( "qualifier_{0}", i++ );
+                    // make sure each qualifier control has a unique/predictable ID to help avoid viewstate issues
+                    var controlTypeName = control.GetType().Name;
+                    control.ID = $"qualifier_{fieldTypeId.Value}_{controlTypeName}_{i++}";
                     _phQualifiers.Controls.Add( control );
                 }
 

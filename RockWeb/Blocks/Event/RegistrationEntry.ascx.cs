@@ -2041,10 +2041,9 @@ namespace RockWeb.Blocks.Event
                 else
                 {
                     // otherwise look for one and one-only match by name/email
-                    var personMatches = personService.GetByMatch( registration.FirstName, registration.LastName, registration.ConfirmationEmail );
-                    if ( personMatches.Count() == 1 )
+                    registrar = personService.FindPerson( registration.FirstName, registration.LastName, registration.ConfirmationEmail, true );
+                    if ( registrar != null )
                     {
-                        registrar = personMatches.First();
                         registration.PersonAliasId = registrar.PrimaryAliasId;
                     }
                     else
@@ -2170,11 +2169,7 @@ namespace RockWeb.Blocks.Event
                     if ( person == null )
                     {
                         // Try to find a matching person based on name and email address
-                        var personMatches = personService.GetByMatch( firstName, lastName, email );
-                        if ( personMatches.Count() == 1 )
-                        {
-                            person = personMatches.First();
-                        }
+                        person = personService.FindPerson( firstName, lastName, email, true );
 
                         // Try to find a matching person based on name within same family as registrar
                         if ( person == null && registrar != null && registrantInfo.FamilyGuid == RegistrationState.FamilyGuid )
@@ -3803,7 +3798,7 @@ namespace RockWeb.Blocks.Event
         var qryString = this.contentWindow.location.search;
         if ( qryString && qryString != '' && qryString.startsWith('?token-id') ) {{ 
             $('#{8}').val(qryString);
-            {9};
+            window.location = ""javascript:{9}"";
         }} else {{
             if ( $('#{14}').val() == 'true' ) {{
                 $('#updateProgress').show();
@@ -3823,7 +3818,7 @@ namespace RockWeb.Blocks.Event
             var qryString = this.contentWindow.location.search;
             if ( qryString && qryString != '' && qryString.startsWith('?document_id') ) {{ 
                 $('#{19}').val(qryString);
-                {20};
+                window.location = ""javascript:{20}"";
             }}
         }}
         catch (e) {{
@@ -4028,7 +4023,7 @@ namespace RockWeb.Blocks.Event
                 // If the current form, is the last one, add any fee controls
                 if ( FormCount - 1 == CurrentFormIndex && !registrant.OnWaitList )
                 {
-                    foreach ( var fee in RegistrationTemplate.Fees.Where( f => f.IsActive == true ) )
+                    foreach ( var fee in RegistrationTemplate.Fees.Where( f => f.IsActive == true ).OrderBy( o => o .Order ) )
                     {
                         var feeValues = new List<FeeInfo>();
                         if ( registrant != null && registrant.FeeValues.ContainsKey( fee.Id ) )

@@ -359,12 +359,15 @@
     <Compile Include="Attribute\AttributeFieldAttribute.cs" />
     <Compile Include="Attribute\CheckListFieldAttribute.cs" />
     <Compile Include="Attribute\ComparisonFieldAttribute.cs" />
+    <Compile Include="Attribute\ContentChannelTypeFieldAttribute.cs" />
     <Compile Include="Attribute\ContentChannelItemFieldAttribute.cs" />
     <Compile Include="Attribute\GenderFieldAttribute.cs" />
     <Compile Include="Attribute\InteractionChannelFieldAttribute.cs" />
     <Compile Include="Attribute\InteractionChannelsFieldAttribute.cs" />
     <Compile Include="Attribute\LabelFieldAttribute.cs" />
     <Compile Include="Attribute\LavaFieldAttribute.cs" />
+    <Compile Include="Attribute\RegistrationInstanceFieldAttribute.cs" />
+    <Compile Include="Attribute\RegistrationTemplateFieldAttribute.cs" />
     <Compile Include="Attribute\ReportFieldAttribute.cs" />
     <Compile Include="Attribute\TimeZoneFieldAttribute.cs" />
     <Compile Include="Attribute\FileFieldAttribute.cs" />
@@ -480,6 +483,7 @@
     <Compile Include="Cache\Entities\CacheWorkflowActionType.cs" />
     <Compile Include="Cache\Entities\CacheWorkflowActivityType.cs" />
     <Compile Include="Cache\Entities\CacheWorkflowType.cs" />
+    <Compile Include="Cache\IItemCache.cs" />
     <Compile Include="Cache\NonEntities\CacheEntityNoteTypes.cs" />
     <Compile Include="Cache\NonEntities\CacheWorkflowTriggers.cs" />
     <Compile Include="Cache\RockCache.cs" />
@@ -625,11 +629,14 @@
     <Compile Include="Field\ILinkableFieldType.cs" />
     <Compile Include="Field\SelectFromListFieldType.cs" />
     <Compile Include="Field\Types\CheckListFieldType.cs" />
+    <Compile Include="Field\Types\ContentChannelTypeFieldType.cs" />
     <Compile Include="Field\Types\ContentChannelItemFieldType.cs" />
     <Compile Include="Field\Types\MonthDayFieldType.cs" />
     <Compile Include="Field\Types\GenderFieldType.cs" />
     <Compile Include="Field\Types\InteractionChannelsFieldType.cs" />
     <Compile Include="Field\Types\LabelFieldType.cs" />
+    <Compile Include="Field\Types\RegistrationInstanceFieldType.cs" />
+    <Compile Include="Field\Types\RegistrationTemplateFieldType.cs" />
     <Compile Include="Field\Types\ReportFieldType.cs" />
     <Compile Include="Field\Types\TimeZoneFieldType.cs" />
     <Compile Include="Field\Types\GroupMemberFieldType.cs" />
@@ -889,6 +896,7 @@
     <Compile Include="Model\CodeGenerated\PageShortLinkService.cs" />
     <Compile Include="Model\CodeGenerated\PersonTokenService.cs" />
     <Compile Include="Model\ContentChannelItemSlug.cs" />
+    <Compile Include="Model\ContentChannelItemSlugService.Partial.cs" />
     <Compile Include="Model\DataViewPersistedValue.cs" />
     <Compile Include="Model\ContentChannelItemService.Partial.cs" />
     <Compile Include="Model\FinancialAccountService.Partial.cs" />
@@ -1247,6 +1255,7 @@
     <Compile Include="Model\RegistrationTemplate.cs" />
     <Compile Include="Model\RegistrationTemplateDiscount.cs" />
     <Compile Include="Model\RegistrationTemplateFee.cs" />
+    <Compile Include="Model\RegistrationTemplateDiscountService.Partial.cs" />
     <Compile Include="Model\RegistrationTemplateForm.cs" />
     <Compile Include="Model\RegistrationTemplateFormField.cs" />
     <Compile Include="Model\Report.cs" />
@@ -1267,6 +1276,7 @@
     <Compile Include="Pbx\CdrRecord.cs" />
     <Compile Include="Pbx\PbxComponent.cs" />
     <Compile Include="Pbx\PbxContainer.cs" />
+    <Compile Include="PersonProfile\BadgeComponentModern.cs" />
     <Compile Include="PersonProfile\Badge\Giving.cs" />
     <Compile Include="PersonProfile\Badge\GroupTypeAttendance.cs" />
     <Compile Include="PersonProfile\Badge\InDataView.cs" />
@@ -1290,6 +1300,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Reporting\DataFilter\Person\AttendanceCampusFilter.cs" />
     <Compile Include="Plugin\HotFixes\050_MigrationRollupsForV7_4.cs" />
     <Compile Include="Reporting\DataFilter\FinancialScheduledTransactionDetail\AccountFilter.cs" />
     <Compile Include="Reporting\DataFilter\BenevolenceRequest\CampusActiveFilter.cs" />
@@ -1651,6 +1662,7 @@
     <Compile Include="Web\UI\Controls\NumberBoxBase.cs" />
     <Compile Include="Web\UI\Controls\NumberUpDownGroup.cs" />
     <Compile Include="Web\UI\Controls\Pickers\ContentChannelItemPicker.cs" />
+    <Compile Include="Web\UI\Controls\Pickers\RegistrationInstancePicker.cs" />
     <Compile Include="Web\UI\Controls\PreRegistration\Children.cs" />
     <Compile Include="Web\UI\Controls\PreRegistration\ChildRow.cs" />
     <Compile Include="Web\UI\Controls\Pickers\DataViewsPicker.cs" />
@@ -2168,7 +2180,7 @@
     <Compile Include="Workflow\Action\WorkflowControl\SetStatus.cs" />
     <Compile Include="Workflow\Action\WorkflowControl\SetWorkflowName.cs" />
     <Compile Include="Workflow\Action\WorkflowControl\UserForm.cs" />
-    <Compile Include="Workflow\Action\WorkflowControl\WebRequest.cs" />
+    <Compile Include="Workflow\Action\Utility\WebRequest.cs" />
     <Compile Include="Workflow\Action\WorkflowControl\WriteToLog.cs" />
     <Compile Include="Workflow\TriggerCache.cs" />
   </ItemGroup>
@@ -2216,7 +2228,19 @@
     <Content Include="Plugin\HotFixes\049_GivingAnalyticsAccounts_TransactionData.sql">
       <DependentUpon>049_UpdateGivingAnalyticsAccounts.cs</DependentUpon>
     </Content>
+    <Content Include="Plugin\HotFixes\050_MigrationRollupsForV7_4_AddVimeoShortCode.sql">
+      <DependentUpon>050_MigrationRollupsForV7_4.cs</DependentUpon>
+    </Content>
+    <Content Include="Plugin\HotFixes\050_MigrationRollupsForV7_4_FixAccordionShortCode.sql">
+      <DependentUpon>050_MigrationRollupsForV7_4.cs</DependentUpon>
+    </Content>
+    <Content Include="Plugin\HotFixes\050_MigrationRollupsForV7_4_FixThankyouAndOngoingHyphenations.sql">
+      <DependentUpon>050_MigrationRollupsForV7_4.cs</DependentUpon>
+    </Content>
     <Content Include="Plugin\HotFixes\050_MigrationRollupsForV7_4_spAnalytics_ETL_Campus.sql">
+      <DependentUpon>050_MigrationRollupsForV7_4.cs</DependentUpon>
+    </Content>
+    <Content Include="Plugin\HotFixes\050_MigrationRollupsForV7_4_spCrm_PersonDuplicateFinder.sql">
       <DependentUpon>050_MigrationRollupsForV7_4.cs</DependentUpon>
     </Content>
     <Content Include="Plugin\HotFixes\050_MigrationRollupsForV7_4_spCrm_PersonMerge.sql">
