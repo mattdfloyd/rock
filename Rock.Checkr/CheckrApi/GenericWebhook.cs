@@ -21,7 +21,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// Common Properties used by all the Webhooks
     /// </summary>
-    class GenericWebhook
+    internal class GenericWebhook
     {
         /// <summary>
         /// Gets or sets the ID.

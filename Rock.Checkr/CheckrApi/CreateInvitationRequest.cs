@@ -21,7 +21,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// JSON return structure for the Create Candidate API Call's request
     /// </summary>
-    class CreateInvitationRequest
+    internal class CreateInvitationRequest
     {
         /// <summary>
         /// Gets or sets the package.

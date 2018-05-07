@@ -22,7 +22,7 @@ namespace Rock.Checkr.CheckrApi
     /// Report Webhook
     /// </summary>
     /// <seealso cref="Rock.Checkr.CheckrApi.GenericWebhook" />
-    class ReportWebhook : GenericWebhook
+    internal class ReportWebhook : GenericWebhook
     {
         /// <summary>
         /// Gets or sets the Data.
@@ -34,7 +34,10 @@ namespace Rock.Checkr.CheckrApi
         public ReportData Data { get; set; }
     }
 
-    class ReportData
+    /// <summary>
+    /// Report.data JSON structure
+    /// </summary>
+    internal class ReportData
     {
         /// <summary>
         /// Gets or sets the Data Object.
@@ -46,7 +49,10 @@ namespace Rock.Checkr.CheckrApi
         public ReportDataObject Object { get; set; }
     }
 
-    class ReportDataObject
+    /// <summary>
+    /// Report.data.object JSON structure
+    /// </summary>
+    internal class ReportDataObject
     {
         /// <summary>
         /// Gets or sets the ID.

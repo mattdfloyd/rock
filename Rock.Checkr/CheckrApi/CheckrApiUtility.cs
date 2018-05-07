@@ -142,6 +142,7 @@ namespace Rock.Checkr.CheckrApi
             restRequest.AddParameter( "first_name", person.FirstName );
             restRequest.AddParameter( "middle_name", person.MiddleName );
             restRequest.AddParameter( "no_middle_name", person.MiddleName.IsNullOrWhiteSpace() );
+            restRequest.AddParameter( "last_name", person.LastName );
             restRequest.AddParameter( "email", person.Email );
 
             // request = RequestToString( restClient, restRequest ); // For debugging

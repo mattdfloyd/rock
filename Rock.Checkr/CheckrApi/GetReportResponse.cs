@@ -22,7 +22,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// JSON return structure for the Get Report API Call's Response
     /// </summary>
-    class GetReportResponse
+    internal class GetReportResponse
     {
         /// <summary>
         /// Gets or sets the report ID.

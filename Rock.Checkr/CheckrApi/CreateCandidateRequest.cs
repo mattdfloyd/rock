@@ -21,7 +21,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// JSON return structure for the Create Candidate API Call's request
     /// </summary>
-    class CreateCandidateRequest
+    internal class CreateCandidateRequest
     {
         /// <summary>
         /// Gets or sets the candidate's first name.

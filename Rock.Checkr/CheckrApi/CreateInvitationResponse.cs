@@ -21,7 +21,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// JSON return structure for the Create Invitation API Call's Response
     /// </summary>
-    class CreateInvitationResponse
+    internal class CreateInvitationResponse
     {
         /// <summary>
         /// Gets or sets the invitation ID.

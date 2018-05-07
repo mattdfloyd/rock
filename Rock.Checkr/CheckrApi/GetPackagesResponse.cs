@@ -22,7 +22,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// JSON return structure for the Get Packages API Call's Response
     /// </summary>
-    class GetPackagesResponse
+    internal class GetPackagesResponse
     {
         /// <summary>
         /// Gets or sets the packages array
