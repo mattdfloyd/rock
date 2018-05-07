@@ -22,7 +22,7 @@ namespace Rock.Checkr.CheckrApi
     /// Invitation Webhook
     /// </summary>
     /// <seealso cref="Rock.Checkr.CheckrApi.GenericWebhook" />
-    class InvitationWebhook : GenericWebhook
+    internal class InvitationWebhook : GenericWebhook
     {
         /// <summary>
         /// Gets or sets the Data.
@@ -34,7 +34,7 @@ namespace Rock.Checkr.CheckrApi
         public InvitationData Data { get; set; }
     }
 
-    class InvitationData
+    internal class InvitationData
     {
         /// <summary>
         /// Gets or sets the Data Object.
@@ -46,7 +46,7 @@ namespace Rock.Checkr.CheckrApi
         public InvitationDataObject Object { get; set; }
     }
 
-    class InvitationDataObject
+    internal class InvitationDataObject
     {
         /// <summary>
         /// Gets or sets the ID.

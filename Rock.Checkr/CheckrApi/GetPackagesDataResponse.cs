@@ -21,7 +21,7 @@ namespace Rock.Checkr.CheckrApi
     /// <summary>
     /// JSON return structure for the Get Packages API Call's Response
     /// </summary>
-    class GetPackagesDataResponse
+    internal class GetPackagesDataResponse
     {
         /// <summary>
         /// Gets or sets the slugified version of the package name

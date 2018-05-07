@@ -20,7 +20,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Rock.Checkr.CheckrApi
 {
-    class Enums
+    internal class Enums
     {
         /// <summary>
          /// Webhook invitation events
