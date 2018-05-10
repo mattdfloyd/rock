@@ -31,36 +31,41 @@ namespace Rock.Checkr.Constants
         /// <summary>
         /// The Typename prefix
         /// </summary>
-        public static readonly string TYPENAME_PREFIX = "Checkr - ";
+        public static readonly string CHECKR_TYPENAME_PREFIX = "Checkr - ";
 
         /// <summary>
         /// The login URL
         /// </summary>
-        public static readonly string LOGIN_URL = "https://api.checkr.com";
+        public static readonly string CHECKR_LOGIN_URL = "https://api.checkr.com";
 
         /// <summary>
         /// The candidates URL
         /// </summary>
-        public static readonly string CANDIDATES_URL = "https://api.checkr.com/v1/candidates";
+        public static readonly string CHECKR_CANDIDATES_URL = "https://api.checkr.com/v1/candidates";
 
         /// <summary>
         /// The invitations URL
         /// </summary>
-        public static readonly string INVITATIONS_URL = "https://api.checkr.com/v1/invitations";
+        public static readonly string CHECKR_INVITATIONS_URL = "https://api.checkr.com/v1/invitations";
 
         /// <summary>
         /// The report URL
         /// </summary>
-        public static readonly string REPORT_URL = "https://api.checkr.com/v1/reports";
+        public static readonly string CHECKR_REPORT_URL = "https://api.checkr.com/v1/reports";
 
         /// <summary>
         /// The packages URL
         /// </summary>
-        public static readonly string PACKAGES_URL = "https://api.checkr.com/v1/packages";
+        public static readonly string CHECKR_PACKAGES_URL = "https://api.checkr.com/v1/packages";
 
         /// <summary>
         /// The document URL
         /// </summary>
-        public static readonly string DOCUMENT_URL = "https://api.checkr.com/v1/documents";
+        public static readonly string CHECKR_DOCUMENT_URL = "https://api.checkr.com/v1/documents";
+
+        /// <summary>
+        /// The checkr workflow action
+        /// </summary>
+        public static readonly string CHECKR_WORKFLOWACTION = "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39";
     }
 }

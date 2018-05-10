@@ -251,5 +251,10 @@ namespace Rock.SystemGuid
         /// The HTTP module component
         /// </summary>
         public const string HTTP_MODULE_COMPONENT = "EDE69F48-5E05-4260-B360-DA37DFD1AB83";
+
+        /// <summary>
+        /// The checkr provider
+        /// </summary>
+        public const string CHECKR_PROVIDER = "8D9DE88A-C649-47B2-BA5C-92A24F60AE61";
     }
 }

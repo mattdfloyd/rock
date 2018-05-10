@@ -385,7 +385,7 @@ namespace Rock.Checkr
                         definedValue.ForeignId = 2;
                         definedValueService.Add( definedValue );
 
-                        definedValue.Value = CheckrConstants.TYPENAME_PREFIX + packageName.Replace( '_', ' ' ).FixCase();
+                        definedValue.Value = CheckrConstants.CHECKR_TYPENAME_PREFIX + packageName.Replace( '_', ' ' ).FixCase();
 
                         definedValue.Description = packageRestResponse.Name == "Educatio Report" ? "Education Report" : packageRestResponse.Name;
                         rockContext.SaveChanges();

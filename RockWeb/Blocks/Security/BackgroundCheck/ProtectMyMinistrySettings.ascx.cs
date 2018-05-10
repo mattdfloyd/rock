@@ -30,6 +30,9 @@ using Rock.Security;
 using Rock.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
+using Rock.Migrations;
+using System.Data.SqlClient;
+using Rock.Checkr.Constants;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
@@ -329,9 +332,56 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             }
 
             BindPackageGrid();
-
             HideDialog();
+        }
 
+        /// <summary>
+        /// Handles the Click event of the btnDefault control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void btnDefault_Click( object sender, EventArgs e )
+        {
+            var bioBlock = CacheBlock.Get( Checkr_CreatePages.BLOCK_BIO.AsGuid() );
+            List<Guid> workflowActionGuidList = bioBlock.GetAttributeValues( "WorkflowActions" ).AsGuidList();
+            if ( workflowActionGuidList == null || workflowActionGuidList.Count == 0 )
+            {
+                // Add Checkr to Bio Workflow Actions
+                bioBlock.SetAttributeValue( "WorkflowActions", Checkr_CreatePages.PMM_WORKFLOWACTION );
+            }
+            else
+            {
+                //var workflowActionValues = workflowActionValue.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).ToList();
+                Guid guid = Checkr_CreatePages.PMM_WORKFLOWACTION.AsGuid();
+                if ( !workflowActionGuidList.Any( w => w == guid ) )
+                {
+                    // Add Checkr to Bio Workflow Actions
+                    workflowActionGuidList.Add( guid );
+                }
+
+                // Remove PMM from Bio Workflow Actions
+                guid = CheckrConstants.CHECKR_WORKFLOWACTION.AsGuid();
+                workflowActionGuidList.RemoveAll( w => w == guid );
+                bioBlock.SetAttributeValue( "WorkflowActions", workflowActionGuidList.AsDelimited( "," ) );
+            }
+
+            bioBlock.SaveAttributeValue( "WorkflowActions" );
+
+            using ( var rockContext = new RockContext() )
+            {
+                WorkflowTypeService workflowTypeService = new WorkflowTypeService( rockContext );
+                // Rename PMM Workflow
+                var pmmWorkflowAction = workflowTypeService.Get( Checkr_CreatePages.PMM_WORKFLOWACTION.AsGuid() );
+                pmmWorkflowAction.Name = "Background Check";
+
+                var checkrWorkflowAction = workflowTypeService.Get( CheckrConstants.CHECKR_WORKFLOWACTION.AsGuid() );
+                // Rename Checkr Workflow
+                checkrWorkflowAction.Name = Checkr_CreatePages.CHECKR_WORKFLOWACTION_NAME;
+
+                rockContext.SaveChanges();
+            }
+
+            ShowDetail();
         }
 
         #endregion
@@ -339,6 +389,35 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         #endregion
 
         #region Internal Methods
+        /// <summary>
+        /// Haves the workflow action.
+        /// </summary>
+        /// <param name="guidValue">The Guid value of the action.</param>
+        /// <returns>True/False if the Workflow contains the action</returns>
+        private bool HaveWorkflowAction( string guidValue )
+        {
+            // workflowType.IsAuthorized( Authorization.VIEW, CurrentPerson
+
+            using ( var rockContext = new RockContext() )
+            {
+                BlockService blockService = new BlockService( rockContext );
+                AttributeService attributeService = new AttributeService( rockContext );
+                AttributeValueService attributeValueService = new AttributeValueService( rockContext );
+
+                var block = blockService.Get( Checkr_CreatePages.BLOCK_BIO.AsGuid() );
+
+                var attribute = attributeService.Get( Checkr_CreatePages.BIO_WORKFLOWACTION.AsGuid() );
+                var attributeValue = attributeValueService.GetByAttributeIdAndEntityId( attribute.Id, block.Id );
+                if ( attributeValue == null || string.IsNullOrWhiteSpace( attributeValue.Value ) )
+                {
+                    return false;
+                }
+
+                var workflowActionValues = attributeValue.Value.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries );
+                Guid guid = guidValue.AsGuid();
+                return workflowActionValues.Any( w => w.AsGuid() == guid );
+            }
+        }
 
         /// <summary>
         /// Shows the detail.
@@ -427,6 +506,15 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             pnlPackages.Visible = false;
 
             HideSecondaryBlocks( false );
+
+            if ( HaveWorkflowAction( Checkr_CreatePages.PMM_WORKFLOWACTION ) )
+            {
+                btnDefault.Visible = false;
+            }
+            else
+            {
+                btnDefault.Visible = true;
+            }
         }
 
         /// <summary>
