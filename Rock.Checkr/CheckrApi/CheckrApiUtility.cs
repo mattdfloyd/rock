@@ -101,7 +101,7 @@ namespace Rock.Checkr.CheckrApi
         internal static bool GetPackages( out GetPackagesResponse getPackagesResponse, List<string> errorMessages )
         {
             getPackagesResponse = null;
-            RestClient restClient = RestClient( CheckrConstants.PACKAGES_URL );
+            RestClient restClient = RestClient( CheckrConstants.CHECKR_PACKAGES_URL );
             RestRequest restRequest = new RestRequest();
             IRestResponse restResponse = restClient.Execute( restRequest );
 
@@ -137,7 +137,7 @@ namespace Rock.Checkr.CheckrApi
         internal static bool CreateCandidate( Person person, out CreateCandidateResponse createCandidateResponse, List<string> errorMessages )
         {
             createCandidateResponse = null;
-            RestClient restClient = RestClient( CheckrConstants.CANDIDATES_URL );
+            RestClient restClient = RestClient( CheckrConstants.CHECKR_CANDIDATES_URL );
             RestRequest restRequest = new RestRequest( Method.POST );
             restRequest.AddParameter( "first_name", person.FirstName );
             restRequest.AddParameter( "middle_name", person.MiddleName );
@@ -182,7 +182,7 @@ namespace Rock.Checkr.CheckrApi
         internal static bool CreateInvitation( string candidateId, string package, out CreateInvitationResponse createInvitationResponse, List<string> errorMessages )
         {
             createInvitationResponse = null;
-            RestClient restClient = RestClient( CheckrConstants.INVITATIONS_URL );
+            RestClient restClient = RestClient( CheckrConstants.CHECKR_INVITATIONS_URL );
             RestRequest restRequest = new RestRequest( Method.POST );
             restRequest.AddParameter( "candidate_id", candidateId );
             restRequest.AddParameter( "package", package );
@@ -223,7 +223,7 @@ namespace Rock.Checkr.CheckrApi
         internal static bool GetReport( string reportId, out GetReportResponse getReportResponse, List<string> errorMessages )
         {
             getReportResponse = null;
-            RestClient restClient = RestClient( CheckrConstants.REPORT_URL + "/" + reportId );
+            RestClient restClient = RestClient( CheckrConstants.CHECKR_REPORT_URL + "/" + reportId );
             RestRequest restRequest = new RestRequest();
             IRestResponse restResponse = restClient.Execute( restRequest );
 
@@ -259,7 +259,7 @@ namespace Rock.Checkr.CheckrApi
         internal static bool GetDocument( string documentId, out GetDocumentResponse getDocumentResponse, List<string> errorMessages )
         {
             getDocumentResponse = null;
-            RestClient restClient = RestClient( CheckrConstants.DOCUMENT_URL + "/" + documentId );
+            RestClient restClient = RestClient( CheckrConstants.CHECKR_DOCUMENT_URL + "/" + documentId );
             RestRequest restRequest = new RestRequest();
             IRestResponse restResponse = restClient.Execute( restRequest );
 

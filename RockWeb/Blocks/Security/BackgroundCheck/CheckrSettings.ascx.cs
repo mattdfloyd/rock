@@ -35,6 +35,8 @@ using Rock.Cache;
 using Rock.Checkr.Constants;
 using Rock.Checkr.SystemKey;
 using Rock.Web;
+using Rock.Migrations;
+using System.Data.SqlClient;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
@@ -110,7 +112,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         protected void btnUpdate_Click( object sender, EventArgs e )
         {
             List<string> errorMessages = new List<string>();
-            if ( !Checkr.UpdatePackages( errorMessages ) )
+            if ( !Rock.Checkr.Checkr.UpdatePackages( errorMessages ) )
             {
                 nbNotification.Text = "<p>" + errorMessages.AsDelimited( "</p><p>" ) + "</p>";
                 nbNotification.Visible = true;
@@ -122,6 +124,55 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
 
             UpdatePackages();
             modalUpdated.Show();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the btnDefault control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void btnDefault_Click( object sender, EventArgs e )
+        {
+            var bioBlock = CacheBlock.Get( Checkr_CreatePages.BLOCK_BIO.AsGuid() );
+            List<Guid> workflowActionGuidList = bioBlock.GetAttributeValues( "WorkflowActions" ).AsGuidList();
+            if ( workflowActionGuidList == null || workflowActionGuidList.Count == 0 )
+            {
+                // Add Checkr to Bio Workflow Actions
+                bioBlock.SetAttributeValue( "WorkflowActions", CheckrConstants.CHECKR_WORKFLOWACTION );
+            }
+            else
+            {
+                //var workflowActionValues = workflowActionValue.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).ToList();
+                Guid guid = CheckrConstants.CHECKR_WORKFLOWACTION.AsGuid();
+                if ( !workflowActionGuidList.Any( w => w == guid ) )
+                {
+                    // Add Checkr to Bio Workflow Actions
+                    workflowActionGuidList.Add( guid );
+                }
+
+                // Remove PMM from Bio Workflow Actions
+                guid = Checkr_CreatePages.PMM_WORKFLOWACTION.AsGuid();
+                workflowActionGuidList.RemoveAll( w => w == guid );
+                bioBlock.SetAttributeValue( "WorkflowActions", workflowActionGuidList.AsDelimited( "," ) );
+            }
+
+            bioBlock.SaveAttributeValue( "WorkflowActions" );
+
+            using ( var rockContext = new RockContext() )
+            {
+                WorkflowTypeService workflowTypeService = new WorkflowTypeService( rockContext );
+                // Rename PMM Workflow
+                var pmmWorkflowAction = workflowTypeService.Get( Checkr_CreatePages.PMM_WORKFLOWACTION.AsGuid() );
+                pmmWorkflowAction.Name = Checkr_CreatePages.NEW_PMM_WORKFLOWACTION_NAME;
+
+                var checkrWorkflowAction = workflowTypeService.Get( CheckrConstants.CHECKR_WORKFLOWACTION.AsGuid() );
+                // Rename Checkr Workflow
+                checkrWorkflowAction.Name = "Background Check";
+
+                rockContext.SaveChanges();
+            }
+
+            ShowDetail();
         }
         #endregion
 
@@ -137,11 +188,41 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 var packages = new DefinedValueService( rockContext )
                     .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
                     .Where( v => v.ForeignId == 2 )
-                    .Select( v => v.Value.Substring( CheckrConstants.TYPENAME_PREFIX.Length ) )
+                    .Select( v => v.Value.Substring( CheckrConstants.CHECKR_TYPENAME_PREFIX.Length ) )
                     .ToList();
 
 
                 lPackages.Text = packages.AsDelimited( "<br/>" );
+            }
+        }
+
+        /// <summary>
+        /// Haves the workflow action.
+        /// </summary>
+        /// <param name="guidValue">The Guid value of the action.</param>
+        /// <returns>True/False if the Workflow contains the action</returns>
+        private bool HaveWorkflowAction( string guidValue )
+        {
+            // workflowType.IsAuthorized( Authorization.VIEW, CurrentPerson
+
+            using ( var rockContext = new RockContext() )
+            {
+                BlockService blockService = new BlockService( rockContext );
+                AttributeService attributeService = new AttributeService( rockContext );
+                AttributeValueService attributeValueService = new AttributeValueService( rockContext );
+
+                var block = blockService.Get( Checkr_CreatePages.BLOCK_BIO.AsGuid() );
+
+                var attribute = attributeService.Get( Checkr_CreatePages.BIO_WORKFLOWACTION.AsGuid() );
+                var attributeValue = attributeValueService.GetByAttributeIdAndEntityId( attribute.Id, block.Id );
+                if ( attributeValue == null || string.IsNullOrWhiteSpace( attributeValue.Value ) )
+                {
+                    return false;
+                }
+
+                var workflowActionValues = attributeValue.Value.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries );
+                Guid guid = guidValue.AsGuid();
+                return workflowActionValues.Any( w => w.AsGuid() == guid );
             }
         }
 
@@ -152,7 +233,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         {
             imgCheckrImage.ImageUrl = CheckrConstants.CHECKR_IMAGE_URL;
             string accessToken = Rock.Web.SystemSettings.GetValue( SystemSetting.ACCESS_TOKEN );
-            if (accessToken.IsNullOrWhiteSpace())
+            if ( accessToken.IsNullOrWhiteSpace() )
             {
                 pnlToken.Visible = true;
                 imgCheckrImage.Visible = true;
@@ -161,6 +242,15 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             }
             else
             {
+                if ( HaveWorkflowAction( CheckrConstants.CHECKR_WORKFLOWACTION ) )
+                {
+                    btnDefault.Visible = false;
+                }
+                else
+                {
+                    btnDefault.Visible = true;
+                }
+
                 tbAccessToken.Text = accessToken;
                 lViewColumnLeft.Text = new DescriptionList()
                     .Add( "Access Token", accessToken )
@@ -176,7 +266,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <returns></returns>
         private List<AttributeValue> GetSettings( RockContext rockContext )
         {
-            var checkrEntityType = CacheEntityType.Get( typeof( Checkr ) );
+            var checkrEntityType = CacheEntityType.Get( typeof( Rock.Checkr.Checkr ) );
             if ( checkrEntityType != null )
             {
                 var service = new AttributeValueService( rockContext );
@@ -200,7 +290,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 .Where( v => v.AttributeKey == key )
                 .Select( v => v.Value )
                 .FirstOrDefault();
-            if ( encryptedValue && !string.IsNullOrWhiteSpace( value ))
+            if ( encryptedValue && !string.IsNullOrWhiteSpace( value ) )
             {
                 try { value = Encryption.DecryptString( value ); }
                 catch { }
@@ -233,7 +323,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             }
             else
             {
-                var checkrEntityType = CacheEntityType.Get( typeof( Checkr ) );
+                var checkrEntityType = CacheEntityType.Get( typeof( Rock.Checkr.Checkr ) );
                 if ( checkrEntityType != null )
                 {
                     var attribute = new AttributeService( rockContext )

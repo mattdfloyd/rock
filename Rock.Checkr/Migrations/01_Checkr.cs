@@ -17,6 +17,7 @@
 using System;
 using Rock;
 using Rock.Plugin;
+using Rock.SystemGuid;
 
 namespace Rock.Migrations
 {
@@ -55,6 +56,8 @@ namespace Rock.Migrations
             #endregion
 
             #region Update Checkr Config
+            RockMigrationHelper.UpdateEntityType( "Rock.Checkr.Checkr", EntityType.CHECKR_PROVIDER, false, true );
+
             /*
             // tasker_standard Package with attribute values
             RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Checkr - Tasker Standard", "Background search with 1 county criminal search", "640F10F6-1507-47C3-8819-1194F9EDF705", false, 2 );
@@ -144,8 +147,11 @@ namespace Rock.Migrations
 
 
         /*
-
-                    RockMigrationHelper.UpdateEntityType( "Rock.Security.BackgroundCheck.ProtectMyMinistry", "C16856F4-3C6B-4AFB-A0B8-88A303508206", false, true );
+PROTECT_MY_MINISTRY_PROVIDER = "C16856F4-3C6B-4AFB-A0B8-88A303508206";
+8d9DE88A-C649-47B2-BA5C-92A24F60AE61
+8D9DE88A-C649-47B2-BA5C-92A24F60AE61
+Rock.Checkr.Checkr
+                  ->  RockMigrationHelper.UpdateEntityType( "Rock.Security.BackgroundCheck.ProtectMyMinistry", ENTITYTYPE_PMM, false, true );
                     RockMigrationHelper.AddEntityAttribute( "Rock.Security.BackgroundCheck.ProtectMyMinistry", "9C204CD0-1233-41C5-818A-C5DA439445AA", "", "", "User Name", "", "Protect My Ministry User Name", 0, "", "8510691C-BCD0-44FA-80B7-1605B2AE5EE7" );
                     RockMigrationHelper.AddEntityAttribute( "Rock.Security.BackgroundCheck.ProtectMyMinistry", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "", "", "Order", "", "The order that this service should be used (priority)", 0, "", "9F7CBDDA-D9DC-4452-935A-F394C7B0434F" );
                     RockMigrationHelper.AddEntityAttribute( "Rock.Security.BackgroundCheck.ProtectMyMinistry", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "", "", "Active", "", "Should Service be used?", 0, "", "4A904806-606D-410A-B095-97257A7A8863" );
@@ -495,7 +501,7 @@ namespace Rock.Migrations
                     RockMigrationHelper.AddActionTypeAttributeValue("1772E29C-7ADB-4165-8B78-FD43219FFB61","91A9F4BE-4A8E-430A-B466-A88DB2D33B34",@"Waiting for Result"); // Background Check:Submit Request:Set Status:Status
                     RockMigrationHelper.AddActionTypeAttributeValue("1772E29C-7ADB-4165-8B78-FD43219FFB61","AE8C180C-E370-414A-B10D-97891B95D105",@""); // Background Check:Submit Request:Set Status:Order
                     RockMigrationHelper.AddActionTypeAttributeValue("1772E29C-7ADB-4165-8B78-FD43219FFB61","36CE41F4-4C87-4096-B0C6-8269163BCC0A",@"False"); // Background Check:Submit Request:Set Status:Active
-                    RockMigrationHelper.AddActionTypeAttributeValue("5AA61E74-F2E6-43D8-8C71-D75C73067D6A","6E2366B4-9F0E-454A-9DB1-E06263749C12",@"c16856f4-3c6b-4afb-a0b8-88a303508206"); // Background Check:Submit Request:Submit Request:Background Check Provider
+->                    RockMigrationHelper.AddActionTypeAttributeValue("5AA61E74-F2E6-43D8-8C71-D75C73067D6A","6E2366B4-9F0E-454A-9DB1-E06263749C12",ENTITYTYPE_PMM); // Background Check:Submit Request:Submit Request:Background Check Provider
                     RockMigrationHelper.AddActionTypeAttributeValue("5AA61E74-F2E6-43D8-8C71-D75C73067D6A","3936E931-CC27-4C38-9AA5-AAA502057333",@""); // Background Check:Submit Request:Submit Request:Order
                     RockMigrationHelper.AddActionTypeAttributeValue("5AA61E74-F2E6-43D8-8C71-D75C73067D6A","6BEBD4BE-EDC7-4757-B597-445FC60DB6ED",@"False"); // Background Check:Submit Request:Submit Request:Active
                     RockMigrationHelper.AddActionTypeAttributeValue("5AA61E74-F2E6-43D8-8C71-D75C73067D6A","077A9C4E-86E7-42F6-BEC3-DBC8F57E6A13",@"af3f0233-9786-422d-83c8-a7565d99a01d"); // Background Check:Submit Request:Submit Request:Person Attribute
@@ -634,4 +640,4 @@ namespace Rock.Migrations
                 }
             */
     }
-    }
+}

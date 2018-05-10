@@ -40,6 +40,7 @@
                                     <asp:Literal ID="lViewColumnLeft" runat="server" />
                                     <div class="actions">
                                         <asp:LinkButton ID="btnEdit" runat="server" CssClass="btn btn-primary" OnClick="btnEdit_Click">Edit</asp:LinkButton>
+                                        <asp:LinkButton ID="btnDefault" runat="server" CssClass="btn btn-primary" OnClick="btnDefault_Click">Enable As Default Background Check Provider</asp:LinkButton>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
