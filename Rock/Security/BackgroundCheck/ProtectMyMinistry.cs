@@ -45,6 +45,8 @@ namespace Rock.Security.BackgroundCheck
     {
         private HttpStatusCode _HTTPStatusCode;
 
+        #region BackgroundCheckComponent Implementation
+
         /// <summary>
         /// Sends a background request to Protect My Ministry
         /// </summary>
@@ -423,6 +425,18 @@ Response XML ({2}):
                 return false;
             }
         }
+
+        /// <summary>
+        /// Gets the URL to the background check report.
+        /// </summary>
+        /// <param name="reportKey">The report key.</param>
+        /// <returns></returns>
+        public override string GetReportUrl( string reportKey )
+        {
+            var filePath = System.Web.VirtualPathUtility.ToAbsolute( "~/GetFile.ashx" );
+            return string.Format( "{0}?guid={1}", filePath, reportKey );
+        }
+        #endregion
 
         /// <summary>
         /// Posts to web service.

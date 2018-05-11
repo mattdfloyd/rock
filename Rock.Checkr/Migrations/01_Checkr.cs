@@ -53,6 +53,10 @@ namespace Rock.Migrations
             RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false );
 
             Sql( @"UPDATE [dbo].[BackgroundCheck] SET [ForeignId] = 1 WHERE [ForeignId] is null" );
+
+            // Enable this if "Report" attribute need to be changed from "Binary File" to "Background Check"
+            // RockMigrationHelper.UpdateWorkflowTypeAttribute( "16D12EF7-C546-4039-9036-B73D118EDC90", "D05B3808-803A-4531-9680-DD4AAB8ADF1A", "Report", "Report", "The downloaded background check report", 14, @"", "E6E5CF21-5A49-4630-9E18-531FF354380E" ); // Background Check:Report
+
             #endregion
 
             #region Update Checkr Config

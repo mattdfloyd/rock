@@ -67,6 +67,15 @@ namespace Rock.Checkr.CheckrApi
         public string Status { get; set; }
 
         /// <summary>
+        /// Gets or sets the package.
+        /// </summary>
+        /// <value>
+        /// The package.
+        /// </value>
+        [JsonProperty( "package" )]
+        public string Package { get; set; }
+
+        /// <summary>
         /// Gets or sets the Data Object.
         /// </summary>
         /// <value>

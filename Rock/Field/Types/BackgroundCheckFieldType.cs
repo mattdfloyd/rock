@@ -23,6 +23,7 @@ using Rock.Data;
 using Rock.Model;
 using Rock.Web.UI.Controls;
 using System.Web.UI.WebControls;
+using Rock.Cache;
 
 namespace Rock.Field.Types
 {
@@ -166,14 +167,18 @@ namespace Rock.Field.Types
                     else
                     {
                         var filePath = System.Web.VirtualPathUtility.ToAbsolute( "~/GetBackgroundCheck.ashx" );
-                        return string.Format( "<a href='{0}?guid={1}' title='{2}' class='btn btn-xs btn-default'>View</a>", filePath, binaryFileInfo.Guid, System.Web.HttpUtility.HtmlEncode( binaryFileInfo.FileName ) );
+                        return string.Format( "<a href='{0}?EntityTypeId={1}&RecordKey={2}' title='{3}' class='btn btn-xs btn-default'>View</a>", filePath, CacheEntityType.Get( typeof( Security.BackgroundCheck.ProtectMyMinistry ) ).Id, binaryFileInfo.Guid, System.Web.HttpUtility.HtmlEncode( binaryFileInfo.FileName ) );
                     }
                 }
             }
             else if (value != null)
             {
-                var filePath = System.Web.VirtualPathUtility.ToAbsolute( "~/GetBackgroundCheck.ashx" );
-                return string.Format( "<a href='{0}?id={1}' class='btn btn-xs btn-default'>View</a>", filePath, value );
+                var valueArray = value.Split( ',' );
+                if ( valueArray.Length == 2 )
+                {
+                    var filePath = System.Web.VirtualPathUtility.ToAbsolute( "~/GetBackgroundCheck.ashx" );
+                    return string.Format( "<a href='{0}?EntityTypeId={1}&RecordKey={2}' title='{3}' class='btn btn-xs btn-default'>View</a>", filePath, valueArray[0], valueArray[1], "Report" );
+                }
             }
 
             return base.FormatValue( parentControl, formattedValue, null, condensed );

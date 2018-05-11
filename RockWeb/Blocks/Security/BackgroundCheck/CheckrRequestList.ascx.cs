@@ -181,7 +181,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 var bc = new BackgroundCheckService( rockContext ).Get( e.RowKeyId );
                 if ( bc != null )
                 {
-                    string url = Checkr.GetDocumentUrl( bc.ResponseId );
+                    string url = new Checkr().GetReportUrl( bc.ResponseId );
                     if ( url.IsNotNullOrWhitespace() )
                     {
                         Response.Redirect( url, false );
