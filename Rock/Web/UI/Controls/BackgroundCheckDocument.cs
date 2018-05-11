@@ -141,17 +141,35 @@ namespace Rock.Web.UI.Controls
             get
             {
                 EnsureChildControls();
+                Guid? providerGuid = _componentPicker.SelectedValue.AsGuidOrNull();
+                if ( _textBox.Text.IsNotNullOrWhitespace() && providerGuid.HasValue )
+                {
+                    return $"{CacheEntityType.Get( providerGuid.Value ).Id},{_textBox.Text}";
+                }
+
                 return _textBox.Text;
             }
 
             set
             {
                 EnsureChildControls();
-                var li = _componentPicker.Items.FindByValue( Rock.SystemGuid.EntityType.CHECKR_PROVIDER.ToUpper() );
-                if ( li != null )
+                if ( value.IsNotNullOrWhitespace() )
                 {
-                    li.Selected = true;
-                    _componentPicker_SelectedIndexChanged( null, null );
+                    var valueSplit = value.Split( ',' );
+                    if ( valueSplit != null && valueSplit.Length == 2 )
+                    {
+                        //CacheEntityType.Get( typeof(Checkr) ).Id
+                        //Type backgroundCheckComponentType = Type.GetType( CacheEntityType.Get( entityTypeId ).AssemblyName )
+                        string entityTypeId = valueSplit[0];
+                        var li = _componentPicker.Items.FindByValue( CacheEntityType.Get( entityTypeId.AsInteger() ).Guid.ToString().ToUpper() );
+                        if ( li != null )
+                        {
+                            li.Selected = true;
+                            _componentPicker_SelectedIndexChanged( null, null );
+                            _textBox.Text = valueSplit[1];
+                            return;
+                        }
+                    }
                 }
 
                 _textBox.Text = value;
@@ -181,6 +199,8 @@ namespace Rock.Web.UI.Controls
 
             _textBox = new RockTextBox();
             _textBox.ID = this.ID + "_rockTextBox";
+            _textBox.Label = "RecordKey";
+            _textBox.Help = "Unique key for the background check report.";
             _textBox.Visible = false;
             Controls.Add( _textBox );
         }

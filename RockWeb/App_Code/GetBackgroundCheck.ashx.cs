@@ -19,6 +19,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Rock;
@@ -72,11 +73,18 @@ namespace RockWeb
 
                         // The invoke does NOT work;
                         // it throws "Object does not match target type"             
-                        string url = methodInfo.Invoke( classInstance, parametersArray ).ToString();
+                        string url = methodInfo.Invoke( classInstance, parametersArray ).ToStringSafe();
                         if ( url.IsNotNullOrWhitespace() )
                         {
-                            context.Response.Redirect( url, true );
-                            context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                            if ( url == "Unauthorized" )
+                            {
+                                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                            }
+                            else
+                            {
+                                context.Response.Redirect( url, true );
+                                context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                            }
                         }
                     }
                 }
@@ -87,9 +95,14 @@ namespace RockWeb
                 }
                 catch { }
             }
+            catch ( ThreadAbortException ex )
+            {
+                // Can safely ignore this exception
+            }
             catch ( SystemException ex )
             {
                 ExceptionLogService.LogException( ex, context );
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
         }
 

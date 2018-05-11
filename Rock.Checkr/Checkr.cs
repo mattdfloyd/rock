@@ -132,19 +132,38 @@ namespace Rock.Checkr
             }
         }
 
+        private Person GetCurrentPerson()
+        {
+            using ( var rockContext = new RockContext() )
+            {
+                var currentUser = new UserLoginService( rockContext ).GetByUserName( UserLogin.GetCurrentUserName() );
+                return currentUser != null ? currentUser.Person : null;
+            }
+        }
+
         /// <summary>
         /// Gets the URL to the background check report.
+        /// Note: Also used by GetBackgroundCheck.ashx.cs, ProcessRequest( HttpContext context )
         /// </summary>
         /// <param name="reportKey">The report key.</param>
         /// <returns></returns>
         public override string GetReportUrl( string reportKey )
         {
-            GetDocumentResponse getDocumentResponse;
-            List<string> errorMessages = new List<string>();
+            var isAuthorized = this.IsAuthorized( Authorization.VIEW, this. GetCurrentPerson() );
 
-            if ( CheckrApiUtility.GetDocument( reportKey, out getDocumentResponse, errorMessages ) )
+            if ( isAuthorized )
             {
-                return getDocumentResponse.DownloadUri;
+                GetDocumentResponse getDocumentResponse;
+                List<string> errorMessages = new List<string>();
+
+                if ( CheckrApiUtility.GetDocument( reportKey, out getDocumentResponse, errorMessages ) )
+                {
+                    return getDocumentResponse.DownloadUri;
+                }
+            }
+            else
+            {
+                return "Unauthorized";
             }
 
             return null;
@@ -342,9 +361,6 @@ namespace Rock.Checkr
                     string reportStatus = null; //Pass,Fail,Review
                     switch ( status )
                     {
-                        case "invitationCreated":
-                            recommendation = "Invitation Send";
-                            break;
                         case "pending":
                             recommendation = "Report Pending";
                             break;
@@ -361,6 +377,15 @@ namespace Rock.Checkr
                             break;
                         case "dispute":
                             recommendation = "Report Disputed";
+                            break;
+                        case "InvitationCreated":
+                            recommendation = "Invitate Sent";
+                            break;
+                        case "InvitationCompleted":
+                            recommendation = "Invitate Complete";
+                            break;
+                        case "InvitationExpired":
+                            recommendation = "Invitate Expired";
                             break;
                     }
 
@@ -624,8 +649,7 @@ namespace Rock.Checkr
                     return false;
                 }
 
-                string status = genericWebhook.Type == Enums.WebhookTypes.InvitationCreated ? "invitationCreated" : invitationWebhook.Data.Object.Status;
-                return UpdateBackgroundCheckAndWorkFlow( invitationWebhook.Data.Object.CandidateId, genericWebhook.Type, invitationWebhook.Data.Object.Package, status );
+                return UpdateBackgroundCheckAndWorkFlow( invitationWebhook.Data.Object.CandidateId, genericWebhook.Type, invitationWebhook.Data.Object.Package, genericWebhook.Type.ConvertToString(false) );
             } else if ( genericWebhook.Type == Enums.WebhookTypes.ReportCreated ||
                 genericWebhook.Type == Enums.WebhookTypes.ReportCompleted ||
                 genericWebhook.Type == Enums.WebhookTypes.ReportDisputed ||

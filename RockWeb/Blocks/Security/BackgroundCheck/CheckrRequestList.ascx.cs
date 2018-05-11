@@ -182,7 +182,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 if ( bc != null )
                 {
                     string url = new Checkr().GetReportUrl( bc.ResponseId );
-                    if ( url.IsNotNullOrWhitespace() )
+                    if ( url.IsNotNullOrWhitespace() && url != "Unauthorized" )
                     {
                         Response.Redirect( url, false );
                         Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/

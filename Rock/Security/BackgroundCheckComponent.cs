@@ -49,6 +49,7 @@ namespace Rock.Security
 
         /// <summary>
         /// Gets the URL to the background check report.
+        /// Note: Also used by GetBackgroundCheck.ashx.cs, ProcessRequest( HttpContext context )
         /// </summary>
         /// <param name="reportKey">The report key.</param>
         /// <returns></returns>
