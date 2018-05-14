@@ -64,13 +64,8 @@ namespace Rock.Checkr.Constants
         public static readonly string CHECKR_DOCUMENT_URL = "https://api.checkr.com/v1/documents";
 
         /// <summary>
-        /// The checkr workflow action
+        /// The default checkr workflowaction name
         /// </summary>
-        public static readonly string CHECKR_WORKFLOWACTION = "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39";
-
-        /// <summary>
-        /// The checkr page GUID
-        /// </summary>
-        public static readonly string CHECKR_PAGE = "6076db93-7c1a-44f3-be40-5e517b59abd0";
+        public static readonly string CHECKR_WORKFLOWACTION_NAME = "Background Check (Checkr)";
     }
 }

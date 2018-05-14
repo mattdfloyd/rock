@@ -507,11 +507,11 @@ namespace Rock.Checkr
             List<string> packages;
             using ( var rockContext = new RockContext() )
             {
-                var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() );
+                var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() );
 
                 DefinedValueService definedValueService = new DefinedValueService( rockContext );
                 packages = definedValueService
-                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
+                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() )
                     .Where( v => v.ForeignId == 2 )
                     .ToList()
                     .Select( v => { v.LoadAttributes( rockContext ); return v.GetAttributeValue( "PMMPackageName" ).ToString(); } ) // v => v.Value.Substring( CheckrConstants.TYPENAME_PREFIX.Length ) )

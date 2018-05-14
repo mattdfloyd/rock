@@ -16,6 +16,7 @@
 //
 using System;
 using Rock;
+using Rock.Checkr.Constants;
 using Rock.Plugin;
 using Rock.SystemGuid;
 
@@ -31,31 +32,31 @@ namespace Rock.Migrations
         {
             #region Update PPM Config
             // Rename Seven Year Auto Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Seven Year Automatic",
-                "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false );
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - Seven Year Automatic",
+                "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false, 1 );
 
             // Rename BASIC Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - BASIC",
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - BASIC",
                 "The Basic Package is the minimum recommended package for all volunteer and staff screenings. It includes SSN Verification and Address History, National Criminal Database Search, National Sex Offender Search, Re-verification of criminal records, Alias Names.",
-                "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false );
+                "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false, 1 );
 
             // Rename PLUS Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - PLUS",
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - PLUS",
                 "Depending on your state, it may be recommended to use the PLUS package instead of the Basic. The PLUS package includes everything in the BASIC package with the addition of one county or statewide criminal court search.",
-                "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false );
+                "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false, 1 );
 
             // Rename PA 153 Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Pennsylvania Act 153",
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - Pennsylvania Act 153",
                 "If your organization is located in Pennsylvania, This package should be used when screening any volunteers or staff that will interact with children. This package includes all of the screening and reporting requirements mandated by Pennsylvania Act 153.",
-                "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false );
+                "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false, 1 );
 
             // Rename MVR Only Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PMM - Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false );
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false, 1 );
 
             Sql( @"UPDATE [dbo].[BackgroundCheck] SET [ForeignId] = 1 WHERE [ForeignId] is null" );
 
             // Enable this if "Report" attribute need to be changed from "Binary File" to "Background Check"
-            // RockMigrationHelper.UpdateWorkflowTypeAttribute( "16D12EF7-C546-4039-9036-B73D118EDC90", "D05B3808-803A-4531-9680-DD4AAB8ADF1A", "Report", "Report", "The downloaded background check report", 14, @"", "E6E5CF21-5A49-4630-9E18-531FF354380E" ); // Background Check:Report
+            // RockMigrationHelper.UpdateWorkflowTypeAttribute( "16D12EF7-C546-4039-9036-B73D118EDC90", FieldType.BACKGROUNDCHECK, "Report", "Report", "The downloaded background check report", 14, @"", "E6E5CF21-5A49-4630-9E18-531FF354380E" ); // Background Check:Report
 
             #endregion
 
@@ -65,13 +66,11 @@ namespace Rock.Migrations
             RockMigrationHelper.AddSecurityAuthForEntityType( "Rock.Checkr.Checkr", 0, Rock.Security.Authorization.VIEW, true, Rock.SystemGuid.Group.GROUP_ADMINISTRATORS, 0, "6F1C36D9-5A8A-AC82-4CFE-C8F32BFB61E9" );
             RockMigrationHelper.AddSecurityAuthForEntityType( "Rock.Checkr.Checkr", 0, Rock.Security.Authorization.VIEW, true, Rock.SystemGuid.Group.GROUP_SAFETY_SECURITY, 0, "03AAD5DC-B8E0-FC9D-451D-3E9ABD06309B" );
 
-            string PERSON_SAFETYANDSECURITY_BACKGROUNDCHECKDOCUMENT = "F3931952-460D-43E0-A6E0-EB6B5B1F9167";
+            const string PERSON_SAFETYANDSECURITY_BACKGROUNDCHECKDOCUMENT = "F3931952-460D-43E0-A6E0-EB6B5B1F9167";
 
-            #region FieldTypes
-            string BACKGROUNDCHECK_FIELDTYPE = "d05b3808-803a-4531-9680-dd4aab8adf1a";
+            #region FieldTypes          
 
-
-            RockMigrationHelper.UpdateFieldType( "Background Check", "", "Rock", "Rock.Field.Types.BackgroundCheckFieldType", BACKGROUNDCHECK_FIELDTYPE );
+            RockMigrationHelper.UpdateFieldType( "Background Check", "", "Rock", "Rock.Field.Types.BackgroundCheckFieldType", FieldType.BACKGROUNDCHECK );
 
             // Change Person->Safety & Security->Background Check Document FieldType from 'File' to 'Background Check'
             Sql( string.Format( @"
@@ -83,129 +82,30 @@ namespace Rock.Migrations
                         [FieldTypeId] = @FieldTypeId
                     WHERE [Guid] = '{1}'
                 END",
-                    BACKGROUNDCHECK_FIELDTYPE,
+                    FieldType.BACKGROUNDCHECK,
                     PERSON_SAFETYANDSECURITY_BACKGROUNDCHECKDOCUMENT ) );
             #endregion
             #endregion
 
 
-            #region Workflow
+            #region Workflow: Background Check
 
-            #region EntityTypes
-
-            RockMigrationHelper.UpdateEntityType( "Rock.Model.Workflow", "3540E9A7-FE30-43A9-8B0A-A372B63DFC93", true, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Model.WorkflowActivity", "2CB52ED0-CB06-4D62-9E2C-73B60AFA4C9F", true, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Model.WorkflowActionType", "23E3273A-B137-48A3-9AFF-C8DC832DDCA6", true, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.ActivateActivity", "38907A90-1634-4A93-8017-619326A4A582", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.AssignActivityFromAttributeValue", "F100A31F-E93A-4C7A-9E55-0FAF41A101C4", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.AssignActivityToGroup", "DB2D8C44-6E57-4B45-8973-5DE327D61554", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.AssignActivityToSecurityRole", "08189B3F-B506-45E8-AA68-99EC51085CF3", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.BackgroundCheckRequest", "C4DAE3D6-931F-497F-AC00-60BAFA87B758", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.CompleteWorkflow", "EEDA4318-F014-4A46-9C76-4C052EF81AA1", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.DeleteWorkflow", "0E79AF40-4FB0-49D7-AB0E-E95BD828C62D", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.RunSQL", "A41216D6-6FB0-4019-B222-2C29B4519CF4", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SendEmail", "66197B01-D1F0-4924-A315-47AD54E030DE", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SetAttributeFromEntity", "972F19B9-598B-474B-97A4-50E56E7B59D2", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SetAttributeToCurrentPerson", "24B7D5E6-C30F-48F4-9D7E-AF45A342CF3A", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SetAttributeValue", "C789E457-0783-44B3-9D8F-2EBAB5F11110", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SetPersonAttribute", "320622DA-52E0-41AE-AF90-2BF78B488552", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SetStatus", "96D371A7-A291-4F8F-8B38-B8F72CE5407E", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.SetWorkflowName", "36005473-BD5D-470B-B28D-98E6D7ED808D", false, true );
-            RockMigrationHelper.UpdateEntityType( "Rock.Workflow.Action.UserEntryForm", "486DC4FA-FCBC-425F-90B0-E606DA8A9F68", false, true );
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "08189B3F-B506-45E8-AA68-99EC51085CF3", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "27BAC9C8-2BF7-405A-AA01-845A3D374295" ); // Rock.Workflow.Action.AssignActivityToSecurityRole:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "08189B3F-B506-45E8-AA68-99EC51085CF3", "7BD25DC9-F34A-478D-BEF9-0C787F5D39B8", "Security Role", "SecurityRole", "The security role to assign this activity to.", 0, @"", "D53823A1-28CB-4BA0-A24C-873ECF4079C5" ); // Rock.Workflow.Action.AssignActivityToSecurityRole:Security Role
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "08189B3F-B506-45E8-AA68-99EC51085CF3", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "120D39B5-8D2A-4B96-9419-C73BE0F2451A" ); // Rock.Workflow.Action.AssignActivityToSecurityRole:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "0E79AF40-4FB0-49D7-AB0E-E95BD828C62D", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "361A1EC8-FFD0-4880-AF68-91DC0E0D7CDC" ); // Rock.Workflow.Action.DeleteWorkflow:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "0E79AF40-4FB0-49D7-AB0E-E95BD828C62D", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "79D23F8B-0DC8-4B48-8A86-AEA48B396C82" ); // Rock.Workflow.Action.DeleteWorkflow:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "24B7D5E6-C30F-48F4-9D7E-AF45A342CF3A", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "DE9CB292-4785-4EA3-976D-3826F91E9E98" ); // Rock.Workflow.Action.SetAttributeToCurrentPerson:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "24B7D5E6-C30F-48F4-9D7E-AF45A342CF3A", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Person Attribute", "PersonAttribute", "The attribute to set to the currently logged in person.", 0, @"", "BBED8A83-8BB2-4D35-BAFB-05F67DCAD112" ); // Rock.Workflow.Action.SetAttributeToCurrentPerson:Person Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "24B7D5E6-C30F-48F4-9D7E-AF45A342CF3A", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "89E9BCED-91AB-47B0-AD52-D78B0B7CB9E8" ); // Rock.Workflow.Action.SetAttributeToCurrentPerson:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "320622DA-52E0-41AE-AF90-2BF78B488552", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "E5BAC4A6-FF7F-4016-BA9C-72D16CB60184" ); // Rock.Workflow.Action.SetPersonAttribute:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "320622DA-52E0-41AE-AF90-2BF78B488552", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Person", "Person", "Workflow attribute that contains the person to update.", 0, @"", "E456FB6F-05DB-4826-A612-5B704BC4EA13" ); // Rock.Workflow.Action.SetPersonAttribute:Person
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "320622DA-52E0-41AE-AF90-2BF78B488552", "3B1D93D7-9414-48F9-80E5-6A3FC8F94C20", "Value|Attribute Value", "Value", "The value or attribute value to set the person attribute to. <span class='tip tip-lava'></span>", 2, @"", "94689BDE-493E-4869-A614-2D54822D747C" ); // Rock.Workflow.Action.SetPersonAttribute:Value|Attribute Value
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "320622DA-52E0-41AE-AF90-2BF78B488552", "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Person Attribute", "PersonAttribute", "The person attribute that should be updated with the provided value.", 1, @"", "8F4BB00F-7FA2-41AD-8E90-81F4DFE2C762" ); // Rock.Workflow.Action.SetPersonAttribute:Person Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "320622DA-52E0-41AE-AF90-2BF78B488552", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "3F3BF3E6-AD53-491E-A40F-441F2AFCBB5B" ); // Rock.Workflow.Action.SetPersonAttribute:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "36005473-BD5D-470B-B28D-98E6D7ED808D", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "0A800013-51F7-4902-885A-5BE215D67D3D" ); // Rock.Workflow.Action.SetWorkflowName:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "36005473-BD5D-470B-B28D-98E6D7ED808D", "3B1D93D7-9414-48F9-80E5-6A3FC8F94C20", "Text Value|Attribute Value", "NameValue", "The value to use for the workflow's name. <span class='tip tip-lava'></span>", 1, @"", "93852244-A667-4749-961A-D47F88675BE4" ); // Rock.Workflow.Action.SetWorkflowName:Text Value|Attribute Value
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "36005473-BD5D-470B-B28D-98E6D7ED808D", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "5D95C15A-CCAE-40AD-A9DD-F929DA587115" ); // Rock.Workflow.Action.SetWorkflowName:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "38907A90-1634-4A93-8017-619326A4A582", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "E8ABD802-372C-47BE-82B1-96F50DB5169E" ); // Rock.Workflow.Action.ActivateActivity:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "38907A90-1634-4A93-8017-619326A4A582", "739FD425-5B8C-4605-B775-7E4D9D4C11DB", "Activity", "Activity", "The activity type to activate", 0, @"", "02D5A7A5-8781-46B4-B9FC-AF816829D240" ); // Rock.Workflow.Action.ActivateActivity:Activity
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "38907A90-1634-4A93-8017-619326A4A582", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "3809A78C-B773-440C-8E3F-A8E81D0DAE08" ); // Rock.Workflow.Action.ActivateActivity:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "486DC4FA-FCBC-425F-90B0-E606DA8A9F68", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "234910F2-A0DB-4D7D-BAF7-83C880EF30AE" ); // Rock.Workflow.Action.UserEntryForm:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "486DC4FA-FCBC-425F-90B0-E606DA8A9F68", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "C178113D-7C86-4229-8424-C6D0CF4A7E23" ); // Rock.Workflow.Action.UserEntryForm:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "1D0D3794-C210-48A8-8C68-3FBEC08A6BA5", "Body", "Body", "The body of the email that should be sent. <span class='tip tip-lava'></span> <span class='tip tip-html'></span>", 4, @"", "4D245B9E-6B03-46E7-8482-A51FBA190E4D" ); // Rock.Workflow.Action.SendEmail:Body
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "36197160-7D3D-490D-AB42-7E29105AFE91" ); // Rock.Workflow.Action.SendEmail:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Save Communication History", "SaveCommunicationHistory", "Should a record of this communication be saved to the recipient's profile", 8, @"False", "990D2EF3-7094-443E-95B0-35A5FA688BB9" ); // Rock.Workflow.Action.SendEmail:Save Communication History
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Attachment One", "AttachmentOne", "Workflow attribute that contains the email attachment. Note file size that can be sent is limited by both the sending and receiving email services typically 10 - 25 MB.", 5, @"", "98C2F4E9-5A71-47B4-92F1-D1E2AC551E5D" ); // Rock.Workflow.Action.SendEmail:Attachment One
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Attachment Three", "AttachmentThree", "Workflow attribute that contains the email attachment. Note file size that can be sent is limited by both the sending and receiving email services typically 10 - 25 MB.", 7, @"", "681AA5B3-CCFC-4105-93FF-A2F8C17C102B" ); // Rock.Workflow.Action.SendEmail:Attachment Three
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Attachment Two", "AttachmentTwo", "Workflow attribute that contains the email attachment. Note file size that can be sent is limited by both the sending and receiving email services typically 10 - 25 MB.", 6, @"", "517AD6A9-EF78-4FFF-808F-7814032A3A9D" ); // Rock.Workflow.Action.SendEmail:Attachment Two
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Send to Group Role", "GroupRole", "An optional Group Role attribute to limit recipients to if the 'Send to Email Address' is a group or security role.", 2, @"", "7E6C48A1-CE68-4669-AFD1-2DE8452D0D14" ); // Rock.Workflow.Action.SendEmail:Send to Group Role
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "3B1D93D7-9414-48F9-80E5-6A3FC8F94C20", "From Email Address|Attribute Value", "From", "The email address or an attribute that contains the person or email address that email should be sent from (will default to organization email). <span class='tip tip-lava'></span>", 0, @"", "9F5F7CEC-F369-4FDF-802A-99074CE7A7FC" ); // Rock.Workflow.Action.SendEmail:From Email Address|Attribute Value
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "3B1D93D7-9414-48F9-80E5-6A3FC8F94C20", "Send To Email Addresses|Attribute Value", "To", "The email addresses or an attribute that contains the person or email address that email should be sent to. <span class='tip tip-lava'></span>", 1, @"", "0C4C13B8-7076-4872-925A-F950886B5E16" ); // Rock.Workflow.Action.SendEmail:Send To Email Addresses|Attribute Value
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Subject", "Subject", "The subject that should be used when sending email. <span class='tip tip-lava'></span>", 3, @"", "5D9B13B6-CD96-4C7C-86FA-4512B9D28386" ); // Rock.Workflow.Action.SendEmail:Subject
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "66197B01-D1F0-4924-A315-47AD54E030DE", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "D1269254-C15A-40BD-B784-ADCC231D3950" ); // Rock.Workflow.Action.SendEmail:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "96D371A7-A291-4F8F-8B38-B8F72CE5407E", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "36CE41F4-4C87-4096-B0C6-8269163BCC0A" ); // Rock.Workflow.Action.SetStatus:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "96D371A7-A291-4F8F-8B38-B8F72CE5407E", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Status", "Status", "The status to set workflow to. <span class='tip tip-lava'></span>", 0, @"", "91A9F4BE-4A8E-430A-B466-A88DB2D33B34" ); // Rock.Workflow.Action.SetStatus:Status
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "96D371A7-A291-4F8F-8B38-B8F72CE5407E", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "AE8C180C-E370-414A-B10D-97891B95D105" ); // Rock.Workflow.Action.SetStatus:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "972F19B9-598B-474B-97A4-50E56E7B59D2", "1D0D3794-C210-48A8-8C68-3FBEC08A6BA5", "Lava Template", "LavaTemplate", "By default this action will set the attribute value equal to the guid (or id) of the entity that was passed in for processing. If you include a lava template here, the action will instead set the attribute value to the output of this template. The mergefield to use for the entity is 'Entity.' For example, use {{ Entity.Name }} if the entity has a Name property. <span class='tip tip-lava'></span>", 4, @"", "0095A00E-274F-4868-8288-3D2F0C59E220" ); // Rock.Workflow.Action.SetAttributeFromEntity:Lava Template
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "972F19B9-598B-474B-97A4-50E56E7B59D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "9392E3D7-A28B-4CD8-8B03-5E147B102EF1" ); // Rock.Workflow.Action.SetAttributeFromEntity:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "972F19B9-598B-474B-97A4-50E56E7B59D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Entity Is Required", "EntityIsRequired", "Should an error be returned if the entity is missing or not a valid entity type?", 2, @"True", "83A3F7B6-97E5-41BF-85FE-5B5929B7ECD1" ); // Rock.Workflow.Action.SetAttributeFromEntity:Entity Is Required
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "972F19B9-598B-474B-97A4-50E56E7B59D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Use Id instead of Guid", "UseId", "Most entity attribute field types expect the Guid of the entity (which is used by default). Select this option if the entity's Id should be used instead (should be rare).", 3, @"False", "1246C53A-FD92-4E08-ABDE-9A6C37E70C7B" ); // Rock.Workflow.Action.SetAttributeFromEntity:Use Id instead of Guid
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "972F19B9-598B-474B-97A4-50E56E7B59D2", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Attribute", "Attribute", "The attribute to set the value of.", 1, @"", "61E6E1BC-E657-4F00-B2E9-769AAA25B9F7" ); // Rock.Workflow.Action.SetAttributeFromEntity:Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "972F19B9-598B-474B-97A4-50E56E7B59D2", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "AD4EFAC4-E687-43DF-832F-0DC3856ABABB" ); // Rock.Workflow.Action.SetAttributeFromEntity:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "A41216D6-6FB0-4019-B222-2C29B4519CF4", "1D0D3794-C210-48A8-8C68-3FBEC08A6BA5", "SQLQuery", "SQLQuery", "The SQL query to run. <span class='tip tip-lava'></span>", 0, @"", "F3B9908B-096F-460B-8320-122CF046D1F9" ); // Rock.Workflow.Action.RunSQL:SQLQuery
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "A41216D6-6FB0-4019-B222-2C29B4519CF4", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "A18C3143-0586-4565-9F36-E603BC674B4E" ); // Rock.Workflow.Action.RunSQL:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "A41216D6-6FB0-4019-B222-2C29B4519CF4", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Continue On Error", "ContinueOnError", "Should processing continue even if SQL Error occurs?", 3, @"False", "29D919A4-BAFD-4913-A992-636D71EDA45F" ); // Rock.Workflow.Action.RunSQL:Continue On Error
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "A41216D6-6FB0-4019-B222-2C29B4519CF4", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Result Attribute", "ResultAttribute", "An optional attribute to set to the scaler result of SQL query.", 2, @"", "56997192-2545-4EA1-B5B2-313B04588984" ); // Rock.Workflow.Action.RunSQL:Result Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "A41216D6-6FB0-4019-B222-2C29B4519CF4", "73B02051-0D38-4AD9-BF81-A2D477DE4F70", "Parameters", "Parameters", "The parameters to supply to the SQL query. <span class='tip tip-lava'></span>", 1, @"", "1C911B04-9A43-4BE6-8A20-BA08BAFFD021" ); // Rock.Workflow.Action.RunSQL:Parameters
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "A41216D6-6FB0-4019-B222-2C29B4519CF4", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "FA7C685D-8636-41EF-9998-90FFF3998F76" ); // Rock.Workflow.Action.RunSQL:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "6BEBD4BE-EDC7-4757-B597-445FC60DB6ED" ); // Rock.Workflow.Action.BackgroundCheckRequest:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Billing Code Attribute", "BillingCodeAttribute", "The attribute that contains the billing code to use when submitting background check.", 4, @"", "232B2F98-3B2F-4C53-81FC-061A92675C41" ); // Rock.Workflow.Action.BackgroundCheckRequest:Billing Code Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Person Attribute", "PersonAttribute", "The Person attribute that contains the person who the background check should be submitted for.", 1, @"", "077A9C4E-86E7-42F6-BEC3-DBC8F57E6A13" ); // Rock.Workflow.Action.BackgroundCheckRequest:Person Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Request Type Attribute", "RequestTypeAttribute", "The attribute that contains the type of background check to submit (Specific to provider).", 3, @"", "EC759165-949E-4966-BAFD-68A656A4EBF7" ); // Rock.Workflow.Action.BackgroundCheckRequest:Request Type Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "33E6DF69-BDFA-407A-9744-C175B60643AE", "SSN Attribute", "SSNAttribute", "The attribute that contains the Social Security Number of the person who the background check should be submitted for ( Must be an 'Encrypted Text' attribute )", 2, @"", "2631E72B-1D9B-40E8-B857-8B1D41943451" ); // Rock.Workflow.Action.BackgroundCheckRequest:SSN Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "A7486B0E-4CA2-4E00-A987-5544C7DABA76", "Background Check Provider", "Provider", "The Background Check provider to use", 0, @"", "6E2366B4-9F0E-454A-9DB1-E06263749C12" ); // Rock.Workflow.Action.BackgroundCheckRequest:Background Check Provider
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C4DAE3D6-931F-497F-AC00-60BAFA87B758", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "3936E931-CC27-4C38-9AA5-AAA502057333" ); // Rock.Workflow.Action.BackgroundCheckRequest:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C789E457-0783-44B3-9D8F-2EBAB5F11110", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "D7EAA859-F500-4521-9523-488B12EAA7D2" ); // Rock.Workflow.Action.SetAttributeValue:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C789E457-0783-44B3-9D8F-2EBAB5F11110", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Attribute", "Attribute", "The attribute to set the value of.", 0, @"", "44A0B977-4730-4519-8FF6-B0A01A95B212" ); // Rock.Workflow.Action.SetAttributeValue:Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C789E457-0783-44B3-9D8F-2EBAB5F11110", "3B1D93D7-9414-48F9-80E5-6A3FC8F94C20", "Text Value|Attribute Value", "Value", "The text or attribute to set the value from. <span class='tip tip-lava'></span>", 1, @"", "E5272B11-A2B8-49DC-860D-8D574E2BC15C" ); // Rock.Workflow.Action.SetAttributeValue:Text Value|Attribute Value
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "C789E457-0783-44B3-9D8F-2EBAB5F11110", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "57093B41-50ED-48E5-B72B-8829E62704C8" ); // Rock.Workflow.Action.SetAttributeValue:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DB2D8C44-6E57-4B45-8973-5DE327D61554", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "C0D75D1A-16C5-4786-A1E0-25669BEE8FE9" ); // Rock.Workflow.Action.AssignActivityToGroup:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DB2D8C44-6E57-4B45-8973-5DE327D61554", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "041B7B51-A694-4AF5-B455-64D0DE7160A2" ); // Rock.Workflow.Action.AssignActivityToGroup:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DB2D8C44-6E57-4B45-8973-5DE327D61554", "CC34CE2C-0B0E-4BB3-9549-454B2A7DF218", "Group", "Group", "Select group type, then group, to set the group to assign this activity to.", 0, @"", "BBFAD050-5968-4D11-8887-2FF877D8C8AB" ); // Rock.Workflow.Action.AssignActivityToGroup:Group
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "EEDA4318-F014-4A46-9C76-4C052EF81AA1", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "0CA0DDEF-48EF-4ABC-9822-A05E225DE26C" ); // Rock.Workflow.Action.CompleteWorkflow:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "EEDA4318-F014-4A46-9C76-4C052EF81AA1", "3B1D93D7-9414-48F9-80E5-6A3FC8F94C20", "Status|Status Attribute", "Status", "The status to set the workflow to when marking the workflow complete. <span class='tip tip-lava'></span>", 0, @"Completed", "750539CF-33E5-4CAF-8282-AE870E1AA88F" ); // Rock.Workflow.Action.CompleteWorkflow:Status|Status Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "EEDA4318-F014-4A46-9C76-4C052EF81AA1", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "25CAD4BE-5A00-409D-9BAB-E32518D89956" ); // Rock.Workflow.Action.CompleteWorkflow:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F100A31F-E93A-4C7A-9E55-0FAF41A101C4", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "E0F7AB7E-7761-4600-A099-CB14ACDBF6EF" ); // Rock.Workflow.Action.AssignActivityFromAttributeValue:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F100A31F-E93A-4C7A-9E55-0FAF41A101C4", "33E6DF69-BDFA-407A-9744-C175B60643AE", "Attribute", "Attribute", "The person or group attribute value to assign this activity to.", 0, @"", "FBADD25F-D309-4512-8430-3CC8615DD60E" ); // Rock.Workflow.Action.AssignActivityFromAttributeValue:Attribute
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F100A31F-E93A-4C7A-9E55-0FAF41A101C4", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "7A6B605D-7FB1-4F48-AF35-5A0683FB1CDA" ); // Rock.Workflow.Action.AssignActivityFromAttributeValue:Order
-
-            #endregion
-
-            #region Categories
-
-            RockMigrationHelper.UpdateCategory( "C9F3C4A5-1526-474D-803F-D6C7A45CBBAE", "Safety & Security", "fa fa-medkit", "", "6F8A431C-BEBD-4D33-AAD6-1D70870329C2", 0 ); // Safety & Security
-
-            #endregion
-
-            #region Background Check
-
-            RockMigrationHelper.UpdateWorkflowType( false, true, "Background Check", "Used to request a background check be performed on a person.", "6F8A431C-BEBD-4D33-AAD6-1D70870329C2", "Request", "fa fa-check-square-o", 0, true, 0, "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", 0 ); // Background Check
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Checked Attribute", "CheckedAttribute", "The person attribute that indicates if person has a valid background check (passed)", 0, @"daf87b87-3d1e-463d-a197-52227fe4ea28", "8E5734C6-933D-44EB-9ED3-5099F33D740E", false ); // Background Check:Checked Attribute
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Request Message", "RequestMessage", "", 0, @"", "D1BB237B-56E8-4E32-B487-694DC79BC89F", false ); // Background Check:Request Message
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Request Status", "RequestStatus", "", 0, @"", "BBA4BD3A-D568-42AA-91EE-D0D3EDA3CE78", false ); // Background Check:Request Status
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Date Attribute", "DateAttribute", "The person attribute the stores the date background check was completed", 1, @"3daff000-7f74-47d7-8cb0-e4a4e6c81f5f", "BAAA1F87-01B6-436F-82B7-1E156C762FC2", false ); // Background Check:Date Attribute
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Status Attribute", "StatusAttribute", "The person attribute that stores the background check status", 2, @"44490089-e02c-4e54-a456-454845abbc9d", "A11E0AFF-8B58-49AF-A434-CBDECA8A4153", false ); // Background Check:Status Attribute
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Result Attribute", "ResultAttribute", "The person attribute that stores the background check document", 3, @"f3931952-460d-43e0-a6e0-eb6b5b1f9167", "B31E4F7B-A122-4311-B7C2-6637F437FE11", false ); // Background Check:Result Attribute
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "E4EAB7B2-0B76-429B-AFE4-AD86D7428C70", "Requester", "Requester", "The person initiating the request", 4, @"", "803432A0-CE28-4FEC-A10B-D9476C42ED35", false ); // Background Check:Requester
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "E4EAB7B2-0B76-429B-AFE4-AD86D7428C70", "Person", "Person", "The person who request should be initiated for", 5, @"", "2D977682-2589-47BB-94E6-906A9587EE7C", false ); // Background Check:Person
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Warn Of Recent", "WarnOfRecent", "Flag indicating if user should be warned that person has a recent background check already.", 6, @"False", "C9C444FF-86B5-4FE5-9D3C-F41F13E66D04", false ); // Background Check:Warn Of Recent
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "1B71FEF4-201F-4D53-8C60-2DF21F1985ED", "Campus", "Campus", "If included, the campus name will be used as the Billing Reference Code for the request (optional)", 7, @"", "C4C12A1E-26B7-4580-B70C-BAF64497F3E8", false ); // Background Check:Campus
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Type", "PackageType", "Value should be the type of background check to request from the vendor.", 9, @"", "00B8C76C-0FFF-4827-8ABC-48215004686F", false ); // Background Check:Type
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "C28C7BF3-A552-4D77-9408-DEDCF760CED0", "Reason", "Reason", "A brief description of the reason that a background check is being requested", 10, @"", "7C945BCE-B167-4983-9B2E-9DF2BD41EE9C", false ); // Background Check:Reason
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "7525C4CB-EE6B-41D4-9B64-A08048D5A5C0", "Report Status", "ReportStatus", "The result status of the background check", 11, @"", "9B8DF978-54A0-4C5A-BFA5-372DD6ACF367", false ); // Background Check:Report Status
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Report Recommendation", "ReportRecommendation", "Providers recommendation ( if any )", 13, @"", "B7246062-BC31-4C74-9757-33F7AA64AABF", false ); // Background Check:Report Recommendation
-            RockMigrationHelper.UpdateWorkflowTypeAttribute( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", BACKGROUNDCHECK_FIELDTYPE, "Report", "Report", "The downloaded background check report", 14, @"", "E3F1F5E2-F055-44FB-ABF3-7CFC4C4A972C", false ); // Background Check:Report
+            RockMigrationHelper.UpdateWorkflowType( false, true, CheckrConstants.CHECKR_WORKFLOWACTION_NAME, "Used to request a background check be performed on a person.", "6F8A431C-BEBD-4D33-AAD6-1D70870329C2", "Request", "fa fa-check-square-o", 0, true, 0, CheckrSystemGuid.CHECKR_WORKFLOWACTION, 0 ); // Background Check
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Checked Attribute", "CheckedAttribute", "The person attribute that indicates if person has a valid background check (passed)", 0, @"daf87b87-3d1e-463d-a197-52227fe4ea28", "8E5734C6-933D-44EB-9ED3-5099F33D740E", false ); // Background Check:Checked Attribute
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "9C204CD0-1233-41C5-818A-C5DA439445AA", "Request Message", "RequestMessage", "", 0, @"", "D1BB237B-56E8-4E32-B487-694DC79BC89F", false ); // Background Check:Request Message
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "9C204CD0-1233-41C5-818A-C5DA439445AA", "Request Status", "RequestStatus", "", 0, @"", "BBA4BD3A-D568-42AA-91EE-D0D3EDA3CE78", false ); // Background Check:Request Status
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Date Attribute", "DateAttribute", "The person attribute the stores the date background check was completed", 1, @"3daff000-7f74-47d7-8cb0-e4a4e6c81f5f", "BAAA1F87-01B6-436F-82B7-1E156C762FC2", false ); // Background Check:Date Attribute
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Status Attribute", "StatusAttribute", "The person attribute that stores the background check status", 2, @"44490089-e02c-4e54-a456-454845abbc9d", "A11E0AFF-8B58-49AF-A434-CBDECA8A4153", false ); // Background Check:Status Attribute
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "99B090AA-4D7E-46D8-B393-BF945EA1BA8B", "Result Attribute", "ResultAttribute", "The person attribute that stores the background check document", 3, @"f3931952-460d-43e0-a6e0-eb6b5b1f9167", "B31E4F7B-A122-4311-B7C2-6637F437FE11", false ); // Background Check:Result Attribute
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "E4EAB7B2-0B76-429B-AFE4-AD86D7428C70", "Requester", "Requester", "The person initiating the request", 4, @"", "803432A0-CE28-4FEC-A10B-D9476C42ED35", false ); // Background Check:Requester
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "E4EAB7B2-0B76-429B-AFE4-AD86D7428C70", "Person", "Person", "The person who request should be initiated for", 5, @"", "2D977682-2589-47BB-94E6-906A9587EE7C", false ); // Background Check:Person
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Warn Of Recent", "WarnOfRecent", "Flag indicating if user should be warned that person has a recent background check already.", 6, @"False", "C9C444FF-86B5-4FE5-9D3C-F41F13E66D04", false ); // Background Check:Warn Of Recent
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "1B71FEF4-201F-4D53-8C60-2DF21F1985ED", "Campus", "Campus", "If included, the campus name will be used as the Billing Reference Code for the request (optional)", 7, @"", "C4C12A1E-26B7-4580-B70C-BAF64497F3E8", false ); // Background Check:Campus
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "59D5A94C-94A0-4630-B80A-BB25697D74C7", "Type", "PackageType", "Value should be the type of background check to request from the vendor.", 9, @"", "00B8C76C-0FFF-4827-8ABC-48215004686F", false ); // Background Check:Type
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "C28C7BF3-A552-4D77-9408-DEDCF760CED0", "Reason", "Reason", "A brief description of the reason that a background check is being requested", 10, @"", "7C945BCE-B167-4983-9B2E-9DF2BD41EE9C", false ); // Background Check:Reason
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "7525C4CB-EE6B-41D4-9B64-A08048D5A5C0", "Report Status", "ReportStatus", "The result status of the background check", 11, @"", "9B8DF978-54A0-4C5A-BFA5-372DD6ACF367", false ); // Background Check:Report Status
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, "9C204CD0-1233-41C5-818A-C5DA439445AA", "Report Recommendation", "ReportRecommendation", "Providers recommendation ( if any )", 13, @"", "B7246062-BC31-4C74-9757-33F7AA64AABF", false ); // Background Check:Report Recommendation
+            RockMigrationHelper.UpdateWorkflowTypeAttribute( CheckrSystemGuid.CHECKR_WORKFLOWACTION, FieldType.BACKGROUNDCHECK, "Report", "Report", "The downloaded background check report", 14, @"", "E3F1F5E2-F055-44FB-ABF3-7CFC4C4A972C", false ); // Background Check:Report
             RockMigrationHelper.AddAttributeQualifier( "8E5734C6-933D-44EB-9ED3-5099F33D740E", "allowmultiple", @"False", "AE92B5BD-884D-4D99-B1FE-6B53B62743DC" ); // Background Check:Checked Attribute:allowmultiple
             RockMigrationHelper.AddAttributeQualifier( "8E5734C6-933D-44EB-9ED3-5099F33D740E", "entitytype", @"72657ed8-d16e-492e-ac12-144c5e7567e7", "6C7ABD1B-4E0F-41F2-9F88-1DEE0CE8FE24" ); // Background Check:Checked Attribute:entitytype
             RockMigrationHelper.AddAttributeQualifier( "BAAA1F87-01B6-436F-82B7-1E156C762FC2", "allowmultiple", @"False", "EB0339B4-216A-4741-A7B3-AFF64AA52ED6" ); // Background Check:Date Attribute:allowmultiple
@@ -217,22 +117,22 @@ namespace Rock.Migrations
             RockMigrationHelper.AddAttributeQualifier( "C9C444FF-86B5-4FE5-9D3C-F41F13E66D04", "falsetext", @"No", "EAC301B8-3F8A-471F-9C14-5F8031C57C1E" ); // Background Check:Warn Of Recent:falsetext
             RockMigrationHelper.AddAttributeQualifier( "C9C444FF-86B5-4FE5-9D3C-F41F13E66D04", "truetext", @"Yes", "CCA921B8-336A-4335-A34E-36355C7B31EE" ); // Background Check:Warn Of Recent:truetext
             RockMigrationHelper.AddAttributeQualifier( "00B8C76C-0FFF-4827-8ABC-48215004686F", "allowmultiple", @"False", "F38DB211-2535-4C82-877E-4D911E7BEE02" ); // Background Check:Type:allowmultiple
-            RockMigrationHelper.AddAttributeQualifier( "00B8C76C-0FFF-4827-8ABC-48215004686F", "definedtypeguid", @"BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "FF77A7E8-CCAE-4E46-A5D0-454B62C950C8" ); // Background Check:Type:definedtype
+            RockMigrationHelper.AddAttributeQualifier( "00B8C76C-0FFF-4827-8ABC-48215004686F", "definedtypeguid", @DefinedType.BACKGROUND_CHECK_TYPES, "FF77A7E8-CCAE-4E46-A5D0-454B62C950C8" ); // Background Check:Type:definedtype
             RockMigrationHelper.AddAttributeQualifier( "00B8C76C-0FFF-4827-8ABC-48215004686F", "displaydescription", @"False", "D9D74C0F-211F-449A-AE5E-5A16B363534C" ); // Background Check:Type:displaydescription
             RockMigrationHelper.AddAttributeQualifier( "7C945BCE-B167-4983-9B2E-9DF2BD41EE9C", "numberofrows", @"4", "16F08AC2-A366-43BE-8AE8-D3236C451FF7" ); // Background Check:Reason:numberofrows
             RockMigrationHelper.AddAttributeQualifier( "9B8DF978-54A0-4C5A-BFA5-372DD6ACF367", "fieldtype", @"ddl", "8AA90BF1-ED91-4E23-8391-AA15C3B6ADA7" ); // Background Check:Report Status:fieldtype
             RockMigrationHelper.AddAttributeQualifier( "9B8DF978-54A0-4C5A-BFA5-372DD6ACF367", "values", @"Pass,Fail,Review", "773731C7-09A3-4CA4-9E0B-5F6D11EACF77" ); // Background Check:Report Status:values
             RockMigrationHelper.AddAttributeQualifier( "B7246062-BC31-4C74-9757-33F7AA64AABF", "ispassword", @"False", "F03FF890-351B-4100-9FAF-C9BEF29C4213" ); // Background Check:Report Recommendation:ispassword
             RockMigrationHelper.AddAttributeQualifier( "E3F1F5E2-F055-44FB-ABF3-7CFC4C4A972C", "binaryFileType", @"5C701472-8A6B-4BBE-AEC6-EC833C859F2D", "A79F5809-7216-4671-99AC-3D15B6FA6B24" ); // Background Check:Report:binaryFileType
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Initial Request", "Saves the person and requester and prompts for additional information needed to perform the request ( Campus, Type, etc).", true, 0, "CB30F298-7532-446C-949E-2FEC156CE700" ); // Background Check:Initial Request
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Approve Request", "Assigns the activity to security team and waits for their approval before submitting the request.", false, 1, "999E3F46-924C-48C9-ADD6-4685115C11A7" ); // Background Check:Approve Request
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Review Denial", "Provides the requester a way to add additional information for the security team to approve request.", false, 2, "0585C9E6-6830-42E6-8039-EFAC80A5D99A" ); // Background Check:Review Denial
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Submit Request", "Submits the background request to the selected provider for processing.", false, 3, "E124FC14-FCE2-4342-B5B3-444AA71D4429" ); // Background Check:Submit Request
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Request Error", "Displays any error from the request that is submitted to the background check provider and allows request to be resubmitted", false, 4, "3A881A17-334E-419F-B269-9A67AC79A829" ); // Background Check:Request Error
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Process Result", "Evaluates the result of the background check received from the provider", false, 5, "7102198E-005E-4968-854A-6B0A942474A5" ); // Background Check:Process Result
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Review Result", "Allows for review of the results from provider.", false, 6, "7D29F2D3-D2AE-4E60-8170-9DDC6752F51B" ); // Background Check:Review Result
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Complete Request", "Notifies requester of result and updates person's record with result", false, 7, "4A82FB50-D68F-4615-B447-9A264784423B" ); // Background Check:Complete Request
-            RockMigrationHelper.UpdateWorkflowActivityType( "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39", true, "Cancel Request", "Cancels the request prior to submitting to provider and deletes the workflow.", false, 8, "7448A73F-0CEE-48BF-A2B4-38BAC2BF8EFA" ); // Background Check:Cancel Request
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Initial Request", "Saves the person and requester and prompts for additional information needed to perform the request ( Campus, Type, etc).", true, 0, "CB30F298-7532-446C-949E-2FEC156CE700" ); // Background Check:Initial Request
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Approve Request", "Assigns the activity to security team and waits for their approval before submitting the request.", false, 1, "999E3F46-924C-48C9-ADD6-4685115C11A7" ); // Background Check:Approve Request
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Review Denial", "Provides the requester a way to add additional information for the security team to approve request.", false, 2, "0585C9E6-6830-42E6-8039-EFAC80A5D99A" ); // Background Check:Review Denial
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Submit Request", "Submits the background request to the selected provider for processing.", false, 3, "E124FC14-FCE2-4342-B5B3-444AA71D4429" ); // Background Check:Submit Request
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Request Error", "Displays any error from the request that is submitted to the background check provider and allows request to be resubmitted", false, 4, "3A881A17-334E-419F-B269-9A67AC79A829" ); // Background Check:Request Error
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Process Result", "Evaluates the result of the background check received from the provider", false, 5, "7102198E-005E-4968-854A-6B0A942474A5" ); // Background Check:Process Result
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Review Result", "Allows for review of the results from provider.", false, 6, "7D29F2D3-D2AE-4E60-8170-9DDC6752F51B" ); // Background Check:Review Result
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Complete Request", "Notifies requester of result and updates person's record with result", false, 7, "4A82FB50-D68F-4615-B447-9A264784423B" ); // Background Check:Complete Request
+            RockMigrationHelper.UpdateWorkflowActivityType( CheckrSystemGuid.CHECKR_WORKFLOWACTION, true, "Cancel Request", "Cancels the request prior to submitting to provider and deletes the workflow.", false, 8, "7448A73F-0CEE-48BF-A2B4-38BAC2BF8EFA" ); // Background Check:Cancel Request
             RockMigrationHelper.UpdateWorkflowActivityTypeAttribute( "999E3F46-924C-48C9-ADD6-4685115C11A7", "C28C7BF3-A552-4D77-9408-DEDCF760CED0", "Note", "Note", "Any notes that approver wants to provide to submitter for review", 0, @"", "34036420-190E-4670-BEF6-5F9844FBEA69" ); // Background Check:Approve Request:Note
             RockMigrationHelper.UpdateWorkflowActivityTypeAttribute( "999E3F46-924C-48C9-ADD6-4685115C11A7", "E4EAB7B2-0B76-429B-AFE4-AD86D7428C70", "Approver", "Approver", "Person who approved or denied this request", 1, @"", "1DEAE372-87F8-4031-845C-4FBA68196299" ); // Background Check:Approve Request:Approver
             RockMigrationHelper.UpdateWorkflowActivityTypeAttribute( "999E3F46-924C-48C9-ADD6-4685115C11A7", "9C204CD0-1233-41C5-818A-C5DA439445AA", "Approval Status", "ApprovalStatus", "The status of the appoval (Approve,Deny)", 2, @"", "FEDCFF5F-92D8-4106-942F-410A8224EFBD" ); // Background Check:Approve Request:Approval Status
@@ -497,13 +397,6 @@ namespace Rock.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "0901FCB2-CD8C-4E50-9E1F-DFFA812B55AF", "79D23F8B-0DC8-4B48-8A86-AEA48B396C82", @"" ); // Background Check:Cancel Request:Delete Workflow:Order
 
             #endregion
-
-            #region DefinedValue AttributeType qualifier helper
-
-            Sql( @"     UPDATE [aq] SET [key] = 'definedtype', [Value] = CAST( [dt].[Id] as varchar(5) )     FROM [AttributeQualifier] [aq]     INNER JOIN [Attribute] [a] ON [a].[Id] = [aq].[AttributeId]     INNER JOIN [FieldType] [ft] ON [ft].[Id] = [a].[FieldTypeId]     INNER JOIN [DefinedType] [dt] ON CAST([dt].[guid] AS varchar(50) ) = [aq].[value]     WHERE [ft].[class] = 'Rock.Field.Types.DefinedValueFieldType'     AND [aq].[key] = 'definedtypeguid'    " );
-
-            #endregion
-            #endregion
         }
 
         /// <summary>
@@ -512,33 +405,30 @@ namespace Rock.Migrations
         public override void Down()
         {
             // Rename Seven Year Auto Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Seven Year Automatic",
-                "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false );
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "Seven Year Automatic",
+                "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false, null );
 
             // Rename BASIC Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "BASIC",
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "BASIC",
                 "The Basic Package is the minimum recommended package for all volunteer and staff screenings. It includes SSN Verification and Address History, National Criminal Database Search, National Sex Offender Search, Re-verification of criminal records, Alias Names.",
-                "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false );
+                "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false, null );
 
             // Rename PLUS Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "PLUS",
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PLUS",
                 "Depending on your state, it may be recommended to use the PLUS package instead of the Basic. The PLUS package includes everything in the BASIC package with the addition of one county or statewide criminal court search.",
-                "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false );
+                "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false, null );
 
             // Rename PA 153 Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Pennsylvania Act 153",
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "Pennsylvania Act 153",
                 "If your organization is located in Pennsylvania, This package should be used when screening any volunteers or staff that will interact with children. This package includes all of the screening and reporting requirements mandated by Pennsylvania Act 153.",
-                "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false );
+                "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false, null );
 
             // Rename MVR Only Package
-            RockMigrationHelper.UpdateDefinedValue( "BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF", "Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false );
+            RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false, null );
 
             Sql( @"UPDATE [dbo].[BackgroundCheck] SET [ForeignId] = null WHERE [ForeignId] = 1" );
 
-            RockMigrationHelper.DeleteDefinedValue( "640F10F6-1507-47C3-8819-1194F9EDF705" );
-            RockMigrationHelper.DeleteDefinedValue( "7CFD3D9C-6FDC-E8B1-4077-7A9A32822777" );
-            RockMigrationHelper.DeleteDefinedValue( "4A5E5B2F-BBC2-12A2-4A2A-290D7591B557" );
-            RockMigrationHelper.DeleteDefinedValue( "7FFF5A8C-2708-0181-4FB4-262F53323BD7" );
+            Sql( @"DELETE FROM [dbo].[DefinedType] WHERE [ForeignId] = 2" );
         }
     }
 }
