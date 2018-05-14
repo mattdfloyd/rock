@@ -18,12 +18,12 @@ namespace Rock.Checkr.Constants
     /// <summary>
     /// Checkr Guids
     /// </summary>
-    class CheckrSystemGuid
+    public class CheckrSystemGuid
     {
         /// <summary>
         /// The checkr workflow action
         /// </summary>
-        public static readonly string CHECKR_WORKFLOWACTION = "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39";
+        public static readonly string CHECKR_WORKFLOW_TYPE = "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39";
 
         /// <summary>
         /// The checkr page GUID

@@ -1370,6 +1370,7 @@
     <Compile Include="SystemGuid\Block.cs" />
     <Compile Include="SystemGuid\Communication.cs" />
     <Compile Include="SystemGuid\InteractionChannel.cs" />
+    <Compile Include="SystemGuid\WorkflowType.cs" />
     <Compile Include="SystemKey\SystemSetting.cs" />
     <Compile Include="SystemKey\UserPreference.cs" />
     <Compile Include="Transactions\DeleteIndexEntityTransaction.cs" />

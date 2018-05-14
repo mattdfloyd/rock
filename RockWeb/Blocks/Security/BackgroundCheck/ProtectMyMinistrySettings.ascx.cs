@@ -212,7 +212,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <param name="e">The <see cref="GridReorderEventArgs"/> instance containing the event data.</param>
         protected void gDefinedValues_GridReorder( object sender, GridReorderEventArgs e )
         {
-            var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() );
+            var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() );
             if ( definedType != null )
             {
                 var changedIds = new List<int>();
@@ -280,7 +280,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         {
             int definedValueId = hfDefinedValueId.Value.AsInteger();
 
-            var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() );
+            var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() );
             if ( definedType != null )
             {
                 using ( var rockContext = new RockContext() )
@@ -342,17 +342,17 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnDefault_Click( object sender, EventArgs e )
         {
-            var bioBlock = CacheBlock.Get( Checkr_CreatePages.BLOCK_BIO.AsGuid() );
+            var bioBlock = CacheBlock.Get( Rock.SystemGuid.Block.BIO.AsGuid() );
             List<Guid> workflowActionGuidList = bioBlock.GetAttributeValues( "WorkflowActions" ).AsGuidList();
             if ( workflowActionGuidList == null || workflowActionGuidList.Count == 0 )
             {
                 // Add Checkr to Bio Workflow Actions
-                bioBlock.SetAttributeValue( "WorkflowActions", Checkr_CreatePages.PMM_WORKFLOWACTION );
+                bioBlock.SetAttributeValue( "WorkflowActions", Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY );
             }
             else
             {
                 //var workflowActionValues = workflowActionValue.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).ToList();
-                Guid guid = Checkr_CreatePages.PMM_WORKFLOWACTION.AsGuid();
+                Guid guid = Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY.AsGuid();
                 if ( !workflowActionGuidList.Any( w => w == guid ) )
                 {
                     // Add Checkr to Bio Workflow Actions
@@ -360,7 +360,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 }
 
                 // Remove PMM from Bio Workflow Actions
-                guid = CheckrConstants.CHECKR_WORKFLOWACTION.AsGuid();
+                guid = CheckrSystemGuid.CHECKR_WORKFLOW_TYPE.AsGuid();
                 workflowActionGuidList.RemoveAll( w => w == guid );
                 bioBlock.SetAttributeValue( "WorkflowActions", workflowActionGuidList.AsDelimited( "," ) );
             }
@@ -371,12 +371,12 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 WorkflowTypeService workflowTypeService = new WorkflowTypeService( rockContext );
                 // Rename PMM Workflow
-                var pmmWorkflowAction = workflowTypeService.Get( Checkr_CreatePages.PMM_WORKFLOWACTION.AsGuid() );
+                var pmmWorkflowAction = workflowTypeService.Get( Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY.AsGuid() );
                 pmmWorkflowAction.Name = "Background Check";
 
-                var checkrWorkflowAction = workflowTypeService.Get( CheckrConstants.CHECKR_WORKFLOWACTION.AsGuid() );
+                var checkrWorkflowAction = workflowTypeService.Get( CheckrSystemGuid.CHECKR_WORKFLOW_TYPE.AsGuid() );
                 // Rename Checkr Workflow
-                checkrWorkflowAction.Name = Checkr_CreatePages.CHECKR_WORKFLOWACTION_NAME;
+                checkrWorkflowAction.Name = CheckrConstants.CHECKR_WORKFLOW_TYPE_NAME;
 
                 rockContext.SaveChanges();
             }
@@ -404,9 +404,9 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 AttributeService attributeService = new AttributeService( rockContext );
                 AttributeValueService attributeValueService = new AttributeValueService( rockContext );
 
-                var block = blockService.Get( Checkr_CreatePages.BLOCK_BIO.AsGuid() );
+                var block = blockService.Get( Rock.SystemGuid.Block.BIO.AsGuid() );
 
-                var attribute = attributeService.Get( Checkr_CreatePages.BIO_WORKFLOWACTION.AsGuid() );
+                var attribute = attributeService.Get( Rock.SystemGuid.Attribute.BIO_WORKFLOWACTION.AsGuid() );
                 var attributeValue = attributeValueService.GetByAttributeIdAndEntityId( attribute.Id, block.Id );
                 if ( attributeValue == null || string.IsNullOrWhiteSpace( attributeValue.Value ) )
                 {
@@ -490,7 +490,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             using ( var rockContext = new RockContext() )
             {
                 var packages = new DefinedValueService( rockContext )
-                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
+                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() )
                     .Where( v => v.ForeignId == 1 )
                     .Select( v => v.Value.Substring( TYPENAME_PREFIX.Length) )
                     .ToList();
@@ -507,7 +507,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
 
             HideSecondaryBlocks( false );
 
-            if ( HaveWorkflowAction( Checkr_CreatePages.PMM_WORKFLOWACTION ) )
+            if ( HaveWorkflowAction( Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY ) )
             {
                 btnDefault.Visible = false;
             }
@@ -548,7 +548,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             using ( var rockContext = new RockContext() )
             {
                 var definedValues = new DefinedValueService( rockContext )
-                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() )
+                    .GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() )
                     .Where( a => a.ForeignId == 1 )
                     .ToList();
 
@@ -581,7 +581,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <param name="definedValueId">The defined value identifier.</param>
         public void ShowPackageEdit( int definedValueId )
         {
-            var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_PACKAGES.AsGuid() );
+            var definedType = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.BACKGROUND_CHECK_TYPES.AsGuid() );
             if ( definedType != null )
             {
                 DefinedValue definedValue = null;

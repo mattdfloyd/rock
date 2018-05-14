@@ -14,10 +14,8 @@
 // limitations under the License.
 // </copyright>
 //
-using System;
-using Rock;
-using Rock.Plugin;
 using Rock.Checkr.Constants;
+using Rock.Plugin;
 using Rock.SystemGuid;
 
 namespace Rock.Migrations
@@ -26,14 +24,9 @@ namespace Rock.Migrations
     public partial class Checkr_CreatePages : Migration
     {
         /// <summary>
-        /// The Protect My Ministry workflow action.
-        /// </summary>
-        public static readonly string PMM_WORKFLOWACTION = "16D12EF7-C546-4039-9036-B73D118EDC90";
-
-        /// <summary>
         /// The new Protect My Ministry workflow action name
         /// </summary>
-        public static readonly string NEW_PMM_WORKFLOWACTION_NAME = "Background Check (PMM)";
+        public static readonly string NEW_PMM_WORKFLOW_TYPE_NAME = "Background Check (PMM)";
 
         /// <summary>
         /// Makes the Checkr the default workflow action.
@@ -41,12 +34,12 @@ namespace Rock.Migrations
         public void MakeCheckrDefaultWorkflowAction()
         {
             // Remove Checr Background Check Workflow from Bio
-            RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, WorkflowAction.BIO, CheckrSystemGuid.CHECKR_WORKFLOWACTION );
+            RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, CheckrSystemGuid.CHECKR_WORKFLOW_TYPE );
 
             // Add PMM Background Check Workflow to Bio
-            RockMigrationHelper.AddBlockAttributeValue( Block.BIO, WorkflowAction.BIO, PMM_WORKFLOWACTION, appendToExisting: true );
-            // Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", newPMM_WorkflowActionName, PMM_WorkflowAction ) );
-            Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", CheckrConstants.CHECKR_WORKFLOWACTION_NAME, CheckrSystemGuid.CHECKR_WORKFLOWACTION ) );
+            RockMigrationHelper.AddBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, WorkflowType.PROTECTMYMINISTRY, appendToExisting: true );
+            // Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", NEW_PMM_WORKFLOW_TYPE_NAME, PMM_WORKFLOW_TYPE ) );
+            Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", CheckrConstants.CHECKR_WORKFLOW_TYPE_NAME, CheckrSystemGuid.CHECKR_WORKFLOW_TYPE ) );
         }
 
         /// <summary>
@@ -55,12 +48,12 @@ namespace Rock.Migrations
         public void MakePMMDefaultWorkflowAction()
         {
             // Remove PMM Background Check Workflow from Bio
-            RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, WorkflowAction.BIO, PMM_WORKFLOWACTION );
+            RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, WorkflowType.PROTECTMYMINISTRY );
 
             // Add Checkr Background Check Workflow to Bio
-            RockMigrationHelper.AddBlockAttributeValue( Block.BIO, WorkflowAction.BIO, CheckrSystemGuid.CHECKR_WORKFLOWACTION, appendToExisting: true );
-            Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", NEW_PMM_WORKFLOWACTION_NAME, PMM_WORKFLOWACTION ) );
-            Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", "Background Check", CheckrSystemGuid.CHECKR_WORKFLOWACTION ) );
+            RockMigrationHelper.AddBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, CheckrSystemGuid.CHECKR_WORKFLOW_TYPE, appendToExisting: true );
+            Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", NEW_PMM_WORKFLOW_TYPE_NAME, WorkflowType.PROTECTMYMINISTRY ) );
+            Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", "Background Check", CheckrSystemGuid.CHECKR_WORKFLOW_TYPE ) );
         }
 
         /// <summary>
@@ -89,9 +82,6 @@ namespace Rock.Migrations
             {
                 // Do nothing if PMM have been used.
             }
-
-            // Add PMM Background Check Workflow to Bio 
-            //RockMigrationHelper.AddBlockAttributeValue( "B5C1FDB6-0224-43E4-8E26-6B2EAF86253A", "7197A0FB-B330-43C4-8E62-F3C14F649813", "16D12EF7-C546-4039-9036-B73D118EDC90", appendToExisting: true );
         }
 
         /// <summary>
@@ -99,13 +89,12 @@ namespace Rock.Migrations
         /// </summary>
         public override void Down()
         {
-            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_SETTINGS_BLOCK );
-            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCK );
+            RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE );
             RockMigrationHelper.DeleteBlockType( CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE );
             RockMigrationHelper.DeleteBlockType( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE );
+            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_SETTINGS_BLOCK );
+            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCK );
             RockMigrationHelper.DeletePage( CheckrSystemGuid.CHECKR_PAGE );
-
-            //RockMigrationHelper.DeleteBlockAttributeValue( "B5C1FDB6-0224-43E4-8E26-6B2EAF86253A", "xx" );
         }
     }
 }

@@ -66,6 +66,6 @@ namespace Rock.Checkr.Constants
         /// <summary>
         /// The default checkr workflowaction name
         /// </summary>
-        public static readonly string CHECKR_WORKFLOWACTION_NAME = "Background Check (Checkr)";
+        public static readonly string CHECKR_WORKFLOW_TYPE_NAME = "Background Check (Checkr)";
     }
 }
