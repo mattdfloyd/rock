@@ -1367,6 +1367,7 @@
     <Compile Include="Reporting\DataFilter\Person\InRegistrationInstanceFilter.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="SqlServerTypes\Loader.cs" />
+    <Compile Include="SystemGuid\Block.cs" />
     <Compile Include="SystemGuid\Communication.cs" />
     <Compile Include="SystemGuid\InteractionChannel.cs" />
     <Compile Include="SystemKey\SystemSetting.cs" />
