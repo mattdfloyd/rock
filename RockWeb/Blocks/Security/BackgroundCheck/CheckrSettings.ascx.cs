@@ -37,6 +37,7 @@ using Rock.Checkr.SystemKey;
 using Rock.Web;
 using Rock.Migrations;
 using System.Data.SqlClient;
+using System.Reflection;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
@@ -157,6 +158,12 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             }
 
             bioBlock.SaveAttributeValue( "WorkflowActions" );
+
+            string checkrTypeName = ( typeof( Rock.Checkr.Checkr ) ).FullName;
+            var checkrComponent = BackgroundCheckContainer.Instance.Components.Values.FirstOrDefault( c => c.Value.TypeName == checkrTypeName );
+            // pmmComponent.Value.GetAttributeValue( "Active" );
+            checkrComponent.Value.SetAttributeValue( "Active", "True" );
+            checkrComponent.Value.SaveAttributeValue( "Active" );
 
             using ( var rockContext = new RockContext() )
             {

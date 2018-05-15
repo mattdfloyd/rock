@@ -62,7 +62,8 @@ namespace Rock.Migrations
             // Assign GUID to Checkr and add security
             RockMigrationHelper.UpdateEntityType( "Rock.Checkr.Checkr", EntityType.CHECKR_PROVIDER, false, true );
             RockMigrationHelper.AddSecurityAuthForEntityType( "Rock.Checkr.Checkr", 0, Rock.Security.Authorization.VIEW, true, Rock.SystemGuid.Group.GROUP_ADMINISTRATORS, 0, "6F1C36D9-5A8A-AC82-4CFE-C8F32BFB61E9" );
-            RockMigrationHelper.AddSecurityAuthForEntityType( "Rock.Checkr.Checkr", 0, Rock.Security.Authorization.VIEW, true, Rock.SystemGuid.Group.GROUP_SAFETY_SECURITY, 0, "03AAD5DC-B8E0-FC9D-451D-3E9ABD06309B" );
+            RockMigrationHelper.AddSecurityAuthForEntityType( "Rock.Checkr.Checkr", 1, Rock.Security.Authorization.VIEW, true, Rock.SystemGuid.Group.GROUP_SAFETY_SECURITY, 0, "03AAD5DC-B8E0-FC9D-451D-3E9ABD06309B" );
+            RockMigrationHelper.AddSecurityAuthForEntityType( "Rock.Checkr.Checkr", 2, Rock.Security.Authorization.VIEW, false, null, Rock.Model.SpecialRole.AllUsers.ConvertToInt(), "5DD17075-CA42-63B9-4744-0B53109CA3E2" );
 
             const string PERSON_SAFETYANDSECURITY_BACKGROUNDCHECKDOCUMENT = "F3931952-460D-43E0-A6E0-EB6B5B1F9167";
 
@@ -393,6 +394,17 @@ namespace Rock.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "0901FCB2-CD8C-4E50-9E1F-DFFA812B55AF", "361A1EC8-FFD0-4880-AF68-91DC0E0D7CDC", @"False" ); // Background Check:Cancel Request:Delete Workflow:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "0901FCB2-CD8C-4E50-9E1F-DFFA812B55AF", "79D23F8B-0DC8-4B48-8A86-AEA48B396C82", @"" ); // Background Check:Cancel Request:Delete Workflow:Order
 
+            #endregion
+
+            #region DefinedValue AttributeType qualifier helper
+            Sql( @"
+            UPDATE[aq] SET[key] = 'definedtype', [Value] = CAST( [dt].[Id] as varchar(5) )
+			FROM[AttributeQualifier][aq]
+            INNER JOIN[Attribute][a] ON[a].[Id] = [aq].[AttributeId]
+        INNER JOIN[FieldType] [ft] ON[ft].[Id] = [a].[FieldTypeId]
+        INNER JOIN[DefinedType] [dt] ON CAST( [dt].[guid] AS varchar(50) ) = [aq].[value]
+        WHERE[ft].[class] = 'Rock.Field.Types.DefinedValueFieldType'
+			AND[aq].[key] = 'definedtypeguid'" );
             #endregion
         }
 

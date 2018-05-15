@@ -253,6 +253,23 @@ namespace Rock.Checkr
             if ( workflow != null && workflow.IsActive )
             {
                 workflow.LoadAttributes();
+                if ( workflow.Attributes.ContainsKey( "ReportStatus" ) )
+                {
+                    if ( workflow.GetAttributeValue( "ReportStatus" ).IsNotNullOrWhitespace() && reportStatus.IsNullOrWhiteSpace() )
+                    {
+                        // Don't override current values if Webhook is older than current values
+                        return;
+                    }
+                }
+
+                if ( workflow.Attributes.ContainsKey( "Report" ) )
+                {
+                    if ( workflow.GetAttributeValue( "Report" ).IsNotNullOrWhitespace() && documentId.IsNullOrWhiteSpace() )
+                    {
+                        // Don't override current values if Webhook is older than current values
+                        return;
+                    }
+                }
 
                 // Save the recommendation 
                 if ( !string.IsNullOrWhiteSpace( recommendation ) )

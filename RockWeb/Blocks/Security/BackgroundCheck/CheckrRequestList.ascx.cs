@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rock;
@@ -162,9 +163,16 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 if ( bc != null && bc.PersonAlias != null )
                 {
                     int personId = e.RowKeyId;
-                    Response.Redirect( string.Format( "~/Person/{0}", bc.PersonAlias.PersonId ), false );
-                    Context.ApplicationInstance.CompleteRequest();
-                    return;
+                    try
+                    {
+                        Response.Redirect( string.Format( "~/Person/{0}", bc.PersonAlias.PersonId ), false );
+                        Context.ApplicationInstance.CompleteRequest();
+                        return;
+                    }
+                    catch ( ThreadAbortException ex )
+                    {
+                        // Can safely ignore this exception
+                    }
                 }
             }
         }
@@ -184,8 +192,16 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                     string url = new Checkr().GetReportUrl( bc.ResponseId );
                     if ( url.IsNotNullOrWhitespace() && url != "Unauthorized" )
                     {
-                        Response.Redirect( url, false );
-                        Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                        try
+                        {
+                            Response.Redirect( url, false );
+                            Context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                        }
+                        catch ( ThreadAbortException ex )
+                        {
+                            // Can safely ignore this exception
+                        }
+
                     }
                 }
             }

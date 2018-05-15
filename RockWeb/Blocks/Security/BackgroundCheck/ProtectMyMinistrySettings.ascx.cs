@@ -30,9 +30,9 @@ using Rock.Security;
 using Rock.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
-using Rock.Migrations;
 using System.Data.SqlClient;
 using Rock.Checkr.Constants;
+using Rock.Checkr;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
@@ -348,6 +348,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             {
                 // Add Checkr to Bio Workflow Actions
                 bioBlock.SetAttributeValue( "WorkflowActions", Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY );
+                ///BackgroundCheckContainer.Instance.Components
             }
             else
             {
@@ -363,6 +364,11 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
                 guid = CheckrSystemGuid.CHECKR_WORKFLOW_TYPE.AsGuid();
                 workflowActionGuidList.RemoveAll( w => w == guid );
                 bioBlock.SetAttributeValue( "WorkflowActions", workflowActionGuidList.AsDelimited( "," ) );
+                string pmmTypeName = ( typeof( Rock.Security.BackgroundCheck.ProtectMyMinistry ) ).FullName;
+                var pmmComponent = BackgroundCheckContainer.Instance.Components.Values.FirstOrDefault(c => c.Value.TypeName == pmmTypeName );
+                // pmmComponent.Value.GetAttributeValue( "Active" );
+                pmmComponent.Value.SetAttributeValue( "Active", "True" );
+                pmmComponent.Value.SaveAttributeValue( "Active" );
             }
 
             bioBlock.SaveAttributeValue( "WorkflowActions" );

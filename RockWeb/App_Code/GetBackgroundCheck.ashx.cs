@@ -76,14 +76,23 @@ namespace RockWeb
                         string url = methodInfo.Invoke( classInstance, parametersArray ).ToStringSafe();
                         if ( url.IsNotNullOrWhitespace() )
                         {
-                            if ( url == "Unauthorized" )
+                            try
                             {
-                                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                if ( url == "Unauthorized" )
+                                {
+                                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                    return;
+                                }
+                                else
+                                {
+                                    context.Response.Redirect( url, true );
+                                    context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                                    return;
+                                }
                             }
-                            else
+                            catch ( ThreadAbortException ex )
                             {
-                                context.Response.Redirect( url, true );
-                                context.ApplicationInstance.CompleteRequest(); // https://blogs.msdn.microsoft.com/tmarq/2009/06/25/correct-use-of-system-web-httpresponse-redirect/
+                                // Can safely ignore this exception
                             }
                         }
                     }
@@ -92,6 +101,7 @@ namespace RockWeb
                 try
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return;
                 }
                 catch { }
             }
@@ -112,9 +122,16 @@ namespace RockWeb
         /// <param name="context">The context.</param>
         private void SendNotAuthorized( HttpContext context )
         {
-            context.Response.StatusCode = System.Net.HttpStatusCode.Forbidden.ConvertToInt();
-            context.Response.StatusDescription = "Not authorized to view file";
-            context.ApplicationInstance.CompleteRequest();
+            try
+            {
+                context.Response.StatusCode = System.Net.HttpStatusCode.Forbidden.ConvertToInt();
+                context.Response.StatusDescription = "Not authorized to view file";
+                context.ApplicationInstance.CompleteRequest();
+            }
+            catch ( ThreadAbortException ex )
+            {
+                // Can safely ignore this exception
+            }
         }
 
         /// <summary>
