@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 namespace Rock.Checkr.CheckrApi
 {
     /// <summary>
-    /// Invitation Webhook
+    /// Invitation webhook
     /// </summary>
     /// <seealso cref="Rock.Checkr.CheckrApi.GenericWebhook" />
     internal class InvitationWebhook : GenericWebhook

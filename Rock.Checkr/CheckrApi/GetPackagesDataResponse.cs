@@ -19,12 +19,12 @@ using Newtonsoft.Json;
 namespace Rock.Checkr.CheckrApi
 {
     /// <summary>
-    /// JSON return structure for the Get Packages API Call's Response
+    /// JSON return structure for the get packages API call's response.
     /// </summary>
     internal class GetPackagesDataResponse
     {
         /// <summary>
-        /// Gets or sets the slugified version of the package name
+        /// Gets or sets the slugified version of the package name.
         /// </summary>
         /// <value>
         /// The slugified package name.

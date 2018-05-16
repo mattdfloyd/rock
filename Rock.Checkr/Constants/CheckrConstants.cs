@@ -24,12 +24,12 @@ namespace Rock.Checkr.Constants
         public static readonly string CHECKR_IMAGE_URL = "~/Assets/Images/Checkr.svg";
 
         /// <summary>
-        /// The URL where the Token for the account is retrieved
+        /// The URL where the token for the account is retrieved
         /// </summary>
         public static readonly string CHECKR_TOKEN_URL = "https://api.checkr.com/oauth/tokens";
 
         /// <summary>
-        /// The Typename prefix
+        /// The typename prefix
         /// </summary>
         public static readonly string CHECKR_TYPENAME_PREFIX = "Checkr - ";
 
@@ -64,7 +64,7 @@ namespace Rock.Checkr.Constants
         public static readonly string CHECKR_DOCUMENT_URL = "https://api.checkr.com/v1/documents";
 
         /// <summary>
-        /// The default checkr workflowaction name
+        /// The default checkr workflow type name
         /// </summary>
         public static readonly string CHECKR_WORKFLOW_TYPE_NAME = "Background Check (Checkr)";
     }

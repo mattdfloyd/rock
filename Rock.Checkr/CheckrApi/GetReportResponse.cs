@@ -61,10 +61,10 @@ namespace Rock.Checkr.CheckrApi
         public string CandidateId { get; set; }
 
         /// <summary>
-        /// Gets or sets the document ids.
+        /// Gets or sets the document IDs.
         /// </summary>
         /// <value>
-        /// The document ids.
+        /// The document IDs.
         /// </value>
         [JsonProperty( "document_ids" )]
         public List<string> DocumentIds { get; set; }

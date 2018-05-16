@@ -22,7 +22,7 @@ using System.Web;
 namespace Rock.Attribute
 {
     /// <summary>
-    /// Field Attribute to select a binary file
+    /// Field Attribute to select a binary file.
     /// </summary>
     [AttributeUsage( AttributeTargets.Class, AllowMultiple = true, Inherited = true )]
     public class BackgroundCheckFieldAttribute : FieldAttribute
@@ -32,7 +32,7 @@ namespace Rock.Attribute
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryFileFieldAttribute"/> class.
         /// </summary>
-        /// <param name="binaryFileTypeGuid">The guid of the type of files</param>
+        /// <param name="binaryFileTypeGuid">The guid of the type of files.</param>
         /// <param name="name">The name.</param>
         /// <param name="description">The description.</param>
         /// <param name="required">if set to <c>true</c> [required].</param>

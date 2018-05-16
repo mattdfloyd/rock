@@ -35,12 +35,12 @@ namespace Rock.Checkr.CheckrApi
     }
 
     /// <summary>
-    /// Report.data JSON structure
+    /// Report.data JSON structure.
     /// </summary>
     internal class ReportData
     {
         /// <summary>
-        /// Gets or sets the Data Object.
+        /// Gets or sets the data object.
         /// </summary>
         /// <value>
         /// The Data Object.
@@ -50,7 +50,7 @@ namespace Rock.Checkr.CheckrApi
     }
 
     /// <summary>
-    /// Report.data.object JSON structure
+    /// Report.data.object JSON structure.
     /// </summary>
     internal class ReportDataObject
     {

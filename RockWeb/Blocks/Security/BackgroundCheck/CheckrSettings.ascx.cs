@@ -17,27 +17,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.Linq;
-using System.Text;
 using System.Web.UI;
-
 using Rock;
-using Rock.Constants;
-using Rock.Data;
-using Rock.Model;
-using Rock.Security;
-using Rock.Web.Cache;
-using Rock.Web.UI;
-using Rock.Web.UI.Controls;
-using Rock.Checkr;
 using Rock.Cache;
 using Rock.Checkr.Constants;
 using Rock.Checkr.SystemKey;
-using Rock.Web;
+using Rock.Data;
 using Rock.Migrations;
-using System.Data.SqlClient;
-using System.Reflection;
+using Rock.Model;
+using Rock.Security;
+using Rock.Web;
 
 namespace RockWeb.Blocks.Security.BackgroundCheck
 {
@@ -161,7 +151,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
 
             string checkrTypeName = ( typeof( Rock.Checkr.Checkr ) ).FullName;
             var checkrComponent = BackgroundCheckContainer.Instance.Components.Values.FirstOrDefault( c => c.Value.TypeName == checkrTypeName );
-            // pmmComponent.Value.GetAttributeValue( "Active" );
             checkrComponent.Value.SetAttributeValue( "Active", "True" );
             checkrComponent.Value.SaveAttributeValue( "Active" );
 
@@ -206,12 +195,10 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <summary>
         /// Haves the workflow action.
         /// </summary>
-        /// <param name="guidValue">The Guid value of the action.</param>
-        /// <returns>True/False if the Workflow contains the action</returns>
+        /// <param name="guidValue">The guid value of the action.</param>
+        /// <returns>True/False if the workflow contains the action</returns>
         private bool HaveWorkflowAction( string guidValue )
         {
-            // workflowType.IsAuthorized( Authorization.VIEW, CurrentPerson
-
             using ( var rockContext = new RockContext() )
             {
                 BlockService blockService = new BlockService( rockContext );

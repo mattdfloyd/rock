@@ -33,10 +33,10 @@ namespace Rock.Migrations
         /// </summary>
         public void MakeCheckrDefaultWorkflowAction()
         {
-            // Remove Checr Background Check Workflow from Bio
+            // Remove Checr background check workflow from bio
             RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, CheckrSystemGuid.CHECKR_WORKFLOW_TYPE );
 
-            // Add PMM Background Check Workflow to Bio
+            // Add PMM background check workflow to bio
             RockMigrationHelper.AddBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, WorkflowType.PROTECTMYMINISTRY, appendToExisting: true );
             // Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", NEW_PMM_WORKFLOW_TYPE_NAME, PMM_WORKFLOW_TYPE ) );
             Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", CheckrConstants.CHECKR_WORKFLOW_TYPE_NAME, CheckrSystemGuid.CHECKR_WORKFLOW_TYPE ) );
@@ -47,10 +47,10 @@ namespace Rock.Migrations
         /// </summary>
         public void MakePMMDefaultWorkflowAction()
         {
-            // Remove PMM Background Check Workflow from Bio
+            // Remove PMM background check workflow from bio
             RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, WorkflowType.PROTECTMYMINISTRY );
 
-            // Add Checkr Background Check Workflow to Bio
+            // Add Checkr background check workflow to bio
             RockMigrationHelper.AddBlockAttributeValue( Block.BIO, SystemGuid.Attribute.BIO_WORKFLOWACTION, CheckrSystemGuid.CHECKR_WORKFLOW_TYPE, appendToExisting: true );
             Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", NEW_PMM_WORKFLOW_TYPE_NAME, WorkflowType.PROTECTMYMINISTRY ) );
             Sql( string.Format( "UPDATE [dbo].[WorkflowType] SET [Name] = '{0}' WHERE [Guid] = '{1}'", "Background Check", CheckrSystemGuid.CHECKR_WORKFLOW_TYPE ) );

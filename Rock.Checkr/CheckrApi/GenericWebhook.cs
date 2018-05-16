@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 namespace Rock.Checkr.CheckrApi
 {
     /// <summary>
-    /// Common Properties used by all the Webhooks
+    /// Common Properties used by all the webhooks.
     /// </summary>
     internal class GenericWebhook
     {
@@ -33,10 +33,10 @@ namespace Rock.Checkr.CheckrApi
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the Webhook Type.
+        /// Gets or sets the webhook type.
         /// </summary>
         /// <value>
-        /// The Webhook Type.
+        /// The webhook type.
         /// </value>
         [JsonProperty( "type" )]
         public Enums.WebhookTypes Type { get; set; }

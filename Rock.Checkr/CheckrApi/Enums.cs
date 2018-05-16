@@ -23,103 +23,103 @@ namespace Rock.Checkr.CheckrApi
     internal class Enums
     {
         /// <summary>
-         /// Webhook invitation events
+         /// Webhook invitation events.
          /// </summary>
         [JsonConverter( typeof( StringEnumConverter ) )]
         public enum WebhookTypes
         {
             /// <summary>
-            /// Invitation created
+            /// Invitation created.
             /// </summary>
             [EnumMember( Value = "invitation.created" )]
             InvitationCreated,
 
             /// <summary>
-            /// Invitation completed
+            /// Invitation completed.
             /// </summary>
             [EnumMember( Value = "invitation.completed" )]
             InvitationCompleted,
 
             /// <summary>
-            /// Invitation expired
+            /// Invitation expired.
             /// </summary>
             [EnumMember( Value = "invitation.expired" )]
             InvitationExpired,
 
             /// <summary>
-            /// Report created
+            /// Report created.
             /// </summary>
             [EnumMember( Value = "report.created" )]
             ReportCreated,
 
             /// <summary>
-            /// Report upgraded
+            /// Report upgraded.
             /// </summary>
             [EnumMember( Value = "report.upgraded" )]
             ReportUpgraded,
 
             /// <summary>
-            /// Report suspended
+            /// Report suspended.
             /// </summary>
             [EnumMember( Value = "report.suspended" )]
             ReportSuspended,
 
             /// <summary>
-            /// Report resumed
+            /// Report resumed.
             /// </summary>
             [EnumMember( Value = "report.resumed" )]
             ReportResumed,
 
             /// <summary>
-            /// Report disputed
+            /// Report disputed.
             /// </summary>
             [EnumMember( Value = "report.disputed" )]
             ReportDisputed,
 
             /// <summary>
-            /// Report pre-adverse action
+            /// Report pre-adverse action.
             /// </summary>
             [EnumMember( Value = "report.pre_adverse_action" )]
             ReportPreAdverseAction,
 
             /// <summary>
-            /// Report post-adverse action
+            /// Report post-adverse action.
             /// </summary>
             [EnumMember( Value = "report.post_adverse_action" )]
             ReportPostAdverseAction,
 
             /// <summary>
-            /// Report engaged
+            /// Report engaged.
             /// </summary>
             [EnumMember( Value = "report.engaged" )]
             ReportEngaged,
             
             /// <summary>
-            /// Report created
+            /// Report created.
             /// </summary>
             [EnumMember( Value = "report.completed" )]
             ReportCompleted,
 
             /// <summary>
-            /// Candidate created
+            /// Candidate created.
             /// </summary>
             [EnumMember( Value = "candidate.created" )]
             candidateCreated,
 
             /// <summary>
-            /// Candidate ID required
+            /// Candidate ID required.
             /// </summary>
             [EnumMember( Value = "candidate.id_required" )]
             candidateIdRequired,
 
             /// <summary>
-            /// Candidate driver license required
+            /// Candidate driver license required.
             /// </summary>
             [EnumMember( Value = "candidate.driver_license_required" )]
             candidateDriverLicenseRequired,
 
             /// <summary>
-            /// Adverse action notice not delivered
+            /// Adverse action notice not delivered.
             /// </summary>
             [EnumMember( Value = "adverse_action.notice_not_delivered" )]
             AdverseActNoticeNotDelivered

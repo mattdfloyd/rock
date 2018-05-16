@@ -20,12 +20,12 @@ using Newtonsoft.Json;
 namespace Rock.Checkr.CheckrApi
 {
     /// <summary>
-    /// JSON return structure for the Get Packages API Call's Response
+    /// JSON return structure for the get packages API call's response.
     /// </summary>
     internal class GetPackagesResponse
     {
         /// <summary>
-        /// Gets or sets the packages array
+        /// Gets or sets the packages array.
         /// </summary>
         /// <value>
         /// The packages array.

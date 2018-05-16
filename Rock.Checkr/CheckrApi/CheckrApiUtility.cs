@@ -30,10 +30,10 @@ namespace Rock.Checkr.CheckrApi
     {
         #region Utilities        
         /// <summary>
-        /// Return a Rest Client.
+        /// Return a rest client.
         /// </summary>
         /// <param name="url">The URL.</param>
-        /// <returns>The Rest Client.</returns>
+        /// <returns>The rest client.</returns>
         private static RestClient RestClient( string url )
         {
             var restClient = new RestClient( url );
@@ -43,7 +43,7 @@ namespace Rock.Checkr.CheckrApi
         }
 
         /// <summary>
-        /// RestClient Request to string for debugging purposes.
+        /// RestClient request to string for debugging purposes.
         /// </summary>
         /// <param name="restClient">The rest client.</param>
         /// <param name="restRequest">The rest request.</param>
@@ -71,10 +71,10 @@ namespace Rock.Checkr.CheckrApi
         }
 
         /// <summary>
-        /// RestClient Response to string for debugging purposes.
+        /// RestClient response to string for debugging purposes.
         /// </summary>
         /// <param name="restResponse">The rest response.</param>
-        /// <returns>The RestClient Response in string format.</returns>
+        /// <returns>The RestClient response in string format.</returns>
         // https://stackoverflow.com/questions/15683858/restsharp-print-raw-request-and-response-headers
         private static string ResponseToString( IRestResponse restResponse )
         {

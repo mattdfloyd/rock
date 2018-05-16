@@ -28,8 +28,8 @@ using Rock.Cache;
 namespace Rock.Field.Types
 {
     /// <summary>
-    /// Field used to display or upload a new binary file of a specific type
-    /// Stored as BinaryFile.Guid
+    /// Field used to display or upload a new binary file of a specific type.
+    /// Stored as BinaryFile.Guid.
     /// </summary>
     public class BackgroundCheckFieldType : BinaryFileFieldType
     {
@@ -43,10 +43,10 @@ namespace Rock.Field.Types
 
         #region Edit Control
         /// <summary>
-        /// Creates the control(s) necessary for prompting user for a new value
+        /// Creates the control(s) necessary for prompting user for a new value.
         /// </summary>
         /// <param name="configurationValues">The configuration values.</param>
-        /// <param name="id"></param>
+        /// <param name="id">The identifier.</param>
         /// <returns>
         /// The control
         /// </returns>

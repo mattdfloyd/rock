@@ -132,15 +132,6 @@ namespace Rock.Checkr
             }
         }
 
-        private Person GetCurrentPerson()
-        {
-            using ( var rockContext = new RockContext() )
-            {
-                var currentUser = new UserLoginService( rockContext ).GetByUserName( UserLogin.GetCurrentUserName() );
-                return currentUser != null ? currentUser.Person : null;
-            }
-        }
-
         /// <summary>
         /// Gets the URL to the background check report.
         /// Note: Also used by GetBackgroundCheck.ashx.cs, ProcessRequest( HttpContext context )
@@ -168,9 +159,24 @@ namespace Rock.Checkr
 
             return null;
         }
+
         #endregion
 
         #region Internal Methods
+
+        /// <summary>
+        /// Gets the person that is currently logged in.
+        /// </summary>
+        /// <returns></returns>
+        private Person GetCurrentPerson()
+        {
+            using ( var rockContext = new RockContext() )
+            {
+                var currentUser = new UserLoginService( rockContext ).GetByUserName( UserLogin.GetCurrentUserName() );
+                return currentUser != null ? currentUser.Person : null;
+            }
+        }
+
         /// <summary>
         /// Saves the attribute value.
         /// </summary>
@@ -610,26 +616,6 @@ namespace Rock.Checkr
 
             return false;
         }
-
-        /*
-        /// <summary>
-        /// Gets the document URL.
-        /// </summary>
-        /// <param name="documentId">The document identifier.</param>
-        /// <returns>The document URL.</returns>
-        public static string GetDocumentUrl( string documentId )
-        {
-            GetDocumentResponse getDocumentResponse;
-            List<string> errorMessages = new List<string>();
-
-            if ( CheckrApiUtility.GetDocument( documentId, out getDocumentResponse, errorMessages ) )
-            {
-                return getDocumentResponse.DownloadUri;
-            }
-
-            return null;
-        }
-        */
 
         /// <summary>
         /// Saves the webhook results.

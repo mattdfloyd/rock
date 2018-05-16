@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 namespace Rock.Checkr.CheckrApi
 {
     /// <summary>
-    /// JSON return structure for the Create Invitation API Call's Response
+    /// JSON return structure for the create invitation API call's response.
     /// </summary>
     internal class CreateInvitationResponse
     {

@@ -21,7 +21,7 @@ namespace Rock.Checkr.Constants
     public class CheckrSystemGuid
     {
         /// <summary>
-        /// The checkr workflow action
+        /// The checkr workflow type
         /// </summary>
         public static readonly string CHECKR_WORKFLOW_TYPE = "9BC07356-3B2F-4BFF-9320-FA8F3A28FC39";
 

@@ -29,26 +29,26 @@ namespace Rock.Migrations
         public override void Up()
         {
             #region Update PPM Config
-            // Rename Seven Year Auto Package
+            // Rename Seven Year Auto package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - Seven Year Automatic",
                 "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false, 1 );
 
-            // Rename BASIC Package
+            // Rename BASIC package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - BASIC",
                 "The Basic Package is the minimum recommended package for all volunteer and staff screenings. It includes SSN Verification and Address History, National Criminal Database Search, National Sex Offender Search, Re-verification of criminal records, Alias Names.",
                 "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false, 1 );
 
-            // Rename PLUS Package
+            // Rename PLUS package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - PLUS",
                 "Depending on your state, it may be recommended to use the PLUS package instead of the Basic. The PLUS package includes everything in the BASIC package with the addition of one county or statewide criminal court search.",
                 "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false, 1 );
 
-            // Rename PA 153 Package
+            // Rename PA 153 package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - Pennsylvania Act 153",
                 "If your organization is located in Pennsylvania, This package should be used when screening any volunteers or staff that will interact with children. This package includes all of the screening and reporting requirements mandated by Pennsylvania Act 153.",
                 "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false, 1 );
 
-            // Rename MVR Only Package
+            // Rename MVR Only package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PMM - Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false, 1 );
 
             Sql( @"UPDATE [dbo].[BackgroundCheck] SET [ForeignId] = 1 WHERE [ForeignId] is null" );
@@ -413,26 +413,26 @@ namespace Rock.Migrations
         /// </summary>
         public override void Down()
         {
-            // Rename Seven Year Auto Package
+            // Rename Seven Year Auto package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "Seven Year Automatic",
                 "The Seven Year Automatic package is the premier screening option and is the recommended package for all staff and pastors serving at your organization. Some churches also use this package for all volunteers.", "8470F648-58B6-405A-8C4D-CD661F6678DB", false, null );
 
-            // Rename BASIC Package
+            // Rename BASIC package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "BASIC",
                 "The Basic Package is the minimum recommended package for all volunteer and staff screenings. It includes SSN Verification and Address History, National Criminal Database Search, National Sex Offender Search, Re-verification of criminal records, Alias Names.",
                 "B091BE26-1EEA-4601-A65A-A3A75CDD7506", false, null );
 
-            // Rename PLUS Package
+            // Rename PLUS package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "PLUS",
                 "Depending on your state, it may be recommended to use the PLUS package instead of the Basic. The PLUS package includes everything in the BASIC package with the addition of one county or statewide criminal court search.",
                 "C542EFC7-1D22-4DBD-AF09-5C583FCD4FEF", false, null );
 
-            // Rename PA 153 Package
+            // Rename PA 153 package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "Pennsylvania Act 153",
                 "If your organization is located in Pennsylvania, This package should be used when screening any volunteers or staff that will interact with children. This package includes all of the screening and reporting requirements mandated by Pennsylvania Act 153.",
                 "AD47AECE-6779-41C5-A5C4-D3A9C1F849BEF", false, null );
 
-            // Rename MVR Only Package
+            // Rename MVR Only package
             RockMigrationHelper.UpdateDefinedValue( DefinedType.BACKGROUND_CHECK_TYPES, "Motor Vehicle Record Search", "An A la carte Motor Vehicle Record (MVR) search.", "D27F591E-0016-4924-BC8D-F3F488DF3F8C", false, null );
 
             Sql( @"UPDATE [dbo].[BackgroundCheck] SET [ForeignId] = null WHERE [ForeignId] = 1" );
