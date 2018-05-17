@@ -58,11 +58,9 @@
   <ItemGroup>
     <Compile Include="Checkr.cs" />
     <Compile Include="CheckrApi\CheckrApiUtility.cs" />
-    <Compile Include="CheckrApi\CreateCandidateRequest.cs" />
     <Compile Include="CheckrApi\CreateReportResponse.cs" />
     <Compile Include="CheckrApi\GetReportResponse.cs" />
     <Compile Include="CheckrApi\CreateCandidateResponse.cs" />
-    <Compile Include="CheckrApi\CreateInvitationRequest.cs" />
     <Compile Include="CheckrApi\CreateInvitationResponse.cs" />
     <Compile Include="CheckrApi\Enums.cs" />
     <Compile Include="CheckrApi\ReportWebhook.cs" />
