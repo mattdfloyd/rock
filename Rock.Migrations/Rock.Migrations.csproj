@@ -209,6 +209,10 @@
     <Compile Include="Migrations\201805152055059_AttendanceOccurrence.Designer.cs">
       <DependentUpon>201805152055059_AttendanceOccurrence.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201805171548592_Homepage.cs" />
+    <Compile Include="Migrations\201805171548592_Homepage.Designer.cs">
+      <DependentUpon>201805171548592_Homepage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\201805171836577_Rollup_0517.cs" />
     <Compile Include="Migrations\201805171836577_Rollup_0517.Designer.cs">
       <DependentUpon>201805171836577_Rollup_0517.cs</DependentUpon>
@@ -2907,6 +2911,9 @@
     <EmbeddedResource Include="Migrations\201805152055059_AttendanceOccurrence.resx">
       <DependentUpon>201805152055059_AttendanceOccurrence.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805171548592_Homepage.resx">
+      <DependentUpon>201805171548592_Homepage.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805171836577_Rollup_0517.resx">
       <DependentUpon>201805171836577_Rollup_0517.cs</DependentUpon>
     </EmbeddedResource>
@@ -4953,6 +4960,18 @@
     </Content>
     <Content Include="Migrations\201805152055059_AttendanceOccurrence_vCheckin_GroupTypeAttendance.sql">
       <DependentUpon>201805152055059_AttendanceOccurrence.cs</DependentUpon>
+    </Content>
+    <Content Include="Migrations\201805171548592_Homepage_ContentChannel.sql">
+      <DependentUpon>201805171548592_Homepage.cs</DependentUpon>
+    </Content>
+    <Content Include="Migrations\201805171548592_Homepage_ContentChannel_Down.sql">
+      <DependentUpon>201805171548592_Homepage.cs</DependentUpon>
+    </Content>
+    <Content Include="Migrations\201805171548592_Homepage_Metrics.sql">
+      <DependentUpon>201805171548592_Homepage.cs</DependentUpon>
+    </Content>
+    <Content Include="Migrations\201805171548592_Homepage_Metrics_Down.sql">
+      <DependentUpon>201805171548592_Homepage.cs</DependentUpon>
     </Content>
     <Content Include="Migrations\201805171836577_Rollup_0517_CreatePresenceUser.sql">
       <DependentUpon>201805171836577_Rollup_0517.cs</DependentUpon>
