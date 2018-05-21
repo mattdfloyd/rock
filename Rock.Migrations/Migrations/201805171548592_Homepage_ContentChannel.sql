@@ -166,7 +166,7 @@ VALUES
 	(0, @FeatureTextAttributeId, 'imagefolderroot', '', '1ac45c15-5048-48d2-a802-6aaec13ac555'),
 	(0, @FeatureTextAttributeId, 'toolbar', 'Light', 'c3952a5e-7d2f-409d-bda8-502601f376b0'),
 	(0, @FeatureTextAttributeId, 'userspecificroot', 'False', '475fbd03-2d73-4d6b-a7f2-cb273f60f429'),
-	(0, @ArticlesAttributeId, 'attributematrixtemplate', '1', '7d23c296-b775-4389-8a2c-7b0b8c977166')
+	(0, @ArticlesAttributeId, 'attributematrixtemplate', CAST(@AttributeMatrixTemplateId as varchar), '7d23c296-b775-4389-8a2c-7b0b8c977166')
 
 -- Add feature.jpg
 IF NOT EXISTS (SELECT * FROM [BinaryFile] WHERE [Guid] = '3839721C-856D-42E4-BDC3-8DFC11B93FE9' )
