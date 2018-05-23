@@ -128,6 +128,10 @@
                     </div>
                 </div>
             </div>
+            <Rock:ModalDialog ID="modalCopy" runat="server" Title="Copy Finished">
+                <Content>
+                </Content>
+            </Rock:ModalDialog>
         </asp:Panel>
 
         <Rock:ModalAlert ID="modalAlert" runat="server" />

@@ -209,233 +209,34 @@ namespace RockWeb.Blocks.Connection
             return breadCrumbs;
         }
 
-        private void InitModel<T>( ref T model ) where T : Rock.Data.IModel
-        {
-            model.CreatedByPersonAlias = null;
-            model.CreatedByPersonAliasId = null;
-            model.CreatedDateTime = RockDateTime.Now;
-            model.ModifiedByPersonAlias = null;
-            model.ModifiedByPersonAliasId = null;
-            model.ModifiedDateTime = RockDateTime.Now;
-            model.Id = 0;
-            model.Guid = Guid.NewGuid();
-        }
-
-        private void CopyConnectionOpportunities( RockContext rockContext, ConnectionType connectionType, ConnectionType newConnectionType )
-        {
-            ConnectionOpportunityService connectionOpportunityService = new ConnectionOpportunityService( rockContext );
-            List<ConnectionOpportunity> connectionOpportunities = connectionOpportunityService.Queryable()
-                                .Where( o => o.ConnectionTypeId == connectionType.Id ).ToList();
-
-            foreach ( ConnectionOpportunity connectionOpportunity in connectionOpportunities )
-            {
-                ConnectionOpportunity newConnectionOpportunity = new ConnectionOpportunity();
-                newConnectionOpportunity.CopyPropertiesFrom( connectionOpportunity );
-                InitModel( ref newConnectionOpportunity );
-                newConnectionOpportunity.ConnectionTypeId = newConnectionType.Id;
-                newConnectionType.ConnectionOpportunities.Add( newConnectionOpportunity );
-
-                //connectionOpportunityService.Add( newConnectionOpportunity );
-                rockContext.SaveChanges();
-                
-                foreach ( var connectionWorkflow in connectionOpportunity.ConnectionWorkflows )
-                {
-                    ConnectionWorkflow newConnectionWorkflow = new ConnectionWorkflow();
-                    newConnectionWorkflow.CopyPropertiesFrom( connectionWorkflow );
-                    InitModel( ref newConnectionWorkflow );
-                    newConnectionWorkflow.ConnectionOpportunityId = newConnectionOpportunity.Id;
-                    newConnectionWorkflow.ConnectionTypeId = newConnectionType.Id;
-                    newConnectionOpportunity.ConnectionWorkflows.Add( newConnectionWorkflow );
-                }
-                foreach ( var connectionWorkflow in connectionOpportunity.ConnectionType.ConnectionWorkflows )
-                {
-                    ConnectionWorkflow newConnectionWorkflow = new ConnectionWorkflow();
-                    newConnectionWorkflow.CopyPropertiesFrom( connectionWorkflow );
-                    InitModel( ref newConnectionWorkflow );
-                    newConnectionWorkflow.ConnectionOpportunityId = newConnectionOpportunity.Id;
-                    newConnectionWorkflow.ConnectionTypeId = newConnectionType.Id;
-                    newConnectionOpportunity.ConnectionType.ConnectionWorkflows.Add( newConnectionWorkflow );
-                }
-
-                foreach ( var opportunityGroup in connectionOpportunity.ConnectionOpportunityGroups )
-                {
-                    ConnectionOpportunityGroup newOpportunityGroup = new ConnectionOpportunityGroup();
-                    newOpportunityGroup.CopyPropertiesFrom( opportunityGroup );
-                    InitModel( ref newOpportunityGroup );
-                    newOpportunityGroup.ConnectionOpportunityId = newConnectionOpportunity.Id;
-                    newConnectionOpportunity.ConnectionOpportunityGroups.Add( newOpportunityGroup );
-                }
-
-                foreach ( var groupConfig in connectionOpportunity.ConnectionOpportunityGroupConfigs )
-                {
-                    ConnectionOpportunityGroupConfig newGroupConfig = new ConnectionOpportunityGroupConfig();
-                    newGroupConfig.CopyPropertiesFrom( groupConfig );
-                    InitModel( ref newGroupConfig );
-                    newGroupConfig.ConnectionOpportunityId = newConnectionOpportunity.Id;
-                    newConnectionOpportunity.ConnectionOpportunityGroupConfigs.Add( groupConfig );
-                }
-
-                foreach ( var connectorGroup in connectionOpportunity.ConnectionOpportunityConnectorGroups )
-                {
-                    ConnectionOpportunityConnectorGroup newConnectorGroup = new ConnectionOpportunityConnectorGroup();
-                    newConnectorGroup.CopyPropertiesFrom( connectorGroup );
-                    InitModel( ref newConnectorGroup );
-                    newConnectorGroup.ConnectionOpportunityId = newConnectionOpportunity.Id;
-                    newConnectionOpportunity.ConnectionOpportunityConnectorGroups.Add( newConnectorGroup );
-                }
-
-                newConnectionOpportunity.PhotoId = connectionOpportunity.PhotoId;
-
-                foreach ( var campus in connectionOpportunity.ConnectionOpportunityCampuses )
-                {
-                    ConnectionOpportunityCampus newCampus = new ConnectionOpportunityCampus();
-                    newCampus.CopyPropertiesFrom( campus );
-                    InitModel( ref newCampus );
-                    newCampus.ConnectionOpportunityId = newConnectionOpportunity.Id;
-                    newConnectionOpportunity.ConnectionOpportunityCampuses.Add( newCampus );
-                }
-
-                rockContext.SaveChanges();
-
-                connectionOpportunity.LoadAttributes();
-                newConnectionOpportunity.LoadAttributes( rockContext );
-                if ( connectionOpportunity.Attributes != null && connectionOpportunity.Attributes.Any() )
-                {
-                    foreach ( var attributeKey in connectionOpportunity.Attributes.Select( a => a.Key ) )
-                    {
-                        string value = connectionOpportunity.GetAttributeValue( attributeKey );
-                        newConnectionOpportunity.SetAttributeValue( attributeKey, value );
-                    }
-                }
-
-                newConnectionOpportunity.SaveAttributeValues( rockContext );
-            }
-        }
-
         /// <summary>
-        /// Handles the Click event of the btnCopy control.
+        /// Makes a duplicate of a Connection Type
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnCopy_Click( object sender, EventArgs e )
         {
-            //CacheEntityType.Get( typeof( Rock.Model.ConnectionType ) );
 
             int newConnectionTypeId = 0;
 
             using ( RockContext rockContext = new RockContext() )
             {
-                rockContext.WrapTransaction( () =>
-                {
-                    ConnectionTypeService connectionTypeService = new ConnectionTypeService( rockContext );
-                    ConnectionActivityTypeService connectionActivityTypeService = new ConnectionActivityTypeService( rockContext );
-                    ConnectionStatusService connectionStatusService = new ConnectionStatusService( rockContext );
-                    ConnectionWorkflowService connectionWorkflowService = new ConnectionWorkflowService( rockContext );
-                    AttributeService attributeService = new AttributeService( rockContext );
-                    AttributeQualifierService qualifierService = new AttributeQualifierService( rockContext );
-                    var authService = new AuthService( rockContext );
+                ConnectionTypeService connectionTypeService = new ConnectionTypeService( rockContext );
 
-
-                    var connectionType = connectionTypeService.Get( hfConnectionTypeId.Value.AsInteger() );
-                    newConnectionTypeId = connectionType.Id;
-
-                    var opportunityAttributes = attributeService
-                .GetByEntityTypeId( new ConnectionOpportunity().TypeId, true ).AsQueryable()
-                .Where( a =>
-                    a.EntityTypeQualifierColumn.Equals( "ConnectionTypeId", StringComparison.OrdinalIgnoreCase ) &&
-                    a.EntityTypeQualifierValue.Equals( connectionType.Id.ToString() ) )
-                .OrderBy( a => a.Order )
-                .ThenBy( a => a.Name )
-                .ToList();
-
-                    List<Attribute> newAttributesState = new List<Attribute>();
-                    List<ConnectionActivityType> newActivityTypesState = new List<ConnectionActivityType>();
-                    List<ConnectionStatus> newStatusesState = new List<ConnectionStatus>();
-                    List<ConnectionWorkflow> newWorkflowsState = new List<ConnectionWorkflow>();
-
-                    // Dictionary to keep the attributes and activity types linked between the source and the target based on their guids
-                    var guidXref = new Dictionary<Guid, Guid>();
-
-                    ConnectionType newConnectionType = new ConnectionType();
-                    newConnectionType.CopyPropertiesFrom( connectionType );
-                    InitModel( ref newConnectionType );
-                    newConnectionType.Name = connectionType.Name + " - Copy";
-                    guidXref[connectionType.Guid] = newConnectionType.Guid;
-                    connectionTypeService.Add( newConnectionType );
-                    rockContext.SaveChanges();
-                    newConnectionTypeId = newConnectionType.Id;
-
-                    foreach ( var connectionActivityTypeState in connectionType.ConnectionActivityTypes )
-                    {
-                        ConnectionActivityType newConnectionActivityType = new ConnectionActivityType();
-                        newConnectionActivityType.CopyPropertiesFrom( connectionActivityTypeState );
-                        InitModel( ref newConnectionActivityType );
-                        guidXref[connectionActivityTypeState.Guid] = newConnectionActivityType.Guid;
-                        newActivityTypesState.Add( newConnectionActivityType );
-                        newConnectionType.ConnectionActivityTypes.Add( newConnectionActivityType );
-                    }
-
-                    foreach ( var connectionStatusState in connectionType.ConnectionStatuses )
-                    {
-                        ConnectionStatus newConnectionStatus = new ConnectionStatus();
-                        newConnectionStatus.CopyPropertiesFrom( connectionStatusState );
-                        InitModel( ref newConnectionStatus );
-                        guidXref[connectionStatusState.Guid] = newConnectionStatus.Guid;
-                        newStatusesState.Add( newConnectionStatus );
-                        newConnectionType.ConnectionStatuses.Add( newConnectionStatus );
-                        newConnectionStatus.ConnectionTypeId = newConnectionType.Id;
-                    }
-
-                    foreach ( ConnectionWorkflow connectionWorkflowState in connectionType.ConnectionWorkflows )
-                    {
-                        ConnectionWorkflow newConnectionWorkflow = new ConnectionWorkflow();
-                        newConnectionWorkflow.CopyPropertiesFrom( connectionWorkflowState );
-                        InitModel( ref newConnectionWorkflow );
-                        guidXref[connectionWorkflowState.Guid] = newConnectionWorkflow.Guid;
-                        newWorkflowsState.Add( newConnectionWorkflow );
-                        newConnectionType.ConnectionWorkflows.Add( newConnectionWorkflow );
-                        newConnectionWorkflow.ConnectionTypeId = newConnectionType.Id;
-                    }
-
-                    rockContext.SaveChanges();
-
-                    // Clone the Opportunity attributes
-                    foreach ( var attribute in opportunityAttributes )
-                    {
-                        var newAttribute = attribute.Clone( false );
-                        InitModel( ref newAttribute );
-                        guidXref.Add( attribute.Guid, newAttribute.Guid );
-                        newAttribute.IsSystem = false;
-                        newAttributesState.Add( newAttribute );
-
-                        foreach ( var qualifier in attribute.AttributeQualifiers )
-                        {
-                            var newQualifier = qualifier.Clone( false );
-                            newQualifier.Id = 0;
-                            newQualifier.Guid = Guid.NewGuid();
-                            newQualifier.IsSystem = false;
-                            newAttribute.AttributeQualifiers.Add( qualifier );
-
-                            guidXref.Add( qualifier.Guid, newQualifier.Guid );
-                        }
-                    }
-
-                    /* Save Attributes */
-                    string qualifierValue = newConnectionType.Id.ToString();
-                    SaveAttributes( new ConnectionOpportunity().TypeId, "ConnectionTypeId", qualifierValue, newAttributesState, rockContext );
-
-                    Rock.Security.Authorization.CopyAuthorization( connectionType, newConnectionType, rockContext );
-
-                    CopyConnectionOpportunities( rockContext, connectionType, newConnectionType );
-                } );
+                var connectionType = connectionTypeService.Get( hfConnectionTypeId.Value.AsInteger() );
+                newConnectionTypeId = connectionTypeService.Copy( connectionType );
             }
 
             ConnectionWorkflowService.RemoveCachedTriggers();
+            modalCopy.Show();
 
+            /*
+            // Navigate to new Connection Type
             var qryParams = new Dictionary<string, string>();
             qryParams["ConnectionTypeId"] = newConnectionTypeId.ToString();
 
             NavigateToPage( RockPage.Guid, qryParams );
+            */
         }
         #endregion
 
@@ -638,7 +439,7 @@ namespace RockWeb.Blocks.Connection
 
                         /* Save Attributes */
                         string qualifierValue = connectionType.Id.ToString();
-                        SaveAttributes( new ConnectionOpportunity().TypeId, "ConnectionTypeId", qualifierValue, AttributesState, rockContext );
+                        Helper.SaveAttributeEdits( AttributesState, new ConnectionOpportunity().TypeId, "ConnectionTypeId", qualifierValue, rockContext );
 
                         connectionType = connectionTypeService.Get( connectionType.Id );
                         if ( connectionType != null )
@@ -900,40 +701,6 @@ namespace RockWeb.Blocks.Connection
             attributeList = attributeList.OrderBy( a => a.Order ).ToList();
             int order = 0;
             attributeList.ForEach( a => a.Order = order++ );
-        }
-
-        /// <summary>
-        /// Saves the attributes.
-        /// </summary>
-        /// <param name="entityTypeId">The entity type identifier.</param>
-        /// <param name="qualifierColumn">The qualifier column.</param>
-        /// <param name="qualifierValue">The qualifier value.</param>
-        /// <param name="viewStateAttributes">The view state attributes.</param>
-        /// <param name="attributeService">The attribute service.</param>
-        /// <param name="qualifierService">The qualifier service.</param>
-        /// <param name="categoryService">The category service.</param>
-        private void SaveAttributes( int entityTypeId, string qualifierColumn, string qualifierValue, List<Attribute> viewStateAttributes, RockContext rockContext )
-        {
-            // Get the existing attributes for this entity type and qualifier value
-            var attributeService = new AttributeService( rockContext );
-            var attributes = attributeService.GetByEntityTypeQualifier( entityTypeId, qualifierColumn, qualifierValue, true );
-
-            // Delete any of those attributes that were removed in the UI
-            var selectedAttributeGuids = viewStateAttributes.Select( a => a.Guid );
-            foreach ( var attr in attributes.Where( a => !selectedAttributeGuids.Contains( a.Guid ) ) )
-            {
-                attributeService.Delete( attr );
-                rockContext.SaveChanges();
-                Rock.Cache.CacheAttribute.Remove( attr.Id );
-            }
-
-            // Update the Attributes that were assigned in the UI
-            foreach ( var attributeState in viewStateAttributes )
-            {
-                var attribute = Helper.SaveAttributeEdits( attributeState, entityTypeId, qualifierColumn, qualifierValue, rockContext );
-            }
-
-            CacheAttribute.RemoveEntityAttributes();
         }
 
         #endregion
