@@ -15,6 +15,8 @@
 // </copyright>
 //
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
@@ -196,6 +198,15 @@ namespace Rock.Model
         [DataMember( IsRequired = true )]
         public JobNotificationStatus NotificationStatus { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether changes to this attribute's attribute values should be logged in AttributeValueHistorical
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [enable history]; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember]
+        public bool EnableHistory { get; set; } = false;
+
         #endregion
 
         #region Virtual Properties
@@ -229,6 +240,16 @@ namespace Rock.Model
                 return ExpressionDescriptor.GetDescription( this.CronExpression, new Options { ThrowExceptionOnParseError = false } );
             }
         }
+
+        /// <summary>
+        /// Gets or sets the a list of previous values that this attribute value had (If ServiceJob.EnableHistory is enabled)
+        /// </summary>
+        /// <value>
+        /// The history of service jobs.
+        /// </value>
+        [DataMember]
+        [LavaIgnore]
+        public virtual ICollection<ServiceJobHistory> ServiceJobHistory { get; set; } = new Collection<ServiceJobHistory>();
 
         #endregion
 
