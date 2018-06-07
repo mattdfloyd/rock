@@ -116,6 +116,7 @@ namespace Rock.Model
                 return StatusMessage.ConvertCrLfToHtmlBr();
             }
         }
+
         #endregion
 
         #region Methods

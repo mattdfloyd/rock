@@ -33,10 +33,53 @@ namespace Rock.Model
         /// <summary>
         /// Returns a queryable collection of all <see cref="Rock.Model.ServiceJobHistory">jobs history</see>
         /// </summary>
+        /// <param name="serviceJobId">The service job identifier.</param>
+        /// <param name="startDateTime">The start date time.</param>
+        /// <param name="stopDateTime">The stop date time.</param>
         /// <returns>A queryable collection of all <see cref="Rock.Model.ServiceJobHistory"/>jobs history</returns>
-        public IQueryable<ServiceJobHistory> GetAllJobs(int serviceJobId)
+        public List<ServiceJobHistory> GetServiceJobHistory( int? serviceJobId, DateTime? startDateTime, DateTime? stopDateTime )
         {
-            return Queryable().Where( t => t.ServiceJobId == serviceJobId );
+            var ServiceJobHistoryQuery = this.AsNoFilter();
+
+            if ( serviceJobId.HasValue )
+            {
+                ServiceJobHistoryQuery = ServiceJobHistoryQuery.Where( a => a.ServiceJobId == serviceJobId );
+            }
+
+            if ( startDateTime.HasValue )
+            {
+                ServiceJobHistoryQuery = ServiceJobHistoryQuery.Where( a => a.StartDateTime >= startDateTime.Value );
+            }
+
+            if ( stopDateTime.HasValue )
+            {
+                ServiceJobHistoryQuery = ServiceJobHistoryQuery.Where( a => a.StopDateTime < stopDateTime.Value );
+            }
+
+            return ServiceJobHistoryQuery.OrderBy( a => a.ServiceJobId ).ThenByDescending( a => a.StartDateTime ).ToList();
+        }
+
+        public void DeleteMoreThanMax( int serviceJobId )
+        {
+
+            int historyCount;
+            ServiceJobService serviceJobService = new ServiceJobService( (RockContext)this.Context );
+            ServiceJob serviceJob = serviceJobService.Get( serviceJobId );
+            historyCount = serviceJob.HistoryCount;
+
+            historyCount = historyCount <= 0 ? historyCount = 100 : historyCount;
+            var matchingServiceJobs = this.AsNoFilter().Where( a => a.ServiceJobId == serviceJobId ).OrderByDescending( a => a.StartDateTime );
+            var serviceJobsMoreThanMax = matchingServiceJobs.Skip( historyCount );
+            foreach ( var job in serviceJobsMoreThanMax )
+            {
+                this.Delete( job );
+            }
+        }
+
+        public override void Add( ServiceJobHistory item )
+        {
+            base.Add( item );
+            DeleteMoreThanMax( item.ServiceJobId );
         }
     }
 }

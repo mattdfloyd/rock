@@ -91,6 +91,20 @@ namespace Rock.Jobs
         public void JobExecutionVetoed( IJobExecutionContext context )
         {
         }
+        private void AddServiceJobHistory( ServiceJob job, RockContext rockContext )
+        {
+            var jobHistoryService = new ServiceJobHistoryService( rockContext );
+            var jobHistory = new ServiceJobHistory()
+            {
+                ServiceJobId = job.Id,
+                StartDateTime = job.LastRunDateTime?.AddSeconds( (double)job.LastRunDurationSeconds ),
+                StopDateTime = job.LastRunDateTime,
+                Status = job.LastStatus,
+                StatusMessage = job.LastStatusMessage
+            };
+            jobHistoryService.Add( jobHistory );
+            rockContext.SaveChanges();
+        }
 
         /// <summary>
         /// Called by the <see cref="IScheduler"/> after a <see cref="IJobDetail"/>
@@ -140,6 +154,10 @@ namespace Rock.Jobs
                 if ( context.Result is string )
                 {
                     job.LastStatusMessage = context.Result as string;
+                }
+                else
+                {
+                    job.LastStatusMessage = string.Empty;
                 }
 
                 // determine if message should be sent
@@ -192,6 +210,9 @@ namespace Rock.Jobs
             }
 
             rockContext.SaveChanges();
+
+            // Add job history
+            AddServiceJobHistory( job, rockContext );
 
             // send notification
             if ( sendMessage )

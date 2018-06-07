@@ -110,6 +110,19 @@ namespace Rock.Jobs
                     string message = string.Format( "Error scheduling the job: {0}.\n\n{2}", job.Name, job.Assembly, ex.Message );
                     job.LastStatusMessage = message;
                     job.LastStatus = errorSchedulingStatus;
+
+                    var jobHistoryService = new ServiceJobHistoryService( rockContext );
+                    var jobHistory = new ServiceJobHistory()
+                    {
+                        ServiceJobId = job.Id,
+                        StartDateTime = RockDateTime.Now,
+                        StopDateTime = RockDateTime.Now,
+                        Status = job.LastStatus,
+                        StatusMessage = job.LastStatusMessage
+                    };
+                    jobHistoryService.Add( jobHistory );
+                    rockContext.SaveChanges();
+
                 }
             }
 
