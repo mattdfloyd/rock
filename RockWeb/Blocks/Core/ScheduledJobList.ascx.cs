@@ -15,6 +15,7 @@
 // </copyright>
 //
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Web.UI;
@@ -36,6 +37,7 @@ namespace RockWeb.Blocks.Administration
     [Description( "Lists all scheduled jobs." )]
 
     [LinkedPage("Detail Page")]
+    [LinkedPage( "History Page", "The page to display group history." )]
     public partial class ScheduledJobList : RockBlock, ICustomGridColumns
     {
         #region Control Methods
@@ -237,6 +239,19 @@ namespace RockWeb.Blocks.Administration
             BindGrid();
         }
 
+        /// <summary>
+        /// Handles the History event of the gScheduledJobs control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
+        protected void gScheduledJobs_History( object sender, RowEventArgs e )
+        {
+            var pageParams = new Dictionary<string, string>();
+            pageParams.Add( "ScheduledJobId", e.RowKeyId.ToString() );
+            string groupHistoryUrl = LinkedPageUrl( "GroupHistoryPage", pageParams );
+            Response.Redirect( groupHistoryUrl, false );
+            Context.ApplicationInstance.CompleteRequest();
+        }
         #endregion
 
         #region Internal Methods
