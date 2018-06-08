@@ -37,6 +37,10 @@ namespace Rock.Migrations
             // column (MediumDataJson) to specific columns. This method will update all of the communication templates, and the most 
             // recent 50 communications. A job will runto convert the remaining communications. This can be removed after every 
             // customer has migrated past v7
+            /*
+            System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Break();
+            */
             Jobs.MigrateCommunicationMediumData.UpdateCommunicationRecords( true, 50, null );
 
             // MP: Populate AnalyticsSourceDate (if it isn't already)

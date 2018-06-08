@@ -111,6 +111,13 @@ namespace Rock.Jobs
                     job.LastStatusMessage = message;
                     job.LastStatus = errorSchedulingStatus;
 
+                    // http://blog.stephencleary.com/2009/05/getting-local-ip-addresses.html
+                    /*
+                    var iPAddresses = System.Net.Dns.GetHostAddresses( System.Net.Dns.GetHostName() );
+                    iPAddresses[0].
+                    System.Net.IPAddress ipAddress = ipHostInfo.AddressList[0];
+                    */
+
                     var jobHistoryService = new ServiceJobHistoryService( rockContext );
                     var jobHistory = new ServiceJobHistory()
                     {
@@ -118,7 +125,8 @@ namespace Rock.Jobs
                         StartDateTime = RockDateTime.Now,
                         StopDateTime = RockDateTime.Now,
                         Status = job.LastStatus,
-                        StatusMessage = job.LastStatusMessage
+                        StatusMessage = job.LastStatusMessage,
+                        ServiceWorkerIpAddress = string.Empty //ipAddress.ToString()
                     };
                     jobHistoryService.Add( jobHistory );
                     rockContext.SaveChanges();

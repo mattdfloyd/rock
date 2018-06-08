@@ -214,23 +214,7 @@ namespace Rock.Model
         /// The history count per job.
         /// </value>
         [DataMember]
-        public int HistoryCount
-        {
-            get
-            {
-                return _historyCount;
-            }
-            set
-            {
-                _historyCount = value;
-                using ( var context = new RockContext() )
-                {
-                    new ServiceJobHistoryService( context ).DeleteMoreThanMax( this.Id );
-                }
-            }
-        }
-
-        private int _historyCount = 100;
+        public int HistoryCount { get; set; } = 100;
 
         #endregion
 

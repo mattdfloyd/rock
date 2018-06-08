@@ -261,6 +261,10 @@
     <Compile Include="Migrations\201806061732498_HomepageUpdates.Designer.cs">
       <DependentUpon>201806061732498_HomepageUpdates.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806081514255_ServiceJobHistory.cs" />
+    <Compile Include="Migrations\201806081514255_ServiceJobHistory.Designer.cs">
+      <DependentUpon>201806081514255_ServiceJobHistory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\RockMigrationSQL.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -2985,6 +2989,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806061732498_HomepageUpdates.resx">
       <DependentUpon>201806061732498_HomepageUpdates.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806081514255_ServiceJobHistory.resx">
+      <DependentUpon>201806081514255_ServiceJobHistory.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\Version 7.0\Version 1.7.1\201801121251097_InteractionBlocks.resx">
       <DependentUpon>201801121251097_InteractionBlocks.cs</DependentUpon>
