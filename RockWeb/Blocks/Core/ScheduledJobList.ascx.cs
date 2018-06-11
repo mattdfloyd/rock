@@ -248,7 +248,7 @@ namespace RockWeb.Blocks.Administration
         {
             var pageParams = new Dictionary<string, string>();
             pageParams.Add( "ScheduledJobId", e.RowKeyId.ToString() );
-            string groupHistoryUrl = LinkedPageUrl( "GroupHistoryPage", pageParams );
+            string groupHistoryUrl = LinkedPageUrl( "HistoryPage", pageParams );
             Response.Redirect( groupHistoryUrl, false );
             Context.ApplicationInstance.CompleteRequest();
         }

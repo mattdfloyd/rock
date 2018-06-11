@@ -37,7 +37,7 @@ namespace Rock.Model
         /// <param name="startDateTime">The start date time.</param>
         /// <param name="stopDateTime">The stop date time.</param>
         /// <returns>A queryable collection of all <see cref="Rock.Model.ServiceJobHistory"/>jobs history</returns>
-        public List<ServiceJobHistory> GetServiceJobHistory( int? serviceJobId, DateTime? startDateTime, DateTime? stopDateTime )
+        public IQueryable<ServiceJobHistory> GetServiceJobHistory( int? serviceJobId, DateTime? startDateTime = null, DateTime? stopDateTime = null)
         {
             var ServiceJobHistoryQuery = this.AsNoFilter();
 
@@ -56,7 +56,7 @@ namespace Rock.Model
                 ServiceJobHistoryQuery = ServiceJobHistoryQuery.Where( a => a.StopDateTime < stopDateTime.Value );
             }
 
-            return ServiceJobHistoryQuery.OrderBy( a => a.ServiceJobId ).ThenByDescending( a => a.StartDateTime ).ToList();
+            return ServiceJobHistoryQuery.OrderBy( a => a.ServiceJobId ).ThenByDescending( a => a.StartDateTime );
         }
 
         public void DeleteMoreThanMax( int serviceJobId )

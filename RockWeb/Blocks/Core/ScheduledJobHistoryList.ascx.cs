@@ -31,11 +31,9 @@ using Rock.Web.UI.Controls;
 
 namespace RockWeb.Blocks.Administration
 {
-    [DisplayName( "Scheduled Job List" )]
+    [DisplayName( "Scheduled Job History" )]
     [Category( "Core" )]
-    [Description( "Lists all scheduled jobs." )]
-
-    [LinkedPage("Detail Page")]
+    [Description( "Lists all scheduled job's History." )]
     public partial class ScheduledJobHistoryList : RockBlock, ICustomGridColumns
     {
         #region Control Methods
@@ -46,15 +44,8 @@ namespace RockWeb.Blocks.Administration
         /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
         protected override void OnInit( EventArgs e )
         {
-            gScheduledJobs.DataKeyNames = new string[] { "Id" };
-            gScheduledJobs.Actions.ShowAdd = true;
-            gScheduledJobs.Actions.AddClick += gScheduledJobs_Add;
-            gScheduledJobs.GridRebind += gScheduledJobs_GridRebind;
-
-            // Block Security and special attributes (RockPage takes care of View)
-            bool canAddEditDelete = IsUserAuthorized( Authorization.EDIT );
-            gScheduledJobs.Actions.ShowAdd = canAddEditDelete;
-            gScheduledJobs.IsDeleteEnabled = canAddEditDelete;
+            gScheduledJobHistory.DataKeyNames = new string[] { "Id" };
+            gScheduledJobHistory.GridRebind += gScheduledJobHistory_GridRebind;
 
             base.OnInit( e );
         }
@@ -78,161 +69,78 @@ namespace RockWeb.Blocks.Administration
         #region Grid Events
 
         /// <summary>
-        /// Handles the RowDataBound event of the gScheduledJobs control.
+        /// Handles the RowDataBound event of the gScheduledJobHistory control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.Web.UI.WebControls.GridViewRowEventArgs"/> instance containing the event data.</param>
-        protected void gScheduledJobs_RowDataBound( object sender, System.Web.UI.WebControls.GridViewRowEventArgs e )
+        protected void gScheduledJobHistory_RowDataBound( object sender, System.Web.UI.WebControls.GridViewRowEventArgs e )
         {
             var site = RockPage.Site;
             if ( e.Row.RowType == DataControlRowType.DataRow )
             {
-                // Remove the "Run Now" option from the Job Pulse job
-                Guid? jobGuid = e.Row.DataItem.GetPropertyValue( "Guid" ).ToString().AsGuidOrNull();
-                if ( jobGuid.HasValue && jobGuid.Value.Equals( Rock.SystemGuid.ServiceJob.JOB_PULSE.AsGuid() ))
-                {
-                    var runNowColumn = gScheduledJobs.ColumnsOfType<EditField>().Where( a => a.HeaderText == "Run Now" ).FirstOrDefault();
-                    e.Row.Cells[gScheduledJobs.GetColumnIndex( runNowColumn)].Text = string.Empty;
-                }
-                
                 // format duration
-                if ( e.Row.DataItem.GetPropertyValue( "LastRunDurationSeconds" ) != null )
+                if ( e.Row.DataItem.GetPropertyValue( "DurationSeconds" ) != null )
                 {
-                    int durationSeconds = e.Row.DataItem.GetPropertyValue( "LastRunDurationSeconds" ).ToString().AsIntegerOrNull() ?? 0;
+                    int durationSeconds = e.Row.DataItem.GetPropertyValue( "DurationSeconds" ).ToString().AsIntegerOrNull() ?? 0;
                     TimeSpan duration = TimeSpan.FromSeconds( durationSeconds );
 
-                    var lLastRunDurationSeconds = e.Row.FindControl( "lLastRunDurationSeconds" ) as Literal;
+                    var lDurationSeconds = e.Row.FindControl( "lDurationSeconds" ) as Literal;
 
-                    if ( lLastRunDurationSeconds != null )
+                    if ( lDurationSeconds != null )
                     {
                         if ( duration.Days > 0 )
                         {
-                            lLastRunDurationSeconds.Text = duration.TotalHours.ToString( "F2" ) + " hours";
+                            lDurationSeconds.Text = duration.TotalHours.ToString( "F2" ) + " hours";
                         }
                         else if ( duration.Hours > 0 )
                         {
-                            lLastRunDurationSeconds.Text = String.Format( "{0:%h}h {0:%m}m {0:%s}s", duration );
+                            lDurationSeconds.Text = String.Format( "{0:%h}h {0:%m}m {0:%s}s", duration );
                         }
                         else if ( duration.Minutes > 0 )
                         {
-                            lLastRunDurationSeconds.Text = String.Format( "{0:%m}m {0:%s}s", duration );
+                            lDurationSeconds.Text = String.Format( "{0:%m}m {0:%s}s", duration );
                         }
                         else
                         {
-                            lLastRunDurationSeconds.Text = String.Format( "{0:%s}s", duration );
+                            lDurationSeconds.Text = String.Format( "{0:%s}s", duration );
                         }
                     }
                 }
 
-                // format inactive jobs
-                if ( ! e.Row.DataItem.GetPropertyValue( "IsActive" ).ToStringSafe().AsBoolean( false ) )
-                {
-                    e.Row.AddCssClass( "inactive" );
-                }
-
                 // format last status
-                var lLastStatus = e.Row.FindControl( "lLastStatus" ) as Literal;
-                if ( e.Row.DataItem.GetPropertyValue( "LastStatus" ) != null && lLastStatus != null)
+                var lStatus = e.Row.FindControl( "lStatus" ) as Literal;
+                if ( e.Row.DataItem.GetPropertyValue( "Status" ) != null && lStatus != null)
                 {
-                    string lastStatus = e.Row.DataItem.GetPropertyValue( "LastStatus" ).ToString();
+                    string status = e.Row.DataItem.GetPropertyValue( "Status" ).ToString();
 
-                    switch ( lastStatus )
+                    switch ( status )
                     {
                         case "Success":
-                            lLastStatus.Text = "<span class='label label-success'>Success</span>";
+                            lStatus.Text = "<span class='label label-success'>Success</span>";
                             break;
                         case "Running":
-                            lLastStatus.Text = "<span class='label label-info'>Running</span>";
+                            lStatus.Text = "<span class='label label-info'>Running</span>";
                             break;
                         case "Exception":
-                            lLastStatus.Text = "<span class='label label-danger'>Failed</span>";
+                            lStatus.Text = "<span class='label label-danger'>Failed</span>";
                             break;
                         case "":
-                            lLastStatus.Text = "";
+                            lStatus.Text = "";
                             break;
                         default:
-                            lLastStatus.Text = String.Format( "<span class='label label-warning'>{0}</span>", lastStatus );
+                            lStatus.Text = String.Format( "<span class='label label-warning'>{0}</span>", status );
                             break;
                     }
                 }
             }
         }
 
-
         /// <summary>
-        /// Handles the Add event of the gScheduledJobs control.
+        /// Handles the GridRebind event of the gScheduledJobHistory control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        protected void gScheduledJobs_Add( object sender, EventArgs e )
-        {
-            NavigateToLinkedPage( "DetailPage", "serviceJobId", 0 );
-        }
-
-        /// <summary>
-        /// Handles the Edit event of the gScheduledJobs control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RowEventArgs" /> instance containing the event data.</param>
-        protected void gScheduledJobs_Edit( object sender, RowEventArgs e )
-        {
-            NavigateToLinkedPage( "DetailPage", "serviceJobId", e.RowKeyId );
-        }
-
-        /// <summary>
-        /// Handles the RunNow event of the gScheduledJobs control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
-        protected void gScheduledJobs_RunNow( object sender, RowEventArgs e )
-        {
-            var job = new ServiceJobService( new RockContext() ).Get( e.RowKeyId );
-            if ( job != null )
-            {
-                var transaction = new Rock.Transactions.RunJobNowTransaction( job.Id );
-
-                // Process the transaction on another thread
-                System.Threading.Tasks.Task.Run( () => transaction.Execute() );
-
-                mdGridWarning.Show( string.Format( "The '{0}' job has been started.", job.Name ), ModalAlertType.Information );
-
-                // wait a split second for the job to start so that the grid will show the status (if it changed)
-                System.Threading.Thread.Sleep( 250 );
-            }
-
-            BindGrid();
-        }
-
-        /// <summary>
-        /// Handles the Delete event of the grdScheduledJobs control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RowEventArgs" /> instance containing the event data.</param>
-        protected void gScheduledJobs_Delete( object sender, RowEventArgs e )
-        {
-            var rockContext = new RockContext();
-            var jobService = new ServiceJobService( rockContext );
-            ServiceJob job = jobService.Get( e.RowKeyId );
-
-            string errorMessage;
-            if ( !jobService.CanDelete( job, out errorMessage ) )
-            {
-                mdGridWarning.Show( errorMessage, ModalAlertType.Information );
-                return;
-            }
-
-            jobService.Delete( job );
-            rockContext.SaveChanges();
-
-            BindGrid();
-        }
-
-        /// <summary>
-        /// Handles the GridRebind event of the gScheduledJobs control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void gScheduledJobs_GridRebind( object sender, EventArgs e )
+        private void gScheduledJobHistory_GridRebind( object sender, EventArgs e )
         {
             BindGrid();
         }
@@ -246,19 +154,21 @@ namespace RockWeb.Blocks.Administration
         /// </summary>
         private void BindGrid()
         {
-            var jobService = new ServiceJobService( new RockContext() );
-            SortProperty sortProperty = gScheduledJobs.SortProperty;
+            int scheduledJobId = int.Parse( PageParameter( "ScheduledJobId" ) );
+
+            var jobHistoryService = new ServiceJobHistoryService( new RockContext() );
+            SortProperty sortProperty = gScheduledJobHistory.SortProperty;
 
             if ( sortProperty != null )
             {
-                gScheduledJobs.DataSource = jobService.GetAllJobs().Sort( sortProperty ).ToList();
+                gScheduledJobHistory.DataSource = jobHistoryService.GetServiceJobHistory( scheduledJobId ).Sort( sortProperty ).ToList();
             }
             else
             {
-                gScheduledJobs.DataSource = jobService.GetAllJobs().OrderByDescending( a => a.LastRunDateTime ).ThenBy( a => a.Name ).ToList();
+                gScheduledJobHistory.DataSource = jobHistoryService.GetServiceJobHistory( scheduledJobId ).OrderByDescending( a => a.StartDateTime ).ToList();
             }
             
-            gScheduledJobs.DataBind();
+            gScheduledJobHistory.DataBind();
         }
 
         #endregion

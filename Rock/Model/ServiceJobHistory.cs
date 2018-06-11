@@ -117,6 +117,25 @@ namespace Rock.Model
             }
         }
 
+        /// <summary>
+        /// Gets the status message as HTML.
+        /// </summary>
+        /// <value>
+        /// The status message as HTML.
+        /// </value>
+        [LavaInclude]
+        public int? DurationSeconds
+        {
+            get
+            {
+                if (StartDateTime == null || StopDateTime == null)
+                {
+                    return null;
+                }
+
+                return (int)((TimeSpan)(StopDateTime - StartDateTime)).TotalSeconds;
+            }
+        }
         #endregion
 
         #region Methods

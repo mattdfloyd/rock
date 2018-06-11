@@ -60,8 +60,22 @@ namespace Rock.Migrations
             
             AddColumn("dbo.ServiceJob", "EnableHistory", c => c.Boolean(nullable: false, defaultValue: true ) );
             AddColumn("dbo.ServiceJob", "HistoryCount", c => c.Int(nullable: false, defaultValue: 100 ) );
+/*
+            RockMigrationHelper.AddPage( "C831428A-6ACD-4D49-9B2D-046D399E3123", "D65F783D-87A9-4CC9-8110-E83466A0EADB", "Checkr", "", CheckrSystemGuid.CHECKR_PAGE, "fa fa-shield", "E7F4B733-60FF-4FA3-AB17-0832E123F6F2" ); // Site:Rock RMS
+            RockMigrationHelper.UpdateBlockType( "Checkr Settings", "Block for updating the settings used by the Checkr integration.", "~/Blocks/Security/BackgroundCheck/CheckrSettings.ascx", "Security  > Background Check", CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE );
+            RockMigrationHelper.UpdateBlockType( "Checkr Request List", "Lists all the Checkr background check requests.", "~/Blocks/Security/BackgroundCheck/CheckrRequestList.ascx", "Security > Background Check", CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE );
+            RockMigrationHelper.AddBlock( CheckrSystemGuid.CHECKR_PAGE, "", CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE, "Checkr Settings", "Main", "", "", 0, CheckrSystemGuid.CHECKR_SETTINGS_BLOCK );
+            RockMigrationHelper.AddBlock( CheckrSystemGuid.CHECKR_PAGE, "", CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE, "Checkr Request List", "Main", "", "", 1, CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCK );
+
+            // Attrib for BlockType: Request List:Workflow Detail Page
+            RockMigrationHelper.AddBlockTypeAttribute( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE, FieldType.PAGE_REFERENCE, "Workflow Detail Page", "WorkflowDetailPage", "", "The page to view details about the background check workflow", 0, @"", CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE );
+
+            // Attrib Value for Block:Request List, Attribute:Workflow Detail Page Page: Protect My Ministry, Site: Rock RMS
+            RockMigrationHelper.AddBlockAttributeValue( CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE, "EBD0D19C-E73D-41AE-82D4-C89C21C35998", Rock.SystemGuid.Page.WORKFLOW_DETAIL );
+*/
+
         }
-        
+
         /// <summary>
         /// Operations to be performed during the downgrade process.
         /// </summary>
@@ -77,6 +91,15 @@ namespace Rock.Migrations
             DropColumn("dbo.ServiceJob", "HistoryCount");
             DropColumn("dbo.ServiceJob", "EnableHistory");
             DropTable("dbo.ServiceJobHistory");
+
+            /*
+                        RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE );
+            RockMigrationHelper.DeleteBlockType( CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE );
+            RockMigrationHelper.DeleteBlockType( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE );
+            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_SETTINGS_BLOCK );
+            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCK );
+            RockMigrationHelper.DeletePage( CheckrSystemGuid.CHECKR_PAGE );
+*/
         }
     }
 }

@@ -12,18 +12,14 @@
             </div>
             <div class="panel-body">
                 <div class="grid grid-panel">
-                    <Rock:Grid ID="gScheduledJobs" runat="server" TooltipField="Description" OnRowSelected="gScheduledJobs_Edit" AllowSorting="true" OnRowDataBound="gScheduledJobs_RowDataBound">
+                    <Rock:Grid ID="gScheduledJobHistory" runat="server" TooltipField="Description" AllowSorting="true" OnRowDataBound="gScheduledJobHistory_RowDataBound">
                         <Columns>
                             <Rock:RockBoundField DataField="Name" HeaderText="Name" SortExpression="Name" />
-                            <Rock:DateTimeField DataField="LastSuccessfulRunDateTime" HeaderText="Last Successful Run" SortExpression="LastSuccessfulRunDateTime" />
-                            <Rock:DateTimeField DataField="LastRunDateTime" HeaderText="Last Run Date" SortExpression="LastRunDateTime" />
-                            <Rock:RockLiteralField ID="lLastRunDurationSeconds" HeaderText="Last Run Duration" SortExpression="LastRunDurationSeconds" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                            <Rock:RockLiteralField ID="lLastStatus" HeaderText="Last Status" SortExpression="LastStatus" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center"/>
-                            <Rock:RockBoundField DataField="LastStatusMessageAsHtml" HeaderText="Last Status Message" HtmlEncode="false" SortExpression="LastStatusMessage" TruncateLength="255" />
-                            <Rock:BoolField DataField="IsSystem" HeaderText="System" SortExpression="IsSystem" />
-                            <Rock:BoolField DataField="IsActive" HeaderText="Active" SortExpression="IsActive" />
-                            <Rock:EditField OnClick="gScheduledJobs_RunNow" IconCssClass="fa fa-play" HeaderText="Run Now" ToolTip="Run Now" />
-                            <Rock:DeleteField OnClick="gScheduledJobs_Delete" />
+                            <Rock:DateTimeField DataField="StartDateTime" HeaderText="Start DateTime" SortExpression="StartDateTime" />
+                            <Rock:DateTimeField DataField="StopDateTime" HeaderText="Stop DateTime" SortExpression="StopDateTime" />
+                            <Rock:RockLiteralField ID="lDurationSeconds" HeaderText="Run Duration" SortExpression="DurationSeconds" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                            <Rock:RockLiteralField ID="lStatus" HeaderText="Status" SortExpression="Status" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center"/>
+                            <Rock:RockBoundField DataField="StatusMessageAsHtml" HeaderText="Status Message" HtmlEncode="false" SortExpression="StatusMessage" TruncateLength="255" />
                         </Columns>
                     </Rock:Grid>
                 </div>
