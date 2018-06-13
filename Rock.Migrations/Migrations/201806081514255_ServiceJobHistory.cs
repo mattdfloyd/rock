@@ -18,7 +18,7 @@ namespace Rock.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
-    
+
     /// <summary>
     ///
     /// </summary>
@@ -32,48 +32,44 @@ namespace Rock.Migrations
             CreateTable(
                 "dbo.ServiceJobHistory",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        ServiceJobId = c.Int(nullable: false),
-                        ServiceWorkerIpAddress = c.String(maxLength: 45),
-                        StartDateTime = c.DateTime(),
-                        StopDateTime = c.DateTime(),
-                        Status = c.String(maxLength: 50),
-                        StatusMessage = c.String(),
-                        CreatedDateTime = c.DateTime(),
-                        ModifiedDateTime = c.DateTime(),
-                        CreatedByPersonAliasId = c.Int(),
-                        ModifiedByPersonAliasId = c.Int(),
-                        Guid = c.Guid(nullable: false),
-                        ForeignId = c.Int(),
-                        ForeignGuid = c.Guid(),
-                        ForeignKey = c.String(maxLength: 100),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.PersonAlias", t => t.CreatedByPersonAliasId)
-                .ForeignKey("dbo.PersonAlias", t => t.ModifiedByPersonAliasId)
-                .ForeignKey("dbo.ServiceJob", t => t.ServiceJobId, cascadeDelete: true)
-                .Index(t => t.ServiceJobId)
-                .Index(t => t.CreatedByPersonAliasId)
-                .Index(t => t.ModifiedByPersonAliasId)
-                .Index(t => t.Guid, unique: true);
-            
-            AddColumn("dbo.ServiceJob", "EnableHistory", c => c.Boolean(nullable: false, defaultValue: true ) );
-            AddColumn("dbo.ServiceJob", "HistoryCount", c => c.Int(nullable: false, defaultValue: 100 ) );
-/*
-            RockMigrationHelper.AddPage( "C831428A-6ACD-4D49-9B2D-046D399E3123", "D65F783D-87A9-4CC9-8110-E83466A0EADB", "Checkr", "", CheckrSystemGuid.CHECKR_PAGE, "fa fa-shield", "E7F4B733-60FF-4FA3-AB17-0832E123F6F2" ); // Site:Rock RMS
-            RockMigrationHelper.UpdateBlockType( "Checkr Settings", "Block for updating the settings used by the Checkr integration.", "~/Blocks/Security/BackgroundCheck/CheckrSettings.ascx", "Security  > Background Check", CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE );
-            RockMigrationHelper.UpdateBlockType( "Checkr Request List", "Lists all the Checkr background check requests.", "~/Blocks/Security/BackgroundCheck/CheckrRequestList.ascx", "Security > Background Check", CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE );
-            RockMigrationHelper.AddBlock( CheckrSystemGuid.CHECKR_PAGE, "", CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE, "Checkr Settings", "Main", "", "", 0, CheckrSystemGuid.CHECKR_SETTINGS_BLOCK );
-            RockMigrationHelper.AddBlock( CheckrSystemGuid.CHECKR_PAGE, "", CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE, "Checkr Request List", "Main", "", "", 1, CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCK );
+                {
+                    Id = c.Int( nullable: false, identity: true ),
+                    ServiceJobId = c.Int( nullable: false ),
+                    ServiceWorkerIpAddress = c.String( maxLength: 45 ),
+                    StartDateTime = c.DateTime(),
+                    StopDateTime = c.DateTime(),
+                    Status = c.String( maxLength: 50 ),
+                    StatusMessage = c.String(),
+                    CreatedDateTime = c.DateTime(),
+                    ModifiedDateTime = c.DateTime(),
+                    CreatedByPersonAliasId = c.Int(),
+                    ModifiedByPersonAliasId = c.Int(),
+                    Guid = c.Guid( nullable: false ),
+                    ForeignId = c.Int(),
+                    ForeignGuid = c.Guid(),
+                    ForeignKey = c.String( maxLength: 100 ),
+                } )
+                .PrimaryKey( t => t.Id )
+                .ForeignKey( "dbo.PersonAlias", t => t.CreatedByPersonAliasId )
+                .ForeignKey( "dbo.PersonAlias", t => t.ModifiedByPersonAliasId )
+                .ForeignKey( "dbo.ServiceJob", t => t.ServiceJobId, cascadeDelete: true )
+                .Index( t => t.ServiceJobId )
+                .Index( t => t.CreatedByPersonAliasId )
+                .Index( t => t.ModifiedByPersonAliasId )
+                .Index( t => t.Guid, unique: true );
 
-            // Attrib for BlockType: Request List:Workflow Detail Page
-            RockMigrationHelper.AddBlockTypeAttribute( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE, FieldType.PAGE_REFERENCE, "Workflow Detail Page", "WorkflowDetailPage", "", "The page to view details about the background check workflow", 0, @"", CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE );
+            AddColumn( "dbo.ServiceJob", "EnableHistory", c => c.Boolean( nullable: false, defaultValue: true ) );
+            AddColumn( "dbo.ServiceJob", "HistoryCount", c => c.Int( nullable: false, defaultValue: 100 ) );
 
-            // Attrib Value for Block:Request List, Attribute:Workflow Detail Page Page: Protect My Ministry, Site: Rock RMS
-            RockMigrationHelper.AddBlockAttributeValue( CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE, "EBD0D19C-E73D-41AE-82D4-C89C21C35998", Rock.SystemGuid.Page.WORKFLOW_DETAIL );
-*/
-
+            // Page: Scheduled Job History
+            RockMigrationHelper.AddPage( true, "C58ADA1A-6322-4998-8FED-C3565DE87EFA", "D65F783D-87A9-4CC9-8110-E83466A0EADB", "Scheduled Job History", "", "B388793F-077C-4E5C-95CA-C331B00DF986", "fa fa-history" ); // Site:Rock RMS
+            RockMigrationHelper.UpdateBlockType( "Scheduled Job History", "Lists all scheduled job's History.", "~/Blocks/Core/ScheduledJobHistoryList.ascx", "Core", "B6E289D5-610D-4D85-83BE-B70D5B5E2EEB" );
+            // Add Block to Page: Scheduled Job History, Site: Rock RMS
+            RockMigrationHelper.AddBlock( true, "B388793F-077C-4E5C-95CA-C331B00DF986", "", "B6E289D5-610D-4D85-83BE-B70D5B5E2EEB", "Scheduled Job History", "Feature", "", "", 0, "536B8101-3B98-4707-B1F5-6A0EAFEFBF81" );
+            // Attrib for BlockType: Scheduled Job History:core.CustomGridColumnsConfig
+            RockMigrationHelper.UpdateBlockTypeAttribute( "B6E289D5-610D-4D85-83BE-B70D5B5E2EEB", "9C204CD0-1233-41C5-818A-C5DA439445AA", "core.CustomGridColumnsConfig", "core.CustomGridColumnsConfig", "", "", 0, @"", "F483D8EA-7D3B-4F22-9543-583560D3747C" );
+            // Attrib for BlockType: Scheduled Job History:core.CustomGridEnableStickyHeaders
+            RockMigrationHelper.UpdateBlockTypeAttribute( "B6E289D5-610D-4D85-83BE-B70D5B5E2EEB", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "core.CustomGridEnableStickyHeaders", "core.CustomGridEnableStickyHeaders", "", "", 0, @"False", "5B179F04-F25B-4B43-8D1F-BD5E4CB3FA1F" );
         }
 
         /// <summary>
@@ -81,25 +77,22 @@ namespace Rock.Migrations
         /// </summary>
         public override void Down()
         {
-            DropForeignKey("dbo.ServiceJobHistory", "ServiceJobId", "dbo.ServiceJob");
-            DropForeignKey("dbo.ServiceJobHistory", "ModifiedByPersonAliasId", "dbo.PersonAlias");
-            DropForeignKey("dbo.ServiceJobHistory", "CreatedByPersonAliasId", "dbo.PersonAlias");
-            DropIndex("dbo.ServiceJobHistory", new[] { "Guid" });
-            DropIndex("dbo.ServiceJobHistory", new[] { "ModifiedByPersonAliasId" });
-            DropIndex("dbo.ServiceJobHistory", new[] { "CreatedByPersonAliasId" });
-            DropIndex("dbo.ServiceJobHistory", new[] { "ServiceJobId" });
-            DropColumn("dbo.ServiceJob", "HistoryCount");
-            DropColumn("dbo.ServiceJob", "EnableHistory");
-            DropTable("dbo.ServiceJobHistory");
+            RockMigrationHelper.DeleteAttribute( "5B179F04-F25B-4B43-8D1F-BD5E4CB3FA1F" );
+            RockMigrationHelper.DeleteAttribute( "F483D8EA-7D3B-4F22-9543-583560D3747C" );
+            RockMigrationHelper.DeleteBlock( "536B8101-3B98-4707-B1F5-6A0EAFEFBF81" );
+            RockMigrationHelper.DeleteBlockType( "B6E289D5-610D-4D85-83BE-B70D5B5E2EEB" );
+            RockMigrationHelper.DeletePage( "B388793F-077C-4E5C-95CA-C331B00DF986" ); //  Page: Scheduled Job History
 
-            /*
-                        RockMigrationHelper.DeleteBlockAttributeValue( Block.BIO, CheckrSystemGuid.CHECKR_REQUESTLIST_WORKFLOWDETAILPAGE_ATTRIBUTE );
-            RockMigrationHelper.DeleteBlockType( CheckrSystemGuid.CHECKR_SETTINGS_BLOCKTYPE );
-            RockMigrationHelper.DeleteBlockType( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCKTYPE );
-            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_SETTINGS_BLOCK );
-            RockMigrationHelper.DeleteBlock( CheckrSystemGuid.CHECKR_REQUESTLIST_BLOCK );
-            RockMigrationHelper.DeletePage( CheckrSystemGuid.CHECKR_PAGE );
-*/
+            DropForeignKey( "dbo.ServiceJobHistory", "ServiceJobId", "dbo.ServiceJob" );
+            DropForeignKey( "dbo.ServiceJobHistory", "ModifiedByPersonAliasId", "dbo.PersonAlias" );
+            DropForeignKey( "dbo.ServiceJobHistory", "CreatedByPersonAliasId", "dbo.PersonAlias" );
+            DropIndex( "dbo.ServiceJobHistory", new[] { "Guid" } );
+            DropIndex( "dbo.ServiceJobHistory", new[] { "ModifiedByPersonAliasId" } );
+            DropIndex( "dbo.ServiceJobHistory", new[] { "CreatedByPersonAliasId" } );
+            DropIndex( "dbo.ServiceJobHistory", new[] { "ServiceJobId" } );
+            DropColumn( "dbo.ServiceJob", "HistoryCount" );
+            DropColumn( "dbo.ServiceJob", "EnableHistory" );
+            DropTable( "dbo.ServiceJobHistory" );
         }
     }
 }

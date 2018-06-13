@@ -95,8 +95,11 @@ namespace RockWeb.Blocks.Administration
                 {
                     var runNowColumn = gScheduledJobs.ColumnsOfType<EditField>().Where( a => a.HeaderText == "Run Now" ).FirstOrDefault();
                     e.Row.Cells[gScheduledJobs.GetColumnIndex( runNowColumn)].Text = string.Empty;
+
+                    var historyColumn = gScheduledJobs.ColumnsOfType<LinkButtonField>().Where( a => a.HeaderText == "History" ).FirstOrDefault();
+                    e.Row.Cells[gScheduledJobs.GetColumnIndex( historyColumn )].Text = string.Empty;
                 }
-                
+
                 // format duration
                 if ( e.Row.DataItem.GetPropertyValue( "LastRunDurationSeconds" ) != null )
                 {

@@ -14,7 +14,6 @@
                 <div class="grid grid-panel">
                     <Rock:Grid ID="gScheduledJobHistory" runat="server" TooltipField="Description" AllowSorting="true" OnRowDataBound="gScheduledJobHistory_RowDataBound">
                         <Columns>
-                            <Rock:RockBoundField DataField="Name" HeaderText="Name" SortExpression="Name" />
                             <Rock:DateTimeField DataField="StartDateTime" HeaderText="Start DateTime" SortExpression="StartDateTime" />
                             <Rock:DateTimeField DataField="StopDateTime" HeaderText="Stop DateTime" SortExpression="StopDateTime" />
                             <Rock:RockLiteralField ID="lDurationSeconds" HeaderText="Run Duration" SortExpression="DurationSeconds" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />

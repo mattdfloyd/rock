@@ -93,11 +93,18 @@ namespace Rock.Jobs
         }
         private void AddServiceJobHistory( ServiceJob job, RockContext rockContext )
         {
+            // http://blog.stephencleary.com/2009/05/getting-local-ip-addresses.html
+            /*
+            var iPAddresses = System.Net.Dns.GetHostAddresses( System.Net.Dns.GetHostName() );
+            iPAddresses[0].
+            System.Net.IPAddress ipAddress = ipHostInfo.AddressList[0];
+            */
+
             var jobHistoryService = new ServiceJobHistoryService( rockContext );
             var jobHistory = new ServiceJobHistory()
             {
                 ServiceJobId = job.Id,
-                StartDateTime = job.LastRunDateTime?.AddSeconds( (double)job.LastRunDurationSeconds ),
+                StartDateTime = job.LastRunDateTime?.AddSeconds( 0.0d-(double)job.LastRunDurationSeconds ),
                 StopDateTime = job.LastRunDateTime,
                 Status = job.LastStatus,
                 StatusMessage = job.LastStatusMessage

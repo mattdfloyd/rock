@@ -37,7 +37,7 @@ namespace Rock.Model
         /// <param name="startDateTime">The start date time.</param>
         /// <param name="stopDateTime">The stop date time.</param>
         /// <returns>A queryable collection of all <see cref="Rock.Model.ServiceJobHistory"/>jobs history</returns>
-        public IQueryable<ServiceJobHistory> GetServiceJobHistory( int? serviceJobId, DateTime? startDateTime = null, DateTime? stopDateTime = null)
+        public IQueryable<ServiceJobHistory> GetServiceJobHistory( int? serviceJobId, DateTime? startDateTime = null, DateTime? stopDateTime = null )
         {
             var ServiceJobHistoryQuery = this.AsNoFilter();
 
@@ -59,6 +59,25 @@ namespace Rock.Model
             return ServiceJobHistoryQuery.OrderBy( a => a.ServiceJobId ).ThenByDescending( a => a.StartDateTime );
         }
 
+        /// <summary>
+        /// Deletes job history enties more than maximum.
+        /// </summary>
+        public void DeleteMoreThanMax()
+        {
+            ServiceJobService serviceJobService = new ServiceJobService( (RockContext)this.Context );
+            {
+                var serviceJobs = serviceJobService.AsNoFilter().Select( sj => sj.Id ).ToArray();
+                for (int i = 0; i < serviceJobs.Count(); i++ )
+                {
+                    DeleteMoreThanMax( serviceJobs[i] );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes job history enties more than maximum.
+        /// </summary>
+        /// <param name="serviceJobId">The service job identifier.</param>
         public void DeleteMoreThanMax( int serviceJobId )
         {
 
@@ -69,11 +88,14 @@ namespace Rock.Model
 
             historyCount = historyCount <= 0 ? historyCount = 100 : historyCount;
             var matchingServiceJobs = this.AsNoFilter().Where( a => a.ServiceJobId == serviceJobId ).OrderByDescending( a => a.StartDateTime );
-            var serviceJobsMoreThanMax = matchingServiceJobs.Skip( historyCount );
-            foreach ( var job in serviceJobsMoreThanMax )
+            var serviceJobsMoreThanMax = matchingServiceJobs.Skip( historyCount ).ToArray();
+
+            for ( int i = 0; i < serviceJobsMoreThanMax.Count(); i++ )
             {
-                this.Delete( job );
+                this.Delete( serviceJobsMoreThanMax[i] );
             }
+
+            this.Context.SaveChanges();
         }
 
         public override void Add( ServiceJobHistory item )

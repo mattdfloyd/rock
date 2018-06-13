@@ -188,6 +188,16 @@ namespace Rock.Jobs
                 rockCleanupExceptions.Add( new Exception( "Exception in CleanupPersonTokens", ex ) );
             }
 
+            try
+            {
+                // Reduce the job history to max size
+                CleanupJobHistory( dataMap );
+            }
+            catch ( Exception ex )
+            {
+                rockCleanupExceptions.Add( new Exception( "Exception in CleanupJobHistory", ex ) );
+            }
+
             if ( databaseRowsDeleted.Any( a => a.Value > 0 ) )
             {
                 context.Result = string.Format( "Rock Cleanup cleaned up {0}", databaseRowsDeleted.Where( a => a.Value > 0 ).Select( a => $"{a.Value} {a.Key.PluralizeIf( a.Value != 1 )}" ).ToList().AsDelimited( ", ", " and " ) );
@@ -312,7 +322,7 @@ namespace Rock.Jobs
             if ( relationshipGroupType != null )
             {
                 var ownerRoleId = relationshipGroupType.Roles
-                    .Where( r => r.Guid.Equals( ownerRoleGuid ) ).Select( a => ( int? ) a.Id ).FirstOrDefault();
+                    .Where( r => r.Guid.Equals( ownerRoleGuid ) ).Select( a => (int?)a.Id ).FirstOrDefault();
                 if ( ownerRoleId.HasValue )
                 {
                     var rockContext = new RockContext();
@@ -426,7 +436,7 @@ namespace Rock.Jobs
             foreach ( var workflow in completedWorkflows )
             {
                 var retentionPeriod = workflow.WorkflowType.CompletedWorkflowRetentionPeriod;
-                if ( retentionPeriod.HasValue && workflow.ModifiedDateTime < RockDateTime.Now.AddDays( -1 * ( int ) retentionPeriod ) )
+                if ( retentionPeriod.HasValue && workflow.ModifiedDateTime < RockDateTime.Now.AddDays( -1 * (int)retentionPeriod ) )
                 {
                     string errorMessage;
                     if ( workflowService.CanDelete( workflow, out errorMessage ) )
@@ -458,7 +468,7 @@ namespace Rock.Jobs
 
             foreach ( var workflow in workflowsWithExpirationPeriod )
             {
-                if ( workflow.ModifiedDateTime < RockDateTime.Now.AddDays( -1 * ( int ) workflow.WorkflowType.LogRetentionPeriod ) )
+                if ( workflow.ModifiedDateTime < RockDateTime.Now.AddDays( -1 * (int)workflow.WorkflowType.LogRetentionPeriod ) )
                 {
                     // WorkflowLogService.CanDelete( log ) always returns true, so no need to check
                     bool keepDeleting = true;
@@ -569,7 +579,7 @@ namespace Rock.Jobs
             if ( exceptionExpireDays.HasValue )
             {
                 var exceptionLogRockContext = new Rock.Data.RockContext();
-                exceptionLogRockContext.Database.CommandTimeout = ( int ) TimeSpan.FromMinutes( 10 ).TotalSeconds;
+                exceptionLogRockContext.Database.CommandTimeout = (int)TimeSpan.FromMinutes( 10 ).TotalSeconds;
                 DateTime exceptionExpireDate = RockDateTime.Now.Add( new TimeSpan( exceptionExpireDays.Value * -1, 0, 0, 0 ) );
                 var exceptionLogsToDelete = new ExceptionLogService( exceptionLogRockContext ).Queryable().Where( a => a.CreatedDateTime < exceptionExpireDate );
 
@@ -737,7 +747,7 @@ WHERE ic.ChannelId = @channelId
                             var result = genericMethod.Invoke( this, null ) as int?;
                             if ( result.HasValue )
                             {
-                                recordsDeleted += ( int ) result;
+                                recordsDeleted += (int)result;
                             }
                         }
                     }
@@ -753,7 +763,7 @@ WHERE ic.ChannelId = @channelId
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private int CleanupOrphanedAttributeValuesForEntityType<T>() where T : Rock.Data.Entity<T>,  Data.IHasAttributes, new()
+        private int CleanupOrphanedAttributeValuesForEntityType<T>() where T : Rock.Data.Entity<T>, Data.IHasAttributes, new()
         {
             int recordsDeleted = 0;
 
@@ -783,7 +793,7 @@ WHERE ic.ChannelId = @channelId
             int totalRowsDeleted = 0;
             int? batchAmount = dataMap.GetString( "BatchCleanupAmount" ).AsIntegerOrNull() ?? 1000;
             var rockContext = new Rock.Data.RockContext();
-            rockContext.Database.CommandTimeout = ( int ) TimeSpan.FromMinutes( 10 ).TotalSeconds;
+            rockContext.Database.CommandTimeout = (int)TimeSpan.FromMinutes( 10 ).TotalSeconds;
             DateTime transientCommunicationExpireDate = RockDateTime.Now.Add( new TimeSpan( 7 * -1, 0, 0, 0 ) );
             var communicationsToDelete = new CommunicationService( rockContext ).Queryable().Where( a => a.CreatedDateTime < transientCommunicationExpireDate && a.Status == CommunicationStatus.Transient );
 
@@ -937,6 +947,19 @@ WHERE ExpireDateTime IS NOT NULL
                     System.Threading.Thread.Sleep( 10 );
                     DeleteFile( filePath, true );
                 }
+            }
+        }
+
+        /// <summary>
+        /// Cleanups the job history
+        /// </summary>
+        /// <param name="dataMap">The data map.</param>
+        private void CleanupJobHistory( JobDataMap dataMap )
+        {
+            using ( RockContext rockContext = new RockContext() )
+            {
+                ServiceJobHistoryService serviceJobHistoryService = new ServiceJobHistoryService( rockContext );
+                serviceJobHistoryService.DeleteMoreThanMax();
             }
         }
     }

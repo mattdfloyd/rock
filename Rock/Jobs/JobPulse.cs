@@ -110,27 +110,6 @@ namespace Rock.Jobs
                     string message = string.Format( "Error scheduling the job: {0}.\n\n{2}", job.Name, job.Assembly, ex.Message );
                     job.LastStatusMessage = message;
                     job.LastStatus = errorSchedulingStatus;
-
-                    // http://blog.stephencleary.com/2009/05/getting-local-ip-addresses.html
-                    /*
-                    var iPAddresses = System.Net.Dns.GetHostAddresses( System.Net.Dns.GetHostName() );
-                    iPAddresses[0].
-                    System.Net.IPAddress ipAddress = ipHostInfo.AddressList[0];
-                    */
-
-                    var jobHistoryService = new ServiceJobHistoryService( rockContext );
-                    var jobHistory = new ServiceJobHistory()
-                    {
-                        ServiceJobId = job.Id,
-                        StartDateTime = RockDateTime.Now,
-                        StopDateTime = RockDateTime.Now,
-                        Status = job.LastStatus,
-                        StatusMessage = job.LastStatusMessage,
-                        ServiceWorkerIpAddress = string.Empty //ipAddress.ToString()
-                    };
-                    jobHistoryService.Add( jobHistory );
-                    rockContext.SaveChanges();
-
                 }
             }
 
