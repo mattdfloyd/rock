@@ -156,14 +156,33 @@ namespace RockWeb.Blocks.Administration
             var jobHistoryService = new ServiceJobHistoryService( new RockContext() );
             SortProperty sortProperty = gScheduledJobHistory.SortProperty;
 
+            var qry = jobHistoryService.GetServiceJobHistory( scheduledJobId );
+
             if ( sortProperty != null )
             {
-                gScheduledJobHistory.DataSource = jobHistoryService.GetServiceJobHistory( scheduledJobId ).Sort( sortProperty ).ToList();
+                if ( sortProperty.Property == "DurationSeconds" )
+                {
+                    if ( sortProperty.Direction == SortDirection.Ascending )
+                    {
+                        qry = qry.OrderBy( a => System.Data.Entity.DbFunctions.DiffSeconds( a.StopDateTime, a.StartDateTime ) );
+                    }
+                    else
+                    {
+                        qry = qry.OrderByDescending( a => System.Data.Entity.DbFunctions.DiffSeconds( a.StopDateTime, a.StartDateTime ) );
+                    }
+
+                }
+                else
+                {
+                    qry = qry.Sort( sortProperty );
+                }
             }
             else
             {
-                gScheduledJobHistory.DataSource = jobHistoryService.GetServiceJobHistory( scheduledJobId ).OrderByDescending( a => a.StartDateTime ).ToList();
+                qry = qry.OrderByDescending( a => a.StartDateTime );
             }
+
+            gScheduledJobHistory.SetLinqDataSource( qry );
 
             gScheduledJobHistory.DataBind();
         }
