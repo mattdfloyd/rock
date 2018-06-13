@@ -15,11 +15,7 @@
 // </copyright>
 //
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web.Compilation;
-
-using Quartz;
 
 using Rock.Data;
 
@@ -60,7 +56,7 @@ namespace Rock.Model
         }
 
         /// <summary>
-        /// Deletes job history enties more than maximum.
+        /// Deletes job history items more than maximum.
         /// </summary>
         public void DeleteMoreThanMax()
         {
@@ -75,7 +71,7 @@ namespace Rock.Model
         }
 
         /// <summary>
-        /// Deletes job history enties more than maximum.
+        /// Deletes job history items more than maximum.
         /// </summary>
         /// <param name="serviceJobId">The service job identifier.</param>
         public void DeleteMoreThanMax( int serviceJobId )
@@ -98,6 +94,10 @@ namespace Rock.Model
             this.Context.SaveChanges();
         }
 
+        /// <summary>
+        /// Adds the specified item and automatically delete items that are more than the maximum.
+        /// </summary>
+        /// <param name="item">The item.</param>
         public override void Add( ServiceJobHistory item )
         {
             base.Add( item );

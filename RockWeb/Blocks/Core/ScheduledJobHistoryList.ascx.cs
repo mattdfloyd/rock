@@ -21,11 +21,8 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 
 using Rock;
-using Rock.Attribute;
 using Rock.Data;
-using Rock.Jobs;
 using Rock.Model;
-using Rock.Security;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
@@ -109,7 +106,7 @@ namespace RockWeb.Blocks.Administration
 
                 // format last status
                 var lStatus = e.Row.FindControl( "lStatus" ) as Literal;
-                if ( e.Row.DataItem.GetPropertyValue( "Status" ) != null && lStatus != null)
+                if ( e.Row.DataItem.GetPropertyValue( "Status" ) != null && lStatus != null )
                 {
                     string status = e.Row.DataItem.GetPropertyValue( "Status" ).ToString();
 
@@ -167,10 +164,10 @@ namespace RockWeb.Blocks.Administration
             {
                 gScheduledJobHistory.DataSource = jobHistoryService.GetServiceJobHistory( scheduledJobId ).OrderByDescending( a => a.StartDateTime ).ToList();
             }
-            
+
             gScheduledJobHistory.DataBind();
         }
 
         #endregion
-}
+    }
 }

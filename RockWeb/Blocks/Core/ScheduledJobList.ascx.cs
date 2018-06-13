@@ -36,7 +36,7 @@ namespace RockWeb.Blocks.Administration
     [Category( "Core" )]
     [Description( "Lists all scheduled jobs." )]
 
-    [LinkedPage("Detail Page")]
+    [LinkedPage( "Detail Page" )]
     [LinkedPage( "History Page", "The page to display group history." )]
     public partial class ScheduledJobList : RockBlock, ICustomGridColumns
     {
@@ -89,12 +89,12 @@ namespace RockWeb.Blocks.Administration
             var site = RockPage.Site;
             if ( e.Row.RowType == DataControlRowType.DataRow )
             {
-                // Remove the "Run Now" option from the Job Pulse job
+                // Remove the "Run Now" option and "History" button from the Job Pulse job
                 Guid? jobGuid = e.Row.DataItem.GetPropertyValue( "Guid" ).ToString().AsGuidOrNull();
-                if ( jobGuid.HasValue && jobGuid.Value.Equals( Rock.SystemGuid.ServiceJob.JOB_PULSE.AsGuid() ))
+                if ( jobGuid.HasValue && jobGuid.Value.Equals( Rock.SystemGuid.ServiceJob.JOB_PULSE.AsGuid() ) )
                 {
                     var runNowColumn = gScheduledJobs.ColumnsOfType<EditField>().Where( a => a.HeaderText == "Run Now" ).FirstOrDefault();
-                    e.Row.Cells[gScheduledJobs.GetColumnIndex( runNowColumn)].Text = string.Empty;
+                    e.Row.Cells[gScheduledJobs.GetColumnIndex( runNowColumn )].Text = string.Empty;
 
                     var historyColumn = gScheduledJobs.ColumnsOfType<LinkButtonField>().Where( a => a.HeaderText == "History" ).FirstOrDefault();
                     e.Row.Cells[gScheduledJobs.GetColumnIndex( historyColumn )].Text = string.Empty;
@@ -130,14 +130,14 @@ namespace RockWeb.Blocks.Administration
                 }
 
                 // format inactive jobs
-                if ( ! e.Row.DataItem.GetPropertyValue( "IsActive" ).ToStringSafe().AsBoolean( false ) )
+                if ( !e.Row.DataItem.GetPropertyValue( "IsActive" ).ToStringSafe().AsBoolean( false ) )
                 {
                     e.Row.AddCssClass( "inactive" );
                 }
 
                 // format last status
                 var lLastStatus = e.Row.FindControl( "lLastStatus" ) as Literal;
-                if ( e.Row.DataItem.GetPropertyValue( "LastStatus" ) != null && lLastStatus != null)
+                if ( e.Row.DataItem.GetPropertyValue( "LastStatus" ) != null && lLastStatus != null )
                 {
                     string lastStatus = e.Row.DataItem.GetPropertyValue( "LastStatus" ).ToString();
 
@@ -275,10 +275,10 @@ namespace RockWeb.Blocks.Administration
             {
                 gScheduledJobs.DataSource = jobService.GetAllJobs().OrderByDescending( a => a.LastRunDateTime ).ThenBy( a => a.Name ).ToList();
             }
-            
+
             gScheduledJobs.DataBind();
         }
 
         #endregion
-}
+    }
 }

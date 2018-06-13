@@ -191,7 +191,7 @@ namespace Rock.Jobs
             try
             {
                 // Reduce the job history to max size
-                CleanupJobHistory( dataMap );
+                CleanupJobHistory();
             }
             catch ( Exception ex )
             {
@@ -953,8 +953,7 @@ WHERE ExpireDateTime IS NOT NULL
         /// <summary>
         /// Cleanups the job history
         /// </summary>
-        /// <param name="dataMap">The data map.</param>
-        private void CleanupJobHistory( JobDataMap dataMap )
+        private void CleanupJobHistory()
         {
             using ( RockContext rockContext = new RockContext() )
             {

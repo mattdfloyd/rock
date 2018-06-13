@@ -118,24 +118,25 @@ namespace Rock.Model
         }
 
         /// <summary>
-        /// Gets the status message as HTML.
+        /// Gets the job duration in seconds.
         /// </summary>
         /// <value>
-        /// The status message as HTML.
+        /// The job duration in seconds.
         /// </value>
         [LavaInclude]
         public int? DurationSeconds
         {
             get
             {
-                if (StartDateTime == null || StopDateTime == null)
+                if ( StartDateTime == null || StopDateTime == null )
                 {
                     return null;
                 }
 
-                return (int)((TimeSpan)(StopDateTime - StartDateTime)).TotalSeconds;
+                return (int)( (TimeSpan)( StopDateTime - StartDateTime ) ).TotalSeconds;
             }
         }
+
         #endregion
 
         #region Methods
