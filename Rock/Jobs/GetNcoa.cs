@@ -55,7 +55,7 @@ namespace Rock.Jobs
         /// </summary>
         public virtual void Execute( IJobExecutionContext context )
         {
-            Rock.Utility.Ncoa ncoa = new Utility.Ncoa();
+            Rock.Utility.Ncoa ncoa = new Utility.Ncoa((new Guid()).ToString());
             ncoa.RequestNcoa();
         }
     }

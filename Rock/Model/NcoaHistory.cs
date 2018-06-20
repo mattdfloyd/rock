@@ -285,6 +285,14 @@ namespace Rock.Model
         [DataMember]
         public string NcoaNote { get; set; }
 
+        /// <summary>
+        /// Gets or sets the report export identifier.
+        /// </summary>
+        /// <value>
+        /// The report identifier.
+        /// </value>
+        [DataMember]
+        public string ReportExportId { get; set; }
         #endregion
 
         #region Virtual Properties
