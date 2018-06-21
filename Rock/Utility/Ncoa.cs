@@ -67,7 +67,7 @@ namespace Rock.Utility
         private string _id;
 
 
-        public Ncoa(string id)
+        public Ncoa( string id )
         {
             CreateRestClient();
             _id = id;
@@ -164,7 +164,7 @@ namespace Rock.Utility
                 StringBuilder data = new StringBuilder();
                 for ( int i = 1; i <= addressArray.Length; i++ )
                 {
-                    PersonAddressItem personAddressItem = addressArray[i-1];
+                    PersonAddressItem personAddressItem = addressArray[i - 1];
                     data.AppendFormat( "{0}={1}&", "individual_id", personAddressItem.PersonId );
                     data.AppendFormat( "{0}={1}&", "individual_first_name", personAddressItem.FirstName );
                     data.AppendFormat( "{0}={1}&", "individual_last_name", personAddressItem.LastName );
@@ -180,57 +180,18 @@ namespace Rock.Utility
                     if ( i % batchsize == 0 || i == addressArray.Length )
                     {
                         var request = new RestRequest( $"api/files/{fileName}/records", Method.POST );
-                        //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
                         request.AddHeader( "id", _id );
-                        request.AddParameter( "application/x-www-form-urlencoded", data.ToString().TrimEnd('&'), ParameterType.RequestBody );
+                        request.AddParameter( "application/x-www-form-urlencoded", data.ToString().TrimEnd( '&' ), ParameterType.RequestBody );
                         IRestResponse response = client.Execute( request );
-                        if (response.StatusCode != HttpStatusCode.OK )
+                        if ( response.StatusCode != HttpStatusCode.OK )
                         {
-//Todo: message
+                            //Todo: message
                             return false;
                         }
 
                         data = new StringBuilder();
-
-                        /*
-                        IRestResponse response = client.Execute( request );
-
-                        using ( WebClient wc = new WebClient() )
-                        {
-                            wc.Headers["user_name"] = username;
-                            wc.Headers["password"] = password;
-                            wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                            wc.UploadString( trueNcoaServer + $"files/{fileName}/records", data.ToString() );
-                            data = new StringBuilder();
-                        }
-                        */
                     }
                 }
-
-                /*
-                // check to see if the file is ready to process
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    try
-                    {
-                        string json = wc.DownloadString( trueNcoaServer + $"files/{fileName}" );
-                        File file = new JavaScriptSerializer().Deserialize<File>( json );
-                        if ( file.Status != "Mapped" )
-                        {
-                            Console.WriteLine( $"The filename: {fileName} is not in the correct status" );
-                            return false;
-                        }
-                    }
-                    catch ( Exception ex )
-                    {
-                        Console.WriteLine( $"Invalid filename: {fileName}" ); //todo: update exception
-                        return false;
-                    }
-                }
-                */
-
             }
             catch ( Exception ex )
             {
@@ -240,7 +201,6 @@ namespace Rock.Utility
             try
             {
                 var request = new RestRequest( $"api/files/{fileName}", Method.GET );
-                //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
                 IRestResponse response = client.Execute( request );
@@ -252,7 +212,7 @@ namespace Rock.Utility
 
                 try
                 {
-                    File file = new JavaScriptSerializer().Deserialize<File>( response.Content );
+                    File file = JsonConvert.DeserializeObject<File>( response.Content );
                     if ( file.Status != "Mapped" )
                     {
                         Console.WriteLine( $"The filename: {fileName} is not in the correct status" );
@@ -264,18 +224,6 @@ namespace Rock.Utility
                     Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
                     return false;
                 }
-
-                /*
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    string json = wc.DownloadString( trueNcoaServer + $"files/{fileName}" );
-                    File file = new JavaScriptSerializer().Deserialize<File>( json );
-                    bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
-                    return !processing;
-                }
-                */
             }
             catch ( Exception ex )
             {
@@ -291,7 +239,6 @@ namespace Rock.Utility
             {
                 // submit for processing
                 var request = new RestRequest( $"api/files/{fileName}", Method.PATCH );
-                //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
                 IRestResponse response = client.Execute( request );
@@ -300,16 +247,6 @@ namespace Rock.Utility
                     //Todo: message
                     return false;
                 }
-
-                /*
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                    wc.UploadString( trueNcoaServer + $"files/{fileName}", "PATCH", "status=submit" );
-                }
-                */
 
                 return true;
             }
@@ -324,7 +261,6 @@ namespace Rock.Utility
             try
             {
                 var request = new RestRequest( $"api/files/{fileName}", Method.GET );
-                //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
                 request.AddHeader( "id", _id );
                 IRestResponse response = client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
@@ -335,27 +271,15 @@ namespace Rock.Utility
 
                 try
                 {
-                    File file = new JavaScriptSerializer().Deserialize<File>( response.Content );
-                bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
-                return !processing;
+                    File file = JsonConvert.DeserializeObject<File>( response.Content );
+                    bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
+                    return !processing;
                 }
                 catch ( Exception ex )
                 {
                     Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
                     return false;
                 }
-
-                /*
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    string json = wc.DownloadString( trueNcoaServer + $"files/{fileName}" );
-                    File file = new JavaScriptSerializer().Deserialize<File>( json );
-                    bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
-                    return !processing;
-                }
-                */
             }
             catch ( Exception ex )
             {
@@ -368,17 +292,8 @@ namespace Rock.Utility
             exportfileid = null;
             try
             {
-                /*
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    string json = wc.DownloadString( trueNcoaServer + $"files/{fileName}/report" );
-                }
-                */
                 // submit for exporting
                 var request = new RestRequest( $"api/files/{fileName}", Method.PATCH );
-                //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=export", ParameterType.RequestBody );
                 IRestResponse response = client.Execute( request );
@@ -390,7 +305,7 @@ namespace Rock.Utility
 
                 try
                 {
-                    File file = new JavaScriptSerializer().Deserialize<File>( response.Content );
+                    File file = JsonConvert.DeserializeObject<File>( response.Content );
                     exportfileid = file.Id;
                 }
                 catch ( Exception ex )
@@ -398,18 +313,6 @@ namespace Rock.Utility
                     Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
                     return false;
                 }
-
-                /*
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                    string json = wc.UploadString( trueNcoaServer + $"files/{fileName}", "PATCH", "status=export" );
-                    File file = new JavaScriptSerializer().Deserialize<File>( json );
-                    exportfileid = file.Id;
-                }
-                */
 
                 return true;
             }
@@ -425,7 +328,6 @@ namespace Rock.Utility
             try
             {
                 var request = new RestRequest( $"api/files/{exportfileid}", Method.GET );
-                //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
                 request.AddHeader( "id", _id );
                 IRestResponse response = client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
@@ -436,7 +338,7 @@ namespace Rock.Utility
 
                 try
                 {
-                    File file = new JavaScriptSerializer().Deserialize<File>( response.Content );
+                    File file = JsonConvert.DeserializeObject<File>( response.Content );
                     bool exporting = ( file.Status == "Export" || file.Status == "Exporting" );
                     return !exporting;
                 }
@@ -445,18 +347,6 @@ namespace Rock.Utility
                     Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
                     return false;
                 }
-
-                /*
-                using ( WebClient wc = new WebClient() )
-                {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    string json = wc.DownloadString( trueNcoaServer + $"files/{exportfileid}" );
-                    File file = new JavaScriptSerializer().Deserialize<File>( json );
-                    bool exporting = ( file.Status == "Export" || file.Status == "Exporting" );
-                    return !exporting;
-                }
-                */
             }
             catch ( Exception ex )
             {
@@ -467,47 +357,34 @@ namespace Rock.Utility
         public bool DownloadExport( string exportfileid, out List<TrueNcoaReturnRecord> records )
         {
             records = null;
-                /*
-                using ( WebClient wc = new WebClient() )
+
+            try
+            {
+                var request = new RestRequest( $"api/files/{exportfileid}/records", Method.GET );
+                request.AddHeader( "id", _id );
+                request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
+                IRestResponse response = client.Execute( request );
+                if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    wc.Headers["user_name"] = username;
-                    wc.Headers["password"] = password;
-                    string json = wc.DownloadString( trueNcoaServer + $"files/{exportfileid}/records" );
-                    File file = new JavaScriptSerializer().Deserialize<File>( json );
-                    var obj = JObject.Parse( json );
-                    var recordsjson = (string)obj["Records"].ToString();
-                    records = new JavaScriptSerializer().Deserialize<List<TrueNcoaReturnRecord>>( recordsjson );
+                    //Todo: message
+                    return false;
                 }
-                */
 
                 try
                 {
-                    var request = new RestRequest( $"api/files/{exportfileid}/records", Method.GET );
-                    //request.AddHeader( "content-type", "application/x-www-form-urlencoded" );
-                    request.AddHeader( "id", _id );
-                    request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
-                    IRestResponse response = client.Execute( request );
-                    if ( response.StatusCode != HttpStatusCode.OK )
-                    {
-                        //Todo: message
-                        return false;
-                    }
-
-                    try
-                    {
-                        File file = new JavaScriptSerializer().Deserialize<File>( response.Content );
-                        var obj = JObject.Parse( response.Content );
-                        var recordsjson = (string)obj["Records"].ToString();
-                        records = new JavaScriptSerializer().Deserialize<List<TrueNcoaReturnRecord>>( recordsjson );
-                    }
-                    catch ( Exception ex )
-                    {
-                        Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
-                        return false;
-                    }
+                    File file = JsonConvert.DeserializeObject<File>( response.Content );
+                    var obj = JObject.Parse( response.Content );
+                    var recordsjson = (string)obj["Records"].ToString();
+                    records = JsonConvert.DeserializeObject<List<TrueNcoaReturnRecord>>( recordsjson );
+                }
+                catch ( Exception ex )
+                {
+                    Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
+                    return false;
+                }
 
 
-                    return true;
+                return true;
             }
             catch ( Exception ex )
             {
@@ -650,6 +527,76 @@ namespace Rock.Utility
             [JsonProperty( "address_status" )]
             public string AddressStatus { get; set; }
 
+            /// <summary>
+            /// Gets or sets the Delivery Point Verification (DPV) error number.
+            /// <list type="table">
+            /// <listheader>
+            /// <term>Return code</term>
+            /// <term>Caption</term>
+            /// <term>Description</term>
+            /// </listheader>
+            /// <item>
+            /// <term>1</term>
+            /// <term>State Not Found</term>
+            /// <term>1.1 State not found</term>
+            /// </item>
+            /// <item>
+            /// <term>2</term>
+            /// <term>City Not Found</term>
+            /// <term>2.1 City not found</term>
+            /// </item>
+            /// <item>
+            /// <term>3</term>
+            /// <term>Street Not Found</term>
+            /// <term>3.1 Street not found</term>
+            /// </item>
+            /// <item>
+            /// <term>4</term>
+            /// <term>Address Not Found</term>
+            /// <term>4.1 Address not found</term>
+            /// </item>
+            /// <item>
+            /// <term>5</term>
+            /// <term>Can’t Assign +4</term>
+            /// <term>5.1 Incomputable +4 range  5.2 +4 unavailable
+            /// </term>
+            /// </item>
+            /// <item>
+            /// <term>6</term>
+            /// <term>Multiple Matches</term>
+            /// <term>6.1 Multiple streets match  6.2 Multiple addresses match  6.3 Cardinal Rule multiple match
+            ///</term>
+            /// </item>
+            /// <item>
+            /// <term>7</term>
+            /// <term>Time/Space Error</term>
+            /// <term>7.1 Time ran out  7.2 Output too long</term>
+            /// </item>
+            /// <item>
+            /// <term>8</term>
+            /// <term>Company Warning</term>
+            /// <term>8.1 Company phonetic match used  8.2 First company match used</term>
+            /// </item>
+            /// <item>
+            /// <term>9</term>
+            /// <term>State Corrected</term>
+            /// <term>9.1 State determined from city  9.2 State determined from ZIP</term>
+            /// </item>
+            /// <item>
+            /// <term>10</term>
+            /// <term>City Corrected</term>
+            /// <term>10.1 City phonetic match used  10.2 City determined from ZIP  10.3 Acceptable city name used</term>
+            /// </item>
+            /// <item>
+            /// <term>11</term>
+            /// <term>Street Corrected</term>
+            /// <term>11.0 Address component Chg/Del/Add</term>
+            /// </item>
+            /// </list>
+            /// </summary>
+            /// <value>
+            /// The error number.
+            /// </value>
             [JsonProperty( "error_number" )]
             public string ErrorNumber { get; set; }
 
@@ -902,37 +849,39 @@ namespace Rock.Utility
             public object ANK { get; set; }
 
             [JsonProperty( "residential_delivery_indicator" )]
-            public string residential_delivery_indicator { get; set; }
+            public string ResidentialDeliveryIndicator { get; set; }
 
             [JsonProperty( "record_type" )]
-            public string record_type { get; set; }
+            public string RecordType { get; set; }
 
             [JsonProperty( "record_source" )]
-            public string record_source { get; set; }
+            public string RecordSource { get; set; }
 
             [JsonProperty( "country_code" )]
-            public string country_code { get; set; }
+            public string CountryCode { get; set; }
 
             [JsonProperty( "address_line_1" )]
-            public string address_line_1 { get; set; }
+            public string AddressLine1 { get; set; }
 
             [JsonProperty( "address_line_2" )]
-            public string address_line_2 { get; set; }
+            public string AddressLine2 { get; set; }
 
             [JsonProperty( "address_id" )]
-            public int address_id { get; set; }
+            public int AddressId { get; set; }
 
             [JsonProperty( "household_id" )]
-            public int household_id { get; set; }
+            public int HouseholdId { get; set; }
 
             [JsonProperty( "individual_id" )]
-            public int individual_id { get; set; }
+            public int IndividualId { get; set; }
 
+            /*
             [JsonProperty( "personAliasId" )]
-            public string personAliasId { get; set; }
+            public string PersonAliasId { get; set; }
 
             [JsonProperty( "familyId" )]
-            public string familyId { get; set; }
+            public string FamilyId { get; set; }
+            */
         }
     }
 }
