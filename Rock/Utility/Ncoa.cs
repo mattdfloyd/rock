@@ -53,11 +53,75 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using RestSharp;
+using Rock.Utility.NcoaApi;
 
 namespace Rock.Utility
 {
     public class Ncoa
     {
+        public Dictionary<int, PersonAddressItem> GetAddresses()
+        {
+            using ( RockContext rockContext = new RockContext() )
+            {
+                var familyGroupType = CacheGroupType.Get( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY.AsGuid() );
+                var homeLoc = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_HOME.AsGuid() );
+                var inactiveStatus = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_INACTIVE.AsGuid() );
+
+                if ( familyGroupType != null && homeLoc != null && inactiveStatus != null )
+                {
+                    return new GroupMemberService( rockContext )
+                        .Queryable().AsNoTracking()
+                        .Where( m =>
+                            m.Group.GroupTypeId == familyGroupType.Id && // Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY
+                            m.Person.RecordStatusValueId != inactiveStatus.Id && // Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_INACTIVE
+                            m.Group.GroupLocations.Any( gl => gl.GroupLocationTypeValueId.HasValue &&
+                                     gl.GroupLocationTypeValueId == homeLoc.Id ) ) // CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_HOME
+                        .Select( m => new
+                        {
+                            m.PersonId,
+                            m.GroupId,
+                            m.Person.FirstName,
+                            m.Person.LastName,
+                            m.Person.Aliases,
+                            HomeLocations = m.Group.GroupLocations
+                                .Where( gl =>
+                                    gl.GroupLocationTypeValueId.HasValue &&
+                                    gl.GroupLocationTypeValueId == homeLoc.Id ) // CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_HOME
+                                .Select( gl => new
+                                {
+                                    gl.Location.Street1,
+                                    gl.Location.Street2,
+                                    gl.Location.City,
+                                    gl.Location.State,
+                                    gl.Location.PostalCode,
+                                    gl.Location.Country
+                                } ).FirstOrDefault()
+                        } )
+                        .GroupBy( m => m.PersonId )
+                        .Select( g => new
+                        {
+                            PersonId = g.Key,
+                            HomeLocations = new PersonAddressItem()
+                            {
+                                PersonId = g.Key,
+                                FamilyId = g.FirstOrDefault().GroupId,
+                                PersonAliasId = g.FirstOrDefault().Aliases.Count == 0 ? 0 : g.FirstOrDefault().Aliases.FirstOrDefault().Id,
+                                FirstName = g.FirstOrDefault().FirstName,
+                                LastName = g.FirstOrDefault().LastName,
+                                Street1 = g.FirstOrDefault().HomeLocations.Street1,
+                                Street2 = g.FirstOrDefault().HomeLocations.Street2,
+                                City = g.FirstOrDefault().HomeLocations.City,
+                                State = g.FirstOrDefault().HomeLocations.State,
+                                PostalCode = g.FirstOrDefault().HomeLocations.PostalCode,
+                                Country = g.FirstOrDefault().HomeLocations.Country
+                            }
+                        } )
+                        .ToDictionary( k => k.PersonId, v => v.HomeLocations );
+                }
+            }
+
+            return null;
+        }
 
     }
 }
