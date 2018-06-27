@@ -7,9 +7,9 @@ namespace Rock.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class ncoaHistory_AddReportExportId : IMigrationMetadata
+    public sealed partial class NcoaHistory_AddReportExportId : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(ncoaHistory_AddReportExportId));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(NcoaHistory_AddReportExportId));
         
         string IMigrationMetadata.Id
         {

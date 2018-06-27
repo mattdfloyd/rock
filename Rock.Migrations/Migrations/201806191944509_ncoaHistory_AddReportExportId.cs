@@ -18,26 +18,50 @@ namespace Rock.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
-    
+    using Rock.SystemGuid;
+
     /// <summary>
     ///
     /// </summary>
-    public partial class ncoaHistory_AddReportExportId : Rock.Migrations.RockMigration
+    public partial class NcoaHistory_AddReportExportId : Rock.Migrations.RockMigration
     {
         /// <summary>
         /// Operations to be performed during the upgrade process.
         /// </summary>
         public override void Up()
         {
-            AddColumn("dbo.NcoaHistory", "ReportExportId", c => c.String());
+            #region Add GetNcoa Job
+
+            Sql( $@"
+    INSERT INTO [dbo].[ServiceJob] (
+         [IsSystem]
+        ,[IsActive]
+        ,[Name]
+        ,[Description]
+        ,[Class]
+        ,[CronExpression]
+        ,[NotificationStatus]
+        ,[Guid]
+    )
+    VALUES (
+         0 
+        ,0 
+        ,'GetNcoa'
+        ,'Job that get NCOA data.'
+        ,'Rock.Jobs.GetNcoa'
+        ,'0 0/10 0 ? * * *'
+        ,1
+        ,'{ServiceJob.GET_NCOA}')" );
+
+            #endregion
         }
-        
+
         /// <summary>
         /// Operations to be performed during the downgrade process.
         /// </summary>
         public override void Down()
         {
-            DropColumn("dbo.NcoaHistory", "ReportExportId");
+            DropColumn( "dbo.NcoaHistory", "ReportExportId" );
         }
     }
 }
