@@ -45,7 +45,7 @@ namespace Rock.Utility.Settings.SparkData
         /// <value>
         /// The global notification application group identifier.
         /// </value>
-        public int GlobalNotificationApplicationGroupId { get; set; }
+        public int? GlobalNotificationApplicationGroupId { get; set; }
 
         /// <summary>
         /// Gets or sets the messages that communicate to the block.

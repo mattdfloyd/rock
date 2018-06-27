@@ -289,9 +289,9 @@
     <Compile Include="Migrations\201806152348156_HomepageMetricSchedule.Designer.cs">
       <DependentUpon>201806152348156_HomepageMetricSchedule.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201806191944509_ncoaHistory_AddReportExportId.cs" />
-    <Compile Include="Migrations\201806191944509_ncoaHistory_AddReportExportId.Designer.cs">
-      <DependentUpon>201806191944509_ncoaHistory_AddReportExportId.cs</DependentUpon>
+    <Compile Include="Migrations\201806191944509_NcoaHistory_AddReportExportId.cs" />
+    <Compile Include="Migrations\201806191944509_NcoaHistory_AddReportExportId.Designer.cs">
+      <DependentUpon>201806191944509_NcoaHistory_AddReportExportId.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\RockMigrationSQL.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -3039,8 +3039,8 @@
     <EmbeddedResource Include="Migrations\201806152348156_HomepageMetricSchedule.resx">
       <DependentUpon>201806152348156_HomepageMetricSchedule.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806191944509_ncoaHistory_AddReportExportId.resx">
-      <DependentUpon>201806191944509_ncoaHistory_AddReportExportId.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201806191944509_NcoaHistory_AddReportExportId.resx">
+      <DependentUpon>201806191944509_NcoaHistory_AddReportExportId.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\Version 7.0\Version 1.7.1\201801121251097_InteractionBlocks.resx">
       <DependentUpon>201801121251097_InteractionBlocks.cs</DependentUpon>

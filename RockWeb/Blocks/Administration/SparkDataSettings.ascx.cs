@@ -14,13 +14,9 @@
 // limitations under the License.
 // </copyright>
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Entity;
-using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
 using Rock;
 using Rock.Cache;
 using Rock.Data;
@@ -38,13 +34,11 @@ namespace RockWeb.Blocks.Administration
     [DisplayName( "Spark Data Settings" )]
     [Category( "Administration" )]
     [Description( "Block used to set values specific to Spark Data (NCOA, Etc)." )]
-    public partial class SparkDataConfig : RockBlock
+    public partial class SparkDataSettings : RockBlock
     {
         #region private variables
 
         private RockContext _rockContext = new RockContext();
-
-        private NcoaSettings _ncoaSettings = new NcoaSettings();
 
         private SparkDataConfig _sparkDataConfig = new SparkDataConfig();
         #endregion
@@ -62,6 +56,7 @@ namespace RockWeb.Blocks.Administration
             // this event gets fired after block settings are updated. it's nice to repaint the screen if these settings would alter it
             this.BlockUpdated += Block_BlockUpdated;
             this.AddConfigurationUpdateTrigger( upnlContent );
+            dvpPersonDataView.EntityTypeId = CacheEntityType.GetId<Rock.Model.Person>();
 
         }
 
@@ -119,6 +114,16 @@ namespace RockWeb.Blocks.Administration
             SetPanels();
         }
 
+        /// <summary>
+        /// Handles the CheckedChanged event when enabling/disabling the recurring enabled control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void cbRecurringEnabled_CheckedChanged( object sender, EventArgs e )
+        {
+            nbRecurrenceInterval.Enabled = cbRecurringEnabled.Checked;
+        }
+
         #endregion
 
         #region Methods
@@ -166,15 +171,42 @@ namespace RockWeb.Blocks.Administration
         /// </summary>
         private void GetSettings()
         {
-            // Get Ncoa Configuration Settings
+            // Get Ncoa configuration settings
             nbMinMoveDistance.Text = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_MINIMUM_MOVE_DISTANCE_TO_INACTIVATE );
             cb48MonAsPrevious.Checked = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_SET_48_MONTH_AS_PREVIOUS ).AsBoolean();
             cbInvalidAddressAsPrevious.Checked = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_SET_INVALID_AS_PREVIOUS ).AsBoolean();
 
-            // Get Data Automation Settings
-            _ncoaSettings = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA_NCOA ).FromJsonOrNull<NcoaSettings>() ?? new NcoaSettings();
+            // Get Spark Data settings
             _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
 
+            if ( _sparkDataConfig == null )
+            {
+                _sparkDataConfig = new SparkDataConfig();
+            }
+
+            txtSparkDataApiKey.Text = _sparkDataConfig.SparkDataApiKey;
+            grpNotificationGroup.GroupRoleId = _sparkDataConfig.GlobalNotificationApplicationGroupId;
+
+            // Get NCOA settings
+            if ( _sparkDataConfig.NcoaSettings == null )
+            {
+                _sparkDataConfig.NcoaSettings = new NcoaSettings();
+            }
+
+            dvpPersonDataView.SelectedValue = _sparkDataConfig.NcoaSettings.PersonDataViewId.ToStringSafe();
+            cbRecurringEnabled.Checked = _sparkDataConfig.NcoaSettings.RecurringEnabled;
+            nbRecurrenceInterval.Enabled = _sparkDataConfig.NcoaSettings.RecurringEnabled;
+            nbRecurrenceInterval.Text = _sparkDataConfig.NcoaSettings.RecurrenceInterval.ToStringSafe();
+
+            // Get job active status
+            using ( var rockContext = new RockContext() )
+            {
+                var ncoaJob = new ServiceJobService( rockContext ).Get( Rock.SystemGuid.ServiceJob.GET_NCOA.AsGuid() );
+                if ( ncoaJob != null && ncoaJob.IsActive.HasValue )
+                {
+                    cbNcoaConfiguration.Checked = ncoaJob.IsActive.Value;
+                }
+            }
         }
 
         /// <summary>
@@ -188,57 +220,29 @@ namespace RockWeb.Blocks.Administration
             Rock.Web.SystemSettings.SetValue( SystemSetting.NCOA_SET_INVALID_AS_PREVIOUS, cbInvalidAddressAsPrevious.Checked.ToString() );
 
             // Save Spark Data
-            _ncoaSettings = new NcoaSettings();
             _sparkDataConfig = new SparkDataConfig();
-            //Update _ncoaSettings
+            _sparkDataConfig.GlobalNotificationApplicationGroupId = grpNotificationGroup.GroupRoleId;
+            _sparkDataConfig.SparkDataApiKey = txtSparkDataApiKey.Text;
 
-            Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA_NCOA, _ncoaSettings.ToJson() );
+            // Save NCOA settings
+            _sparkDataConfig.NcoaSettings = new NcoaSettings();
+            _sparkDataConfig.NcoaSettings.PersonDataViewId = dvpPersonDataView.SelectedValue.AsIntegerOrNull();
+            _sparkDataConfig.NcoaSettings.RecurringEnabled = cbRecurringEnabled.Checked;
+            _sparkDataConfig.NcoaSettings.RecurrenceInterval = nbRecurrenceInterval.Text.AsInteger();
+
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
-        }
 
-        #endregion
-
-        #region Update Connection Status
-
-        /// <summary>
-        /// Handles the ItemDataBound event of the rptPersonConnectionStatusDataView control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RepeaterItemEventArgs"/> instance containing the event data.</param>
-        protected void rptPersonConnectionStatusDataView_ItemDataBound( object sender, RepeaterItemEventArgs e )
-        {
-            PersonConnectionStatusDataView personConnectionStatusDataView = e.Item.DataItem as PersonConnectionStatusDataView;
-            HiddenField hfPersonConnectionStatusValueId = e.Item.FindControl( "hfPersonConnectionStatusValueId" ) as HiddenField;
-            DataViewItemPicker dvpPersonConnectionStatusDataView = e.Item.FindControl( "dvpPersonConnectionStatusDataView" ) as DataViewItemPicker;
-            if ( personConnectionStatusDataView != null )
+            // Save job active status
+            using ( var rockContext = new RockContext() )
             {
-                hfPersonConnectionStatusValueId.Value = personConnectionStatusDataView.PersonConnectionStatusValue.Id.ToString();
-                dvpPersonConnectionStatusDataView.EntityTypeId = CacheEntityType.GetId<Rock.Model.Person>();
-                dvpPersonConnectionStatusDataView.Label = personConnectionStatusDataView.PersonConnectionStatusValue.ToString();
-                dvpPersonConnectionStatusDataView.SetValue( personConnectionStatusDataView.DataViewId );
+                var ncoaJob = new ServiceJobService( rockContext ).Get( Rock.SystemGuid.ServiceJob.GET_NCOA.AsGuid() );
+                if ( ncoaJob != null )
+                {
+                    ncoaJob.IsActive = cbNcoaConfiguration.Checked;
+                    rockContext.SaveChanges();
+                }
             }
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private class PersonConnectionStatusDataView
-        {
-            /// <summary>
-            /// Gets or sets the connection status value.
-            /// </summary>
-            /// <value>
-            /// The connection status value.
-            /// </value>
-            public CacheDefinedValue PersonConnectionStatusValue { get; set; }
-
-            /// <summary>
-            /// Gets or sets the data view identifier.
-            /// </summary>
-            /// <value>
-            /// The data view identifier.
-            /// </value>
-            public int? DataViewId { get; set; }
         }
 
         #endregion

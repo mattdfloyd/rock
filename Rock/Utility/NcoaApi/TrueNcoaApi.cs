@@ -56,13 +56,6 @@ namespace Rock.Utility.NcoaApi
             _id = id;
         }
 
-        public void RequestNcoa()
-        {
-            Dictionary<int, PersonAddressItem> addresses = GetAddresses();
-            string fileName = "_" + DateTime.Now.Ticks;
-            UploadAddresses( addresses, fileName );
-        }
-
         /// <summary>
         /// Creates the rest client.
         /// </summary>

@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="SparkDataConfig.ascx.cs" Inherits="RockWeb.Blocks.Administration.SparkDataConfig" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="SparkDataSettings.ascx.cs" Inherits="RockWeb.Blocks.Administration.SparkDataSettings" %>
 
 <asp:UpdatePanel ID="upnlContent" runat="server">
     <ContentTemplate>
@@ -21,6 +21,17 @@
                         Spark Data
                     </legend>
 
+                    <Rock:PanelWidget ID="pwGeneralSettings" runat="server" Title="General Settings">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <Rock:RockTextBox ID="txtSparkDataApiKey" runat="server" Label="Spark Data Api Key" Required="true" />
+                            </div>
+                            <div class="col-md-4">
+                                <Rock:GroupRolePicker ID="grpNotificationGroup" runat="server" Label="Global Notification Application Group" />
+                            </div>
+                        </div>
+                    </Rock:PanelWidget>
+
                     <Rock:PanelWidget ID="pwNcoaConfiguration" runat="server" Title="National Change of Address (NCOA)">
                         <Rock:RockCheckBox ID="cbNcoaConfiguration" runat="server"
                             Label="Enable" Text="Enable the automatic updating of change of addresses via NCOA services."
@@ -42,24 +53,13 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <Rock:RockCheckBox ID="cbRecurringEnabled" runat="server" Label="Recurring Enabled" />
-                                </div>
-                                <div class="col-md-4">
-                                    <Rock:d ID="nbRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" />
-                                </div>
-                                <div class="col-md-4">
-                                    <Rock:GroupRolePicker ID="grpNotificationGroup" runat="server" Label="Global Notification Application Group" />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
                                     <Rock:DataViewPicker ID="dvpPersonDataView" runat="server" Label="Person Data View" />
                                 </div>
                                 <div class="col-md-4">
-                                    <Rock:RockTextBox ID="txtSparkDataApiKey" runat="server" AppendText="miles" CssClass="input-width-md" Label="Spark Data Api Key" />
+                                    <Rock:RockCheckBox ID="cbRecurringEnabled" runat="server" Label="Recurring Enabled" OnCheckedChanged="cbRecurringEnabled_CheckedChanged" AutoPostBack="true"/>
                                 </div>
                                 <div class="col-md-4">
-
+                                    <Rock:NumberBox ID="nbRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" Required="true" />
                                 </div>
                             </div>
                         </asp:Panel>

@@ -37,7 +37,7 @@ namespace Rock.Utility.Settings.SparkData
         /// <value>
         /// The last NCOA run date.
         /// </value>
-        public DateTime LastRunDate { get; set; }
+        public DateTime? LastRunDate { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [recurring enabled].
@@ -53,7 +53,7 @@ namespace Rock.Utility.Settings.SparkData
         /// <value>
         /// The recurrence interval.
         /// </value>
-        public int RecurrenceInterval { get; set; }
+        public int RecurrenceInterval { get; set; } = 95;
 
         /// <summary>
         /// Gets or sets the current NCOA report key.
@@ -80,12 +80,12 @@ namespace Rock.Utility.Settings.SparkData
         public string CurrentReportStatus { get; set; }
 
         /// <summary>
-        /// Gets or sets the person data view unique identifier.
+        /// Gets or sets the person data view Id.
         /// </summary>
         /// <value>
-        /// The person data view unique identifier.
+        /// The person data view Id.
         /// </value>
-        public string PersonDataViewGuid { get; set; }
+        public int? PersonDataViewId { get; set; }
 
         /// <summary>
         /// Gets or sets the current upload count to NCOA.
@@ -93,7 +93,7 @@ namespace Rock.Utility.Settings.SparkData
         /// <value>
         /// The current upload count to NCOA.
         /// </value>
-        public int CurrentUploadCount { get; set; }
+        public int? CurrentUploadCount { get; set; }
 
     }
 }
