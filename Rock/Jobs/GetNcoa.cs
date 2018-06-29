@@ -17,21 +17,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Web;
-
 using Quartz;
-using RestSharp;
-using Rock;
-using Rock.Attribute;
-using Rock.Cache;
-using Rock.Data;
 using Rock.Model;
-using Rock.SystemKey;
+using Rock.Utility;
 using Rock.Utility.Settings.SparkData;
 using Rock.Web.UI;
-using Rock.Utility.NcoaApi;
-using Rock.Utility;
 
 namespace Rock.Jobs
 {
@@ -79,24 +70,25 @@ namespace Rock.Jobs
                     exceptions.Add( new Exception( $"SparkDataApiKey '{sparkDataConfig.SparkDataApiKey.ToStringSafe()}' is empty or invalid." ) );
                     return;
                 }
-                    switch ( sparkDataConfig.NcoaSettings.CurrentReportStatus )
+                switch ( sparkDataConfig.NcoaSettings.CurrentReportStatus )
                 {
                     case "Start":
+                    case "Failed":
                     case "":
                     case null:
                         StatusStart( sparkDataConfig );
                         break;
+                    case "Pending: Report":
+                        StatusPendingReport( sparkDataConfig );
+                        break;
+                    case "Pending: Export":
+                        StatusPendingExport( sparkDataConfig );
+                        break;
                     case "Complete":
                         StatusComplete( sparkDataConfig );
                         break;
-                    case "Pending":
-                        StatusPending( sparkDataConfig );
-                        break;
 
                 }
-
-                //Rock.Utility.Ncoa ncoa = new Utility.Ncoa((new Guid()).ToString());
-                //ncoa.RequestNcoa();
             }
             catch ( System.Exception ex )
             {
@@ -104,31 +96,41 @@ namespace Rock.Jobs
             }
             finally
             {
-                context.Result = $"NCOA Complete.";
-
                 if ( exceptions.Any() )
                 {
+                    context.Result = $"Job finished with error(s).";
+
+                    sparkDataConfig.NcoaSettings.CurrentReportStatus = "Failed";
+                    Ncoa.SaveSettings( sparkDataConfig );
+
                     Exception ex = new AggregateException( "One or more NCOA requirement failed ", exceptions );
                     HttpContext context2 = HttpContext.Current;
                     ExceptionLogService.LogException( ex, context2 );
                     throw ex;
                 }
+                else
+                {
+                    context.Result = $"Job Complete. NCOA Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
+
+                }
             }
         }
 
-
+        /// <summary>
+        /// Start NCOA
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusStart( SparkDataConfig sparkDataConfig )
         {
             var ncoa = new Ncoa();
             ncoa.Start( sparkDataConfig );
-
         }
 
         private void StatusComplete( SparkDataConfig sparkDataConfig )
         {
-            if (!sparkDataConfig.NcoaSettings.LastRunDate.HasValue ||
-                (sparkDataConfig.NcoaSettings.RecurringEnabled &&
-                sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) > RockDateTime.Now) )
+            if ( !sparkDataConfig.NcoaSettings.LastRunDate.HasValue ||
+                ( sparkDataConfig.NcoaSettings.RecurringEnabled &&
+                sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) > RockDateTime.Now ) )
             {
                 sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
                 Ncoa.SaveSettings( sparkDataConfig );
@@ -136,61 +138,24 @@ namespace Rock.Jobs
             }
         }
 
-        private void StatusPending( SparkDataConfig sparkDataConfig )
+        /// <summary>
+        /// Resume a pending report.
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
+        private void StatusPendingReport( SparkDataConfig sparkDataConfig )
         {
-
+            var ncoa = new Ncoa();
+            ncoa.PendingReport( sparkDataConfig );
         }
 
         /// <summary>
-        /// Sends the notifications.
+        /// Resume pending export.
         /// </summary>
-        /// <param name="groupId">The group identifier.</param>
-        /// <param name="notifications">The notifications.</param>
-        private void SendNotifications( int groupId, List<Notification> notifications )
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
+        private void StatusPendingExport( SparkDataConfig sparkDataConfig )
         {
-            using ( var rockContext = new RockContext() )
-            {
-                var group = new GroupService( rockContext ).Get( groupId );
-
-                if ( group != null )
-                {
-                    if ( notifications.Count == 0 )
-                    {
-                        return;
-                    }
-
-                    var notificationService = new NotificationService( rockContext );
-                    foreach ( var notification in notifications.ToList() )
-                    {
-                        if ( notificationService.Get( notification.Guid ) == null )
-                        {
-                            notificationService.Add( notification );
-                        }
-                        else
-                        {
-                            notifications.Remove( notification );
-                        }
-                    }
-                    rockContext.SaveChanges();
-
-                    var notificationRecipientService = new NotificationRecipientService( rockContext );
-                    foreach ( var notification in notifications )
-                    {
-                        foreach ( var member in group.Members )
-                        {
-                            if ( member.Person.PrimaryAliasId.HasValue )
-                            {
-                                var recipientNotification = new NotificationRecipient();
-                                recipientNotification.NotificationId = notification.Id;
-                                recipientNotification.PersonAliasId = member.Person.PrimaryAliasId.Value;
-                                notificationRecipientService.Add( recipientNotification );
-                            }
-                        }
-                    }
-
-                    rockContext.SaveChanges();
-                }
-            }
+            var ncoa = new Ncoa();
+            ncoa.PendingExport( sparkDataConfig );
         }
     }
 }

@@ -20,8 +20,9 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Web.Http;
 using System.Web.UI.WebControls;
-using Newtonsoft.Json;
 using RestSharp;
 using Rock;
 using Rock.Cache;
@@ -36,27 +37,40 @@ namespace Rock.Utility
 {
     public class Ncoa
     {
+        private readonly string SPARK_SERVER = "http://localhost:57822";
+        // private readonly string SPARK_SERVER = "http://www.rockrms.com";
+
         /// <summary>
         /// Checks the early access status of this organization.
         /// </summary>
         private void CheckAccount( string sparkDataApiKey )
         {
-            var client = new RestClient( "http://www.rockrms.com/api/SparkData/ValidateAccount" );
-            var request = new RestRequest( Method.GET );
-            request.RequestFormat = DataFormat.Json;
-
-            request.AddParameter( "sparkDataApiKey", sparkDataApiKey );
-            IRestResponse response = client.Execute( request );
-            if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
+            try
             {
-                if ( !response.Content.AsBoolean() )
+                var client = new RestClient( SPARK_SERVER );
+                var request = new RestRequest( "api/SparkData/ValidateAccount", Method.GET );
+                request.RequestFormat = DataFormat.Json;
+
+                request.AddParameter( "sparkDataApiKey", sparkDataApiKey );
+                IRestResponse response = client.Execute( request );
+                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
                 {
-                    throw new UnauthorizedAccessException( "Could not authenticate Spark Data account: No valid credit card found in Spark account" );
+                    if ( !response.Content.AsBoolean() )
+                    {
+                        throw new UnauthorizedAccessException( "No valid credit card found in Spark account" );
+                    }
+                }
+                else
+                {
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
             }
-            else
+            catch ( Exception ex )
             {
-                throw new UnauthorizedAccessException( $"Could not authenticate Spark Data account: {response.StatusCode.ConvertToString()} '{response.Content}'" );
+                throw new AggregateException( "Could not authenticate Spark Data account", ex );
             }
         }
 
@@ -72,22 +86,36 @@ namespace Rock.Utility
         /// </exception>
         private string IntiateReport( string sparkDataApiKey, int? numberRecords, int? personAliasId = null )
         {
-            var client = new RestClient( $"http://www.rockrms.com/api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords}" );
-            var request = new RestRequest( Method.POST );
-            request.RequestFormat = DataFormat.Json;
-            if ( personAliasId.HasValue )
+            try
             {
-                request.AddParameter( "personAliasId", personAliasId.Value );
-            }
+                var client = new RestClient( SPARK_SERVER );
+                var request = new RestRequest( $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords}", Method.POST );
+                request.RequestFormat = DataFormat.Json;
+                if ( personAliasId.HasValue )
+                {
+                    request.AddParameter( "personAliasId", personAliasId.Value );
+                }
+                else
+                {
+                    request.AddParameter( "personAliasId", null );
+                }
 
-            IRestResponse response = client.Execute( request );
-            if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-            {
-                return response.Content;
+                IRestResponse response = client.Execute( request );
+                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
+                {
+                    return response.Content;
+                }
+                else
+                {
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
+                }
             }
-            else
+            catch ( Exception ex )
             {
-                throw new Exception( $"Could not initiate Spark report: {response.StatusCode.ConvertToString()} '{response.Content}'" );
+                throw new AggregateException( "Could not initiate Spark report", ex );
             }
         }
 
@@ -103,19 +131,29 @@ namespace Rock.Utility
         /// </exception>
         private UsernamePassword GetCredentials( string sparkDataApiKey )
         {
-            var client = new RestClient( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}" );
-            var request = new RestRequest( Method.GET );
-            request.RequestFormat = DataFormat.Json;
+            try
+            {
+                var client = new RestClient( SPARK_SERVER );
+                var request = new RestRequest( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}", Method.GET );
+                request.RequestFormat = DataFormat.Json;
 
-            // IRestResponse response = client.Execute( request );
-            var response = client.Get<UsernamePassword>( request );
-            if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-            {
-                return response.Data;
+                // IRestResponse response = client.Execute( request );
+                var response = client.Get<UsernamePassword>( request );
+                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
+                {
+                    return response.Data;
+                }
+                else
+                {
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
+                }
             }
-            else
+            catch ( Exception ex )
             {
-                throw new Exception( $"Could not get credentials from Spark: {response.StatusCode.ConvertToString()} '{response.Content}'" );
+                throw new AggregateException( "Could not get credentials from Spark", ex );
             }
         }
 
@@ -131,22 +169,38 @@ namespace Rock.Utility
         /// </exception>
         private bool CompleteReport( string sparkDataApiKey, string reportKey, string exportFileKey )
         {
-            var client = new RestClient( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}" );
-            var request = new RestRequest( Method.GET );
-            request.RequestFormat = DataFormat.Json;
+            try
+            {
+                var client = new RestClient( SPARK_SERVER );
+                var request = new RestRequest( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}", Method.GET );
+                request.RequestFormat = DataFormat.Json;
 
-            // IRestResponse response = client.Execute( request );
-            IRestResponse response = client.Execute( request );
-            if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-            {
-                return !response.Content.AsBoolean();
+                // IRestResponse response = client.Execute( request );
+                IRestResponse response = client.Execute( request );
+                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
+                {
+                    return !response.Content.AsBoolean();
+                }
+                else
+                {
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
+                }
             }
-            else
+            catch ( Exception ex )
             {
-                throw new Exception( $"Could not complete Spark report: {response.StatusCode.ConvertToString()} '{response.Content}'" );
+                throw new AggregateException( "Could not complete Spark report", ex );
             }
         }
 
+        /// <summary>
+        /// PeopleIds inside a DataView filter.
+        /// </summary>
+        /// <param name="dataViewId">The data view identifier.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns>Returns a directory of people IDs that result from applying the DataView filter</returns>
         public Dictionary<int, int> DataViewPeopleDirectory( int dataViewId, RockContext rockContext )
         {
             var dataViewService = new DataViewService( rockContext );
@@ -155,7 +209,7 @@ namespace Rock.Utility
             // Verify that there is not a child filter that uses this view (would result in stack-overflow error)
             if ( dataViewService.IsViewInFilter( dataView.Id, dataView.DataViewFilter ) )
             {
-                throw new Exception( "Filter issue(s): One of the filters contains a circular reference to the Data View itself." );
+                throw new Exception( "Data View Filter issue(s): One of the filters contains a circular reference to the Data View itself." );
             }
 
             // Evaluate the Data View that defines the candidate population.
@@ -171,12 +225,17 @@ namespace Rock.Utility
 
             if ( errorMessages.Any() )
             {
-                throw new Exception( "Filter issue(s): " + errorMessages.AsDelimited( "; " ) );
+                throw new Exception( "Data View Filter issue(s): " + errorMessages.AsDelimited( "; " ) );
             }
 
             return personQuery.Where( paramExpression, whereExpression, null ).Select( p => p.Id ).ToDictionary( p => p, p => p );
         }
 
+        /// <summary>
+        /// Gets the addresses.
+        /// </summary>
+        /// <param name="dataViewId">The data view identifier.</param>
+        /// <returns>Directory of addresses</returns>
         public Dictionary<int, PersonAddressItem> GetAddresses( int? dataViewId )
         {
             using ( RockContext rockContext = new RockContext() )
@@ -244,12 +303,16 @@ namespace Rock.Utility
                         } )
                         .ToDictionary( k => k.PersonId, v => v.HomeLocation );
                 }
-            }
 
-            return null;
+                throw new Exception( "Get Address: Could not find expected constant, type or value" );
+            }
         }
 
-        private void SendNotification( SparkDataConfig sparkDataConfig )
+        /// <summary>
+        /// Sends the notification that NCOA finished
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
+        private void SentNotification( SparkDataConfig sparkDataConfig )
         {
             if ( !sparkDataConfig.GlobalNotificationApplicationGroupId.HasValue || sparkDataConfig.GlobalNotificationApplicationGroupId.Value == 0 )
             {
@@ -261,7 +324,7 @@ namespace Rock.Utility
             {
                 Group group = new GroupService( rockContext ).Get( sparkDataConfig.GlobalNotificationApplicationGroupId.Value );
 
-                foreach(var groupMember in group.Members)
+                foreach ( var groupMember in group.Members )
                 {
                     if ( groupMember.GroupMemberStatus == GroupMemberStatus.Active )
                     {
@@ -284,11 +347,21 @@ namespace Rock.Utility
             }
         }
 
+        /// <summary>
+        /// Starts the NCOA request.
+        /// </summary>
+        /// <param name="personAliasId">The person alias identifier.</param>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void Start( int? personAliasId = null, SparkDataConfig sparkDataConfig = null )
         {
             Start( sparkDataConfig, personAliasId );
         }
 
+        /// <summary>
+        /// Starts the NCOA request.
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
+        /// <param name="personAliasId">The person alias identifier.</param>
         public void Start( SparkDataConfig sparkDataConfig, int? personAliasId = null )
         {
             if ( sparkDataConfig == null )
@@ -308,6 +381,10 @@ namespace Rock.Utility
             SaveSettings( sparkDataConfig );
         }
 
+        /// <summary>
+        /// Resume a pending report.
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void PendingReport( SparkDataConfig sparkDataConfig = null )
         {
             if ( sparkDataConfig == null )
@@ -331,6 +408,10 @@ namespace Rock.Utility
             }
         }
 
+        /// <summary>
+        /// Resume a pending export.
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void PendingExport( SparkDataConfig sparkDataConfig = null )
         {
             if ( sparkDataConfig == null )
@@ -364,13 +445,11 @@ namespace Rock.Utility
                 SaveSettings( sparkDataConfig );
 
                 CompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+
                 //Notify group
-                SendNotification( sparkDataConfig );
+                SentNotification( sparkDataConfig );
             }
         }
-
-
-
 
         /// <summary>
         /// Gets the settings.

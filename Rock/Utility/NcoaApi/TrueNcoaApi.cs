@@ -17,18 +17,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
-using System.Web.UI.WebControls;
+using System.Web.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using Rock;
-using Rock.Cache;
-using Rock.Data;
-using Rock.Model;
 
 namespace Rock.Utility.NcoaApi
 {
@@ -49,7 +45,7 @@ namespace Rock.Utility.NcoaApi
         /// Initializes a new instance of the <see cref="TrueNcoaApi"/> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        public TrueNcoaApi( string id, UsernamePassword usernamePassword)
+        public TrueNcoaApi( string id, UsernamePassword usernamePassword )
         {
             CreateRestClient();
             _id = id;
@@ -68,8 +64,12 @@ namespace Rock.Utility.NcoaApi
             _client.AddDefaultHeader( "content-type", "application/x-www-form-urlencoded" );
         }
 
-
-        public bool UploadAddresses( Dictionary<int, PersonAddressItem> addresses, string fileName )
+        /// <summary>
+        /// Uploads the addresses.
+        /// </summary>
+        /// <param name="addresses">The addresses.</param>
+        /// <param name="fileName">Name of the file.</param>
+        public void UploadAddresses( Dictionary<int, PersonAddressItem> addresses, string fileName )
         {
             try
             {
@@ -96,8 +96,10 @@ namespace Rock.Utility.NcoaApi
                         IRestResponse response = _client.Execute( request );
                         if ( response.StatusCode != HttpStatusCode.OK )
                         {
-                            //Todo: message
-                            return false;
+                            throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                            {
+                                Content = new StringContent( response.Content )
+                            } );
                         }
 
                         data = new StringBuilder();
@@ -106,7 +108,7 @@ namespace Rock.Utility.NcoaApi
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Could not upload address to TrueNCOA", ex );
             }
 
             try
@@ -117,34 +119,37 @@ namespace Rock.Utility.NcoaApi
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    //Todo: message
-                    return false;
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
 
+                TrueNcoaResponse file;
                 try
                 {
-                    TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
-                    if ( file.Status != "Mapped" )
-                    {
-                        Console.WriteLine( $"The filename: {fileName} is not in the correct status" );
-                        return false;
-                    }
+                    file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
                 }
-                catch ( Exception ex )
+                catch
                 {
-                    Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
-                    return false;
+                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
                 }
+                if ( file.Status != "Mapped" )
+                    {
+                        throw new Exception( $"TrueNCOA is not in the correct state: {file.Status}" );
+                    }
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Could not upload address to TrueNCOA", ex );
             }
-
-            return true;
         }
 
-        public bool CreateReport( string fileName )
+        /// <summary>
+        /// Creates the report.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        public void CreateReport( string fileName )
         {
             try
             {
@@ -155,18 +160,25 @@ namespace Rock.Utility.NcoaApi
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    //Todo: message
-                    return false;
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
-
-                return true;
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Could create report on TrueNCOA", ex );
             }
         }
-
+        
+        /// <summary>
+        /// Determines whether the report is created.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns>
+        ///   <c>true</c> if the report is created; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsReportCreated( string fileName )
         {
             try
@@ -176,29 +188,42 @@ namespace Rock.Utility.NcoaApi
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    //Todo: message
-                    return false;
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
 
+                TrueNcoaResponse file;
                 try
                 {
-                    TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                    file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                }
+                catch
+                {
+                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                }
+
+                if ( file.Status == "Errored" )
+                    {
+                        throw new Exception( "TrueNCOA returned an error creating the report" );
+                    }
+
                     bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
                     return !processing;
-                }
-                catch ( Exception ex )
-                {
-                    Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
-                    return false;
-                }
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Error checking if report is created by TrueNCOA", ex );
             }
         }
 
-        public bool CreateReportExport( string fileName, out string exportfileid )
+        /// <summary>
+        /// Creates the report export.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="exportfileid">The export file ID.</param>
+        public void CreateReportExport( string fileName, out string exportfileid )
         {
             exportfileid = null;
             try
@@ -210,8 +235,10 @@ namespace Rock.Utility.NcoaApi
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    //Todo: message
-                    return false;
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
 
                 try
@@ -219,21 +246,24 @@ namespace Rock.Utility.NcoaApi
                     TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
                     exportfileid = file.Id;
                 }
-                catch ( Exception ex )
+                catch
                 {
-                    Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
-                    return false;
+                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
                 }
-
-                return true;
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Error creating TrueNCOA report", ex );
             }
-
         }
 
+        /// <summary>
+        /// Determines whether the report export is created.
+        /// </summary>
+        /// <param name="exportfileid">The export file ID.</param>
+        /// <returns>
+        ///   <c>true</c> if the report export is created; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsReportExportCreated( string exportfileid )
         {
             try
@@ -243,8 +273,10 @@ namespace Rock.Utility.NcoaApi
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    //Todo: message
-                    return false;
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
 
                 try
@@ -253,19 +285,23 @@ namespace Rock.Utility.NcoaApi
                     bool exporting = ( file.Status == "Export" || file.Status == "Exporting" );
                     return !exporting;
                 }
-                catch ( Exception ex )
+                catch
                 {
-                    Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
-                    return false;
+                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
                 }
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Error creating TrueNCOA report", ex );
             }
         }
 
-        public bool DownloadExport( string exportfileid, out List<TrueNcoaReturnRecord> records )
+        /// <summary>
+        /// Downloads the export.
+        /// </summary>
+        /// <param name="exportfileid">The export file ID.</param>
+        /// <param name="records">The records.</param>
+        public void DownloadExport( string exportfileid, out List<TrueNcoaReturnRecord> records )
         {
             records = null;
 
@@ -277,8 +313,10 @@ namespace Rock.Utility.NcoaApi
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
-                    //Todo: message
-                    return false;
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
                 }
 
                 try
@@ -290,21 +328,22 @@ namespace Rock.Utility.NcoaApi
                     DateTime dt = DateTime.Now;
                     records.ForEach( r => r.NcoaRunDateTime = dt );
                 }
-                catch ( Exception ex )
+                catch
                 {
-                    Console.WriteLine( $"Invalid response: {response.Content}" ); //todo: update exception
-                    return false;
+                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
                 }
-
-
-                return true;
             }
             catch ( Exception ex )
             {
-                return false;
+                throw new AggregateException( "Error creating TrueNCOA report", ex );
             }
         }
 
+        /// <summary>
+        /// Saves the records.
+        /// </summary>
+        /// <param name="records">The records.</param>
+        /// <param name="fileName">Name of the file.</param>
         public void SaveRecords( List<TrueNcoaReturnRecord> records, string fileName )
         {
             DataTable dtRecords = null;
