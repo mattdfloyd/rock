@@ -28,7 +28,6 @@ using Rock.Model;
 using Rock.Cache;
 using Rock.Web.UI.Controls;
 using Rock.Attribute;
-using Rock.Utility;
 
 namespace RockWeb.Blocks.Utility
 {
@@ -68,57 +67,6 @@ namespace RockWeb.Blocks.Utility
             // this event gets fired after block settings are updated. it's nice to repaint the screen if these settings would alter it
             this.BlockUpdated += Block_BlockUpdated;
             this.AddConfigurationUpdateTrigger( upnlContent );
-        }
-
-        Ncoa ncoa = new Ncoa( "123" );
-        static Dictionary<int, Ncoa.PersonAddressItem> addresses = null;
-        static string fileName = "Test3"; //"_" + DateTime.Now.Ticks;
-        static string exportfileid = string.Empty;
-        static List<Ncoa.TrueNcoaReturnRecord> records = new List<Ncoa.TrueNcoaReturnRecord>();
-
-        protected void btnGetAddresses_Click( object sender, EventArgs e )
-        {
-            addresses = ncoa.GetAddresses();
-        }
-
-        protected void btnUploadAddresses_Click( object sender, EventArgs e )
-        {
-            ncoa.UploadAddresses( addresses, fileName );
-        }
-
-        protected void btnCreateReport_Click( object sender, EventArgs e )
-        {
-            ncoa.CreateReport( fileName );
-        }
-
-        protected void btnIsReportCreated_Click( object sender, EventArgs e )
-        {
-            ncoa.IsReportCreated( fileName );
-        }
-
-        protected void btnCreateReportExport_Click( object sender, EventArgs e )
-        {
-
-            ncoa.CreateReportExport( fileName, out exportfileid );
-        }
-
-        protected void btnIsReportExportCreated_Click( object sender, EventArgs e )
-        {
-            ncoa.IsReportExportCreated( exportfileid );
-        }
-
-        protected void btnDownloadExport_Click( object sender, EventArgs e )
-        {
-            ncoa.DownloadExport( exportfileid, out records );
-        }
-
-        protected void btnSaveRecords_Click( object sender, EventArgs e )
-        {
-            ncoa.SaveRecords( records, @"R:\TrueNCOA\output.csv" );
-        }
-
-        protected void btnParseData_Click( object sender, EventArgs e )
-        {
         }
 
         /// <summary>

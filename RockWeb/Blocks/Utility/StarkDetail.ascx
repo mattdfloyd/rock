@@ -19,15 +19,21 @@
             <div class="panel-body">
 
                 <div class="alert alert-info">
-                    <asp:LinkButton ID="btnGetAddresses" runat="server" CssClass="btn btn-default" OnClick="btnGetAddresses_Click">GetAddresses</asp:LinkButton>
-                    <asp:LinkButton ID="btnUploadAddresses" runat="server" CssClass="btn btn-default" OnClick="btnUploadAddresses_Click">UploadAddresses</asp:LinkButton>
-                    <asp:LinkButton ID="btnCreateReport" runat="server" CssClass="btn btn-default" OnClick="btnCreateReport_Click">CreateReport</asp:LinkButton>
-                    <asp:LinkButton ID="btnIsReportCreated" runat="server" CssClass="btn btn-default" OnClick="btnIsReportCreated_Click">IsReportCreated</asp:LinkButton>
-                    <asp:LinkButton ID="btnCreateReportExport" runat="server" CssClass="btn btn-default" OnClick="btnCreateReportExport_Click">CreateReportExport</asp:LinkButton>
-                    <asp:LinkButton ID="btnIsReportExportCreated" runat="server" CssClass="btn btn-default" OnClick="btnIsReportExportCreated_Click">IsReportExportCreated</asp:LinkButton>
-                    <asp:LinkButton ID="btnDownloadExport" runat="server" CssClass="btn btn-default" OnClick="btnDownloadExport_Click">DownloadExport</asp:LinkButton>
-                    <asp:LinkButton ID="btnSaveRecords" runat="server" CssClass="btn btn-default" OnClick="btnSaveRecords_Click">CreateReport</asp:LinkButton>
-                    <asp:LinkButton ID="btnParseData" runat="server" CssClass="btn btn-default" OnClick="btnParseData_Click">ParseData</asp:LinkButton>
+                    <h4>Stark Template Block</h4>
+                    <p>This block serves as a starting point for creating new blocks. After copy/pasting it and renaming the resulting file be sure to make the following changes:</p>
+
+                    <strong>Changes to the Codebehind (ascx.cs) File</strong>
+                    <ul>
+                        <li>Update the namespace to match your directory</li>
+                        <li>Update the class name</li>
+                        <li>Fill in the DisplayName, Category and Description attributes</li>
+                    </ul>
+
+                    <strong>Changes to the Usercontrol (.ascx) File</strong>
+                    <ul>
+                        <li>Update the Inherhits to match the namespace and class file</li>
+                        <li>Remove this text... unless you really like it...</li>
+                    </ul>
                 </div>
                 <asp:PlaceHolder ID="ph1" runat="server" />
                 <Rock:ControlMirror ID="mMirror" ControlID="ph1" runat="server" />
