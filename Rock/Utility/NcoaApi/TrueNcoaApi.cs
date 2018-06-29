@@ -85,8 +85,8 @@ namespace Rock.Utility.NcoaApi
                     data.AppendFormat( "{0}={1}&", "address_line_2", personAddressItem.Street2 );
                     data.AppendFormat( "{0}={1}&", "address_city_name", personAddressItem.City );
                     data.AppendFormat( "{0}={1}&", "address_state_code", personAddressItem.State );
-                    data.AppendFormat( "{0}={1}&", "address_postal_code", personAddressItem.PostalCode );
-                    data.AppendFormat( "{0}={1}&", "address_country_code", personAddressItem.Country );
+                    data.AppendFormat( "{0}={1}", "address_postal_code", personAddressItem.PostalCode );
+                    // data.AppendFormat( "{0}={1}&", "address_country_code", personAddressItem.Country );
 
                     if ( i % _batchsize == 0 || i == addressArray.Length )
                     {
@@ -135,9 +135,9 @@ namespace Rock.Utility.NcoaApi
                     throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
                 }
                 if ( file.Status != "Mapped" )
-                    {
-                        throw new Exception( $"TrueNCOA is not in the correct state: {file.Status}" );
-                    }
+                {
+                    throw new Exception( $"TrueNCOA is not in the correct state: {file.Status}" );
+                }
             }
             catch ( Exception ex )
             {
@@ -171,7 +171,7 @@ namespace Rock.Utility.NcoaApi
                 throw new AggregateException( "Could create report on TrueNCOA", ex );
             }
         }
-        
+
         /// <summary>
         /// Determines whether the report is created.
         /// </summary>
@@ -205,12 +205,12 @@ namespace Rock.Utility.NcoaApi
                 }
 
                 if ( file.Status == "Errored" )
-                    {
-                        throw new Exception( "TrueNCOA returned an error creating the report" );
-                    }
+                {
+                    throw new Exception( "TrueNCOA returned an error creating the report" );
+                }
 
-                    bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
-                    return !processing;
+                bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
+                return !processing;
             }
             catch ( Exception ex )
             {

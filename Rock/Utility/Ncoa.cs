@@ -400,12 +400,10 @@ namespace Rock.Utility
             }
 
             string exportFileId;
-            if ( trueNcoaApi.CreateReportExport( sparkDataConfig.NcoaSettings.CurrentReportKey, out exportFileId ) )
-            {
-                sparkDataConfig.NcoaSettings.CurrentReportExportKey = exportFileId;
-                sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Export";
-                SaveSettings( sparkDataConfig );
-            }
+            trueNcoaApi.CreateReportExport( sparkDataConfig.NcoaSettings.CurrentReportKey, out exportFileId );
+            sparkDataConfig.NcoaSettings.CurrentReportExportKey = exportFileId;
+            sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Export";
+            SaveSettings( sparkDataConfig );
         }
 
         /// <summary>
@@ -427,28 +425,26 @@ namespace Rock.Utility
             }
 
             List<TrueNcoaReturnRecord> trueNcoaReturnRecords;
-            if ( trueNcoaApi.DownloadExport( sparkDataConfig.NcoaSettings.CurrentReportExportKey, out trueNcoaReturnRecords ) )
+            trueNcoaApi.DownloadExport( sparkDataConfig.NcoaSettings.CurrentReportExportKey, out trueNcoaReturnRecords );
+            if ( trueNcoaReturnRecords != null && trueNcoaReturnRecords.Count != 0 )
             {
-                if ( trueNcoaReturnRecords != null && trueNcoaReturnRecords.Count != 0 )
+                var ncoaHistoryList = trueNcoaReturnRecords.Select( r => r.ToNcoaHistory() );
+                using ( var rockContext = new RockContext() )
                 {
-                    var ncoaHistoryList = trueNcoaReturnRecords.Select( r => r.ToNcoaHistory() );
-                    using ( var rockContext = new RockContext() )
-                    {
-                        var ncoaHistoryService = new NcoaHistoryService( rockContext );
-                        ncoaHistoryService.AddRange( ncoaHistoryList );
-                        rockContext.SaveChanges();
-                    }
+                    var ncoaHistoryService = new NcoaHistoryService( rockContext );
+                    ncoaHistoryService.AddRange( ncoaHistoryList );
+                    rockContext.SaveChanges();
                 }
-
-                sparkDataConfig.NcoaSettings.LastRunDate = RockDateTime.Now;
-                sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
-                SaveSettings( sparkDataConfig );
-
-                CompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
-
-                //Notify group
-                SentNotification( sparkDataConfig );
             }
+
+            sparkDataConfig.NcoaSettings.LastRunDate = RockDateTime.Now;
+            sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
+            SaveSettings( sparkDataConfig );
+
+            CompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+
+            //Notify group
+            SentNotification( sparkDataConfig );
         }
 
         /// <summary>
