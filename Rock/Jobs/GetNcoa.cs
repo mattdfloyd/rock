@@ -17,16 +17,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 
 using Quartz;
-
+using RestSharp;
 using Rock;
 using Rock.Attribute;
 using Rock.Cache;
 using Rock.Data;
 using Rock.Model;
+using Rock.SystemKey;
+using Rock.Utility.Settings.SparkData;
 using Rock.Web.UI;
+using Rock.Utility.NcoaApi;
+using Rock.Utility;
 
 namespace Rock.Jobs
 {
@@ -56,23 +61,91 @@ namespace Rock.Jobs
         /// </summary>
         public virtual void Execute( IJobExecutionContext context )
         {
+            var exceptions = new List<Exception>();
             // Get the job setting(s)
             JobDataMap dataMap = context.JobDetail.JobDataMap;
+            SparkDataConfig sparkDataConfig = Ncoa.GetSettings();
+
+            if ( !sparkDataConfig.NcoaSettings.IsEnabled )
+            {
+                return;
+            }
+
             try
             {
+                Guid? SparkDataApiKeyGuid = sparkDataConfig.SparkDataApiKey.AsGuidOrNull();
+                if ( SparkDataApiKeyGuid == null )
+                {
+                    exceptions.Add( new Exception( $"SparkDataApiKey '{sparkDataConfig.SparkDataApiKey.ToStringSafe()}' is empty or invalid." ) );
+                    return;
+                }
+                    switch ( sparkDataConfig.NcoaSettings.CurrentReportStatus )
+                {
+                    case "Start":
+                    case "":
+                    case null:
+                        StatusStart( sparkDataConfig );
+                        break;
+                    case "Complete":
+                        StatusComplete( sparkDataConfig );
+                        break;
+                    case "Pending":
+                        StatusPending( sparkDataConfig );
+                        break;
+
+                }
 
                 //Rock.Utility.Ncoa ncoa = new Utility.Ncoa((new Guid()).ToString());
                 //ncoa.RequestNcoa();
             }
             catch ( System.Exception ex )
             {
-                HttpContext context2 = HttpContext.Current;
-                ExceptionLogService.LogException( ex, context2 );
-                throw;
+                exceptions.Add( ex );
             }
+            finally
+            {
+                context.Result = $"NCOA Complete.";
+
+                if ( exceptions.Any() )
+                {
+                    Exception ex = new AggregateException( "One or more NCOA requirement failed ", exceptions );
+                    HttpContext context2 = HttpContext.Current;
+                    ExceptionLogService.LogException( ex, context2 );
+                    throw ex;
+                }
+            }
+        }
+
+
+        private void StatusStart( SparkDataConfig sparkDataConfig )
+        {
+            var ncoa = new Ncoa();
+            ncoa.Start( sparkDataConfig );
 
         }
 
+        private void StatusComplete( SparkDataConfig sparkDataConfig )
+        {
+            if (!sparkDataConfig.NcoaSettings.LastRunDate.HasValue ||
+                (sparkDataConfig.NcoaSettings.RecurringEnabled &&
+                sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) > RockDateTime.Now) )
+            {
+                sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
+                Ncoa.SaveSettings( sparkDataConfig );
+                StatusStart( sparkDataConfig );
+            }
+        }
+
+        private void StatusPending( SparkDataConfig sparkDataConfig )
+        {
+
+        }
+
+        /// <summary>
+        /// Sends the notifications.
+        /// </summary>
+        /// <param name="groupId">The group identifier.</param>
+        /// <param name="notifications">The notifications.</param>
         private void SendNotifications( int groupId, List<Notification> notifications )
         {
             using ( var rockContext = new RockContext() )

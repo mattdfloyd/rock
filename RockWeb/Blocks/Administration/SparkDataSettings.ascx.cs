@@ -185,7 +185,7 @@ namespace RockWeb.Blocks.Administration
             }
 
             txtSparkDataApiKey.Text = _sparkDataConfig.SparkDataApiKey;
-            grpNotificationGroup.GroupRoleId = _sparkDataConfig.GlobalNotificationApplicationGroupId;
+            grpNotificationGroup.GroupId = _sparkDataConfig.GlobalNotificationApplicationGroupId;
 
             // Get NCOA settings
             if ( _sparkDataConfig.NcoaSettings == null )
@@ -197,16 +197,7 @@ namespace RockWeb.Blocks.Administration
             cbRecurringEnabled.Checked = _sparkDataConfig.NcoaSettings.RecurringEnabled;
             nbRecurrenceInterval.Enabled = _sparkDataConfig.NcoaSettings.RecurringEnabled;
             nbRecurrenceInterval.Text = _sparkDataConfig.NcoaSettings.RecurrenceInterval.ToStringSafe();
-
-            // Get job active status
-            using ( var rockContext = new RockContext() )
-            {
-                var ncoaJob = new ServiceJobService( rockContext ).Get( Rock.SystemGuid.ServiceJob.GET_NCOA.AsGuid() );
-                if ( ncoaJob != null && ncoaJob.IsActive.HasValue )
-                {
-                    cbNcoaConfiguration.Checked = ncoaJob.IsActive.Value;
-                }
-            }
+            cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled;
         }
 
         /// <summary>
@@ -221,7 +212,7 @@ namespace RockWeb.Blocks.Administration
 
             // Save Spark Data
             _sparkDataConfig = new SparkDataConfig();
-            _sparkDataConfig.GlobalNotificationApplicationGroupId = grpNotificationGroup.GroupRoleId;
+            _sparkDataConfig.GlobalNotificationApplicationGroupId = grpNotificationGroup.GroupId;
             _sparkDataConfig.SparkDataApiKey = txtSparkDataApiKey.Text;
 
             // Save NCOA settings
@@ -229,6 +220,7 @@ namespace RockWeb.Blocks.Administration
             _sparkDataConfig.NcoaSettings.PersonDataViewId = dvpPersonDataView.SelectedValue.AsIntegerOrNull();
             _sparkDataConfig.NcoaSettings.RecurringEnabled = cbRecurringEnabled.Checked;
             _sparkDataConfig.NcoaSettings.RecurrenceInterval = nbRecurrenceInterval.Text.AsInteger();
+            _sparkDataConfig.NcoaSettings.IsEnabled = cbNcoaConfiguration.Checked;
 
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
 

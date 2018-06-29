@@ -27,7 +27,7 @@
                                 <Rock:RockTextBox ID="txtSparkDataApiKey" runat="server" Label="Spark Data Api Key" Required="true" />
                             </div>
                             <div class="col-md-4">
-                                <Rock:GroupRolePicker ID="grpNotificationGroup" runat="server" Label="Global Notification Application Group" />
+                                <Rock:GroupTypeGroupPicker ID="grpNotificationGroup" runat="server" Label="Global Notification Application Group" />
                             </div>
                         </div>
                     </Rock:PanelWidget>

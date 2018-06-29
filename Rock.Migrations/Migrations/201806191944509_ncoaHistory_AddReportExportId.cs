@@ -48,7 +48,7 @@ namespace Rock.Migrations
     VALUES (
          0 
         ,0 
-        ,'GetNcoa'
+        ,'Get National Change of Address (NCOA)'
         ,'Job that get NCOA data.'
         ,'Rock.Jobs.GetNcoa'
         ,'0 0/10 0 ? * * *'
@@ -65,6 +65,22 @@ namespace Rock.Migrations
             RockMigrationHelper.AddBlock( true, "0591e498-0ad6-45a5-b8ca-9bca5c771f03", "", "6B6A429D-E42C-70B5-4A04-98E886C45E7A", "Spark Data Settings", "Main", @"", @"", 0, "E7BA08B2-F8CC-2FA8-4677-EA3E776F4EEB" );
 
             #endregion
+
+            #region System e-mail
+            // Add system emails for event/suggestion notifications
+            RockMigrationHelper.UpdateSystemEmail( "System", "Following Event Notification", null, null , null, null, null, "Spark Data: {{ SparkDataService }}", @"{{ 'Global' | Attribute:'EmailHeader' }}
+
+<p>
+    {{ Person.NickName }},
+</p>
+
+<p>
+    {{ SparkDataService }} job have finished.
+</p>
+
+{{ 'Global' | Attribute:'EmailFooter' }}", "CBCBE0F0-67FB-6393-4D9C-592C839A2E54" );
+            #endregion
+
         }
 
         /// <summary>
@@ -77,6 +93,7 @@ namespace Rock.Migrations
             RockMigrationHelper.DeleteBlockType( "6B6A429D-E42C-70B5-4A04-98E886C45E7A" );
             RockMigrationHelper.DeletePage( "0591e498-0ad6-45a5-b8ca-9bca5c771f03" );
             Sql( $@"DELETE FROM [dbo].[ServiceJob] WHERE [Guid] = '{ServiceJob.GET_NCOA}'" );
+            RockMigrationHelper.DeleteSystemEmail( "CBCBE0F0-67FB-6393-4D9C-592C839A2E54" );
         }
     }
 }

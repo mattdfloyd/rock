@@ -37,12 +37,11 @@ namespace Rock.Utility.NcoaApi
     /// </summary>
     public class TrueNcoaApi
     {
-        private string trueNcoaServer = "https://app.testing.truencoa.com/api/"; // "https://app.truencoa.com/api/";
-        private string TRUE_NCOA_SERVER = "https://app.testing.truencoa.com";
-        private int batchsize = 100;
-        private string username = "gerhard@sparkdevnetwork.org";
-        private string password = "testTrueNCOA";
-        private RestClient client = null;
+        private string TRUE_NCOA_SERVER = "https://app.testing.truencoa.com"; // "https://app.truencoa.com/api/";
+        private int _batchsize = 100;
+        private string _username = "gerhard@sparkdevnetwork.org";
+        private string _password = "testTrueNCOA";
+        private RestClient _client = null;
         private string _id;
 
 
@@ -50,10 +49,12 @@ namespace Rock.Utility.NcoaApi
         /// Initializes a new instance of the <see cref="TrueNcoaApi"/> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        public TrueNcoaApi( string id )
+        public TrueNcoaApi( string id, UsernamePassword usernamePassword)
         {
             CreateRestClient();
             _id = id;
+            _username = usernamePassword.UserName;
+            _password = usernamePassword.Password;
         }
 
         /// <summary>
@@ -61,10 +62,10 @@ namespace Rock.Utility.NcoaApi
         /// </summary>
         private void CreateRestClient()
         {
-            client = new RestClient( TRUE_NCOA_SERVER );
-            client.AddDefaultHeader( "user_name", username );
-            client.AddDefaultHeader( "password", password );
-            client.AddDefaultHeader( "content-type", "application/x-www-form-urlencoded" );
+            _client = new RestClient( TRUE_NCOA_SERVER );
+            _client.AddDefaultHeader( "user_name", _username );
+            _client.AddDefaultHeader( "password", _password );
+            _client.AddDefaultHeader( "content-type", "application/x-www-form-urlencoded" );
         }
 
 
@@ -87,12 +88,12 @@ namespace Rock.Utility.NcoaApi
                     data.AppendFormat( "{0}={1}&", "address_postal_code", personAddressItem.PostalCode );
                     data.AppendFormat( "{0}={1}&", "address_country_code", personAddressItem.Country );
 
-                    if ( i % batchsize == 0 || i == addressArray.Length )
+                    if ( i % _batchsize == 0 || i == addressArray.Length )
                     {
                         var request = new RestRequest( $"api/files/{fileName}/records", Method.POST );
                         request.AddHeader( "id", _id );
                         request.AddParameter( "application/x-www-form-urlencoded", data.ToString().TrimEnd( '&' ), ParameterType.RequestBody );
-                        IRestResponse response = client.Execute( request );
+                        IRestResponse response = _client.Execute( request );
                         if ( response.StatusCode != HttpStatusCode.OK )
                         {
                             //Todo: message
@@ -113,7 +114,7 @@ namespace Rock.Utility.NcoaApi
                 var request = new RestRequest( $"api/files/{fileName}", Method.GET );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
-                IRestResponse response = client.Execute( request );
+                IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
                     //Todo: message
@@ -151,7 +152,7 @@ namespace Rock.Utility.NcoaApi
                 var request = new RestRequest( $"api/files/{fileName}", Method.PATCH );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
-                IRestResponse response = client.Execute( request );
+                IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
                     //Todo: message
@@ -172,7 +173,7 @@ namespace Rock.Utility.NcoaApi
             {
                 var request = new RestRequest( $"api/files/{fileName}", Method.GET );
                 request.AddHeader( "id", _id );
-                IRestResponse response = client.Execute( request );
+                IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
                     //Todo: message
@@ -206,7 +207,7 @@ namespace Rock.Utility.NcoaApi
                 var request = new RestRequest( $"api/files/{fileName}", Method.PATCH );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=export", ParameterType.RequestBody );
-                IRestResponse response = client.Execute( request );
+                IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
                     //Todo: message
@@ -239,7 +240,7 @@ namespace Rock.Utility.NcoaApi
             {
                 var request = new RestRequest( $"api/files/{exportfileid}", Method.GET );
                 request.AddHeader( "id", _id );
-                IRestResponse response = client.Execute( request );
+                IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
                     //Todo: message
@@ -273,7 +274,7 @@ namespace Rock.Utility.NcoaApi
                 var request = new RestRequest( $"api/files/{exportfileid}/records", Method.GET );
                 request.AddHeader( "id", _id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
-                IRestResponse response = client.Execute( request );
+                IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
                     //Todo: message
