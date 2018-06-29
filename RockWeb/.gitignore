@@ -7,6 +7,7 @@
 # The don't restore consistently when switching branches, and we probably want them in source control anyways
 !/bin/roslyn/*.dll
 !/bin/roslyn/*.exe
+!/bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
 
 /*.suo
 /*.user
