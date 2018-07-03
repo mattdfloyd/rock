@@ -66,7 +66,7 @@ namespace Rock.Migrations
 
             #region System e-mail
             // Add system emails for event/suggestion notifications
-            RockMigrationHelper.UpdateSystemEmail( "System", "Following Event Notification", null, null , null, null, null, "Spark Data: {{ SparkDataService }}", @"{{ 'Global' | Attribute:'EmailHeader' }}
+            RockMigrationHelper.UpdateSystemEmail( "System", "Following Event Notification", "", "", "", "", "", "Spark Data: {{ SparkDataService }}", @"{{ 'Global' | Attribute:'EmailHeader' }}
 
 <p>
     {{ Person.NickName }},

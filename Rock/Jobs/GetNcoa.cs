@@ -73,10 +73,12 @@ namespace Rock.Jobs
                 switch ( sparkDataConfig.NcoaSettings.CurrentReportStatus )
                 {
                     case "Start":
-                    case "Failed":
                     case "":
                     case null:
                         StatusStart( sparkDataConfig );
+                        break;
+                    case "Failed":
+                        StatusFailed( sparkDataConfig );
                         break;
                     case "Pending: Report":
                         StatusPendingReport( sparkDataConfig );
@@ -87,7 +89,6 @@ namespace Rock.Jobs
                     case "Complete":
                         StatusComplete( sparkDataConfig );
                         break;
-
                 }
             }
             catch ( System.Exception ex )
@@ -103,6 +104,11 @@ namespace Rock.Jobs
                     sparkDataConfig.NcoaSettings.CurrentReportStatus = "Failed";
                     Ncoa.SaveSettings( sparkDataConfig );
 
+                    if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhitespace() && sparkDataConfig.NcoaSettings.CurrentReportKey.IsNotNullOrWhitespace() )
+                    {
+                        Ncoa.CompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportKey );
+                    }
+
                     Exception ex = new AggregateException( "One or more NCOA requirement failed ", exceptions );
                     HttpContext context2 = HttpContext.Current;
                     ExceptionLogService.LogException( ex, context2 );
@@ -111,13 +117,27 @@ namespace Rock.Jobs
                 else
                 {
                     context.Result = $"Job Complete. NCOA Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
-
                 }
             }
         }
 
         /// <summary>
-        /// Start NCOA
+        /// Current State is Failed. If recurring is enabled, retry.
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
+        private void StatusFailed( SparkDataConfig sparkDataConfig )
+        {
+            if ( sparkDataConfig.NcoaSettings.RecurringEnabled )
+            {
+                sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
+                sparkDataConfig.NcoaSettings.PersonAliasId = null;
+                Ncoa.SaveSettings( sparkDataConfig );
+                StatusStart( sparkDataConfig );
+            }
+        }
+
+        /// <summary>
+        /// Current state is start. Start NCOA
         /// </summary>
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusStart( SparkDataConfig sparkDataConfig )
@@ -126,20 +146,25 @@ namespace Rock.Jobs
             ncoa.Start( sparkDataConfig );
         }
 
+        /// <summary>
+        /// Current state is complete. Check if recurring is enabled and recurring interval have been reached.
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusComplete( SparkDataConfig sparkDataConfig )
         {
             if ( !sparkDataConfig.NcoaSettings.LastRunDate.HasValue ||
                 ( sparkDataConfig.NcoaSettings.RecurringEnabled &&
-                sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) > RockDateTime.Now ) )
+                sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) < RockDateTime.Now ) )
             {
                 sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
+                sparkDataConfig.NcoaSettings.PersonAliasId = null;
                 Ncoa.SaveSettings( sparkDataConfig );
                 StatusStart( sparkDataConfig );
             }
         }
 
         /// <summary>
-        /// Resume a pending report.
+        /// Current state is pending report. Try to resume a pending report.
         /// </summary>
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusPendingReport( SparkDataConfig sparkDataConfig )
@@ -149,7 +174,7 @@ namespace Rock.Jobs
         }
 
         /// <summary>
-        /// Resume pending export.
+        /// Current state is pending export report. Try to resume a pending export report.
         /// </summary>
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusPendingExport( SparkDataConfig sparkDataConfig )

@@ -33,6 +33,7 @@ namespace Rock.Utility.NcoaApi
         /// </value>
         [JsonIgnore]
         public DateTime NcoaRunDateTime { get; set; }
+
         /// <summary>
         /// Gets or sets the input individual identifier. '{PersonId}_{PersonAliasId}_{FamilyId}'
         /// </summary>
@@ -84,7 +85,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address city.
         /// </value>
-        [JsonProperty( "input_address_city" )]
+        [JsonProperty( "input_address_city_name" )]
         public string InputAddressCity { get; set; }
 
         /// <summary>
@@ -115,6 +116,15 @@ namespace Rock.Utility.NcoaApi
         public string InputAddressCountryCode { get; set; }
 
         /// <summary>
+        /// Gets or sets the name identifier.
+        /// </summary>
+        /// <value>
+        /// The name identifier.
+        /// </value>
+        [JsonProperty( "Name ID" )]
+        public int NameId { get; set; }
+
+        /// <summary>
         /// Gets or sets the global identifier.
         /// </summary>
         /// <value>
@@ -138,7 +148,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The first name.
         /// </value>
-        [JsonProperty( "first_name" )]
+        [JsonProperty( "First Name" )]
         public string FirstName { get; set; }
 
         /// <summary>
@@ -147,7 +157,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The last name.
         /// </value>
-        [JsonProperty( "last_name" )]
+        [JsonProperty( "Last Name" )]
         public string LastName { get; set; }
 
         /// <summary>
@@ -156,7 +166,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The name of the company.
         /// </value>
-        [JsonProperty( "company_name" )]
+        [JsonProperty( "Company Name" )]
         public object CompanyName { get; set; }
 
         /// <summary>
@@ -165,7 +175,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The street number.
         /// </value>
-        [JsonProperty( "street_number" )]
+        [JsonProperty( "Street Number" )]
         public string StreetNumber { get; set; }
 
         /// <summary>
@@ -174,7 +184,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The street pre direction.
         /// </value>
-        [JsonProperty( "street_pre_direction" )]
+        [JsonProperty( "Street Pre Direction" )]
         public string StreetPreDirection { get; set; }
 
         /// <summary>
@@ -183,7 +193,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The name of the street.
         /// </value>
-        [JsonProperty( "street_name" )]
+        [JsonProperty( "Street Name" )]
         public string StreetName { get; set; }
 
         /// <summary>
@@ -192,7 +202,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The street post direction.
         /// </value>
-        [JsonProperty( "street_post_direction" )]
+        [JsonProperty( "Street Post Direction" )]
         public string StreetPostDirection { get; set; }
 
         /// <summary>
@@ -201,7 +211,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The street suffix.
         /// </value>
-        [JsonProperty( "street_suffix" )]
+        [JsonProperty( "Street Suffix" )]
         public string StreetSuffix { get; set; }
 
         /// <summary>
@@ -210,7 +220,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The type of the unit.
         /// </value>
-        [JsonProperty( "unit_type" )]
+        [JsonProperty( "Unit Type" )]
         public string UnitType { get; set; }
 
         /// <summary>
@@ -219,7 +229,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The unit number.
         /// </value>
-        [JsonProperty( "unit_number" )]
+        [JsonProperty( "Unit Number" )]
         public string UnitNumber { get; set; }
 
         /// <summary>
@@ -228,7 +238,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The box number.
         /// </value>
-        [JsonProperty( "box_number" )]
+        [JsonProperty( "Box Number" )]
         public string BoxNumber { get; set; }
 
         /// <summary>
@@ -237,7 +247,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The name of the city.
         /// </value>
-        [JsonProperty( "city_name" )]
+        [JsonProperty( "City Name" )]
         public string CityName { get; set; }
 
         /// <summary>
@@ -246,7 +256,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The state code.
         /// </value>
-        [JsonProperty( "state_code" )]
+        [JsonProperty( "State Code" )]
         public string StateCode { get; set; }
 
         /// <summary>
@@ -255,7 +265,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The postal code.
         /// </value>
-        [JsonProperty( "postal_code" )]
+        [JsonProperty( "Postal Code" )]
         public string PostalCode { get; set; }
 
         /// <summary>
@@ -264,7 +274,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The postal code extension.
         /// </value>
-        [JsonProperty( "postal_code_extension" )]
+        [JsonProperty( "Postal Code Extension" )]
         public string PostalCodeExtension { get; set; }
 
         /// <summary>
@@ -273,7 +283,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The carrier route.
         /// </value>
-        [JsonProperty( "carrier_route" )]
+        [JsonProperty( "Carrier Route" )]
         public string CarrierRoute { get; set; }
 
         /// <summary>
@@ -282,7 +292,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The address status.
         /// </value>
-        [JsonProperty( "address_status" )]
+        [JsonProperty( "Address Status" )]
         public string AddressStatus { get; set; }
 
         /// <summary>
@@ -355,7 +365,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The error number.
         /// </value>
-        [JsonProperty( "error_number" )]
+        [JsonProperty( "Error Number" )]
         public string ErrorNumber { get; set; }
 
         /// <summary>
@@ -364,7 +374,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The type of the address.
         /// </value>
-        [JsonProperty( "address_type" )]
+        [JsonProperty( "Address Type" )]
         public string AddressType { get; set; }
 
         /// <summary>
@@ -373,7 +383,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The delivery point.
         /// </value>
-        [JsonProperty( "delivery_point" )]
+        [JsonProperty( "Delivery Point" )]
         public string DeliveryPoint { get; set; }
 
         /// <summary>
@@ -391,7 +401,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The delivery point verification.
         /// </value>
-        [JsonProperty( "delivery_point_verification" )]
+        [JsonProperty( "Delivery Point Verification" )]
         public string DeliveryPointVerification { get; set; }
 
         /// <summary>
@@ -400,7 +410,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The delivery point verification notes.
         /// </value>
-        [JsonProperty( "delivery_point_verification_notes" )]
+        [JsonProperty( "Delivery Point Verification Notes" )]
         public string DeliveryPointVerificationNotes { get; set; }
 
         /// <summary>
@@ -409,7 +419,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The vacant.
         /// </value>
-        [JsonProperty( "vacant" )]
+        [JsonProperty( "Vacant" )]
         public string Vacant { get; set; }
 
         /// <summary>
@@ -418,7 +428,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The congressional district code.
         /// </value>
-        [JsonProperty( "congressional_district_code" )]
+        [JsonProperty( "Congressional District Code" )]
         public string CongressionalDistrictCode { get; set; }
 
         /// <summary>
@@ -427,7 +437,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The area code.
         /// </value>
-        [JsonProperty( "area_code" )]
+        [JsonProperty( "Area Code" )]
         public string AreaCode { get; set; }
 
         /// <summary>
@@ -436,7 +446,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The latitude.
         /// </value>
-        [JsonProperty( "latitude" )]
+        [JsonProperty( "Latitude" )]
         public string Latitude { get; set; }
 
         /// <summary>
@@ -445,7 +455,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The longitude.
         /// </value>
-        [JsonProperty( "longitude" )]
+        [JsonProperty( "Longitude" )]
         public string Longitude { get; set; }
 
         /// <summary>
@@ -454,7 +464,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The time zone.
         /// </value>
-        [JsonProperty( "time_zone" )]
+        [JsonProperty( "Time Zone" )]
         public string TimeZone { get; set; }
 
         /// <summary>
@@ -463,7 +473,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The name of the county.
         /// </value>
-        [JsonProperty( "county_name" )]
+        [JsonProperty( "County Name" )]
         public string CountyName { get; set; }
 
         /// <summary>
@@ -472,7 +482,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The county fips.
         /// </value>
-        [JsonProperty( "county_fips" )]
+        [JsonProperty( "County FIPS" )]
         public string CountyFIPS { get; set; }
 
         /// <summary>
@@ -481,7 +491,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The state fips.
         /// </value>
-        [JsonProperty( "state_fips" )]
+        [JsonProperty( "State FIPS" )]
         public string StateFIPS { get; set; }
 
         /// <summary>
@@ -490,7 +500,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The barcode.
         /// </value>
-        [JsonProperty( "barcode" )]
+        [JsonProperty( "Barcode" )]
         public string Barcode { get; set; }
 
         /// <summary>
@@ -499,7 +509,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The Locatable Address Conversion System (LACS).
         /// </value>
-        [JsonProperty( "lacs" )]
+        [JsonProperty( "Locatable Address Conversion System" )]
         public object LACS { get; set; }
 
         /// <summary>
@@ -508,7 +518,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The line of travel.
         /// </value>
-        [JsonProperty( "line_of_travel" )]
+        [JsonProperty( "Line of Travel" )]
         public string LineOfTravel { get; set; }
 
         /// <summary>
@@ -517,7 +527,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The ascending descending.
         /// </value>
-        [JsonProperty( "ascending_descending" )]
+        [JsonProperty( "Ascending/Descending" )]
         public string AscendingDescending { get; set; }
 
         /// <summary>
@@ -526,7 +536,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The move applied.
         /// </value>
-        [JsonProperty( "move_applied" )]
+        [JsonProperty( "Move Applied" )]
         public string MoveApplied { get; set; }
 
         /// <summary>
@@ -535,7 +545,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The type of the move.
         /// </value>
-        [JsonProperty( "move_type" )]
+        [JsonProperty( "Move Type" )]
         public string MoveType { get; set; }
 
         /// <summary>
@@ -544,7 +554,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The move date.
         /// </value>
-        [JsonProperty( "move_date" )]
+        [JsonProperty( "Move Date" )]
         public string MoveDate { get; set; }
 
         /// <summary>
@@ -553,7 +563,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The move distance.
         /// </value>
-        [JsonProperty( "move_distance" )]
+        [JsonProperty( "Move Distance" )]
         public double? MoveDistance { get; set; }
 
         /// <summary>
@@ -562,7 +572,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The match flag.
         /// </value>
-        [JsonProperty( "match_flag" )]
+        [JsonProperty( "Match Flag" )]
         public string MatchFlag { get; set; }
 
         /// <summary>
@@ -703,7 +713,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The NXI
         /// </value>
-        [JsonProperty( "nxi" )]
+        [JsonProperty( "NXI" )]
         public string NXI { get; set; }
 
         /// <summary>
@@ -729,7 +739,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The ANK.
         /// </value>
-        [JsonProperty( "ank" )]
+        [JsonProperty( "ANK" )]
         public string ANK { get; set; }
 
         /// <summary>
@@ -738,7 +748,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The residential delivery indicator.
         /// </value>
-        [JsonProperty( "residential_delivery_indicator" )]
+        [JsonProperty( "Residential Delivery Indicator" )]
         public string ResidentialDeliveryIndicator { get; set; }
 
         /// <summary>
@@ -747,17 +757,8 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The type of the record.
         /// </value>
-        [JsonProperty( "record_type" )]
+        [JsonProperty( "Record Type" )]
         public string RecordType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the record 
-        /// </summary>
-        /// <value>
-        /// The record 
-        /// </value>
-        [JsonProperty( "record_source" )]
-        public string RecordSource { get; set; }
 
         /// <summary>
         /// Gets or sets the country code. 2-digit country abbreviation.
@@ -765,7 +766,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The country code.
         /// </value>
-        [JsonProperty( "country_code" )]
+        [JsonProperty( "Country Code" )]
         public string CountryCode { get; set; }
 
         /// <summary>
@@ -774,7 +775,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The address line1.
         /// </value>
-        [JsonProperty( "address_line_1" )]
+        [JsonProperty( "Address Line 1" )]
         public string AddressLine1 { get; set; }
 
         /// <summary>
@@ -783,7 +784,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The address line2.
         /// </value>
-        [JsonProperty( "address_line_2" )]
+        [JsonProperty( "Address Line 2" )]
         public string AddressLine2 { get; set; }
 
         /// <summary>
@@ -792,7 +793,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The address identifier.
         /// </value>
-        [JsonProperty( "address_id" )]
+        [JsonProperty( "Address Id" )]
         public int AddressId { get; set; }
 
         /// <summary>
@@ -801,8 +802,17 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The household identifier.
         /// </value>
-        [JsonProperty( "household_id" )]
+        [JsonProperty( "Household Id" )]        
         public int HouseholdId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the household position.
+        /// </summary>
+        /// <value>
+        /// The household position.
+        /// </value>
+        [JsonProperty( "Household Position" )]
+        public int HouseholdPosition { get; set; }
 
         /// <summary>
         /// Gets or sets the individual identifier.
@@ -810,9 +820,23 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The individual identifier.
         /// </value>
-        [JsonProperty( "individual_id" )]
+        [JsonProperty( "Individual Id" )]
         public int IndividualId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the individual record identifier.
+        /// </summary>
+        /// <value>
+        /// The individual record identifier.
+        /// </value>
+        [JsonProperty( "Individual Record ID" )]
+        public int IndividualRecordId { get; set; }
+
+        /// <summary>
+        /// Convert NCOA Date to DateTime
+        /// </summary>
+        /// <param name="date">The date.</param>
+        /// <returns>DataTime</returns>
         private DateTime? NcoaDateToDateTime( string date )
         {
             if ( date == null )
@@ -841,6 +865,10 @@ namespace Rock.Utility.NcoaApi
             }
         }
 
+        /// <summary>
+        /// Convert TrueNCOA return record to NcoaHistory.
+        /// </summary>
+        /// <returns>NcoaHistory</returns>
         public NcoaHistory ToNcoaHistory()
         {
             var ids = InputIndividualId?.Split( '_' );
@@ -848,7 +876,7 @@ namespace Rock.Utility.NcoaApi
             {
                 //PersonId = ( ids?[0] ).AsInteger(),
                 PersonAliasId = ( ids?[1] ).AsInteger(),
-                FamilyId = ( ids?[1] ).AsInteger(),
+                FamilyId = ( ids?[2] ).AsInteger(),
                 AddressStatus = AddressStatus == "V" ? Model.AddressStatus.Valid : Model.AddressStatus.Invalid,
                 LocationId = null,
                 MoveDate = NcoaDateToDateTime( MoveApplied ),

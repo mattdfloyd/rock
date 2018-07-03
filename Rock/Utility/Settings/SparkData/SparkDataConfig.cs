@@ -15,6 +15,7 @@
 // </copyright>
 //
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Rock.Utility.Settings.SparkData
 {
@@ -24,6 +25,13 @@ namespace Rock.Utility.Settings.SparkData
     public class SparkDataConfig
     {
         /// <summary>
+        /// The spark server
+        /// </summary>
+        [JsonIgnore]
+        public static readonly string SPARK_SERVER = "http://localhost:57822";
+        // public static readonly string SPARK_SERVER = "http://www.rockrms.com";
+
+            /// <summary>
         /// Gets or sets the NCOA settings.
         /// </summary>
         /// <value>

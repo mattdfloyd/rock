@@ -25,6 +25,7 @@ using Rock.SystemKey;
 using Rock.Utility.Settings.SparkData;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
+using Rock.Utility;
 
 namespace RockWeb.Blocks.Administration
 {
@@ -124,6 +125,34 @@ namespace RockWeb.Blocks.Administration
             nbRecurrenceInterval.Enabled = cbRecurringEnabled.Checked;
         }
 
+        /// <summary>
+        /// Handles the Click event of the btnStartNcoa control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void btnStartNcoa_Click( object sender, EventArgs e )
+        {
+            Ncoa ncoa = new Ncoa();
+            var sparkDataConfig = Ncoa.GetSettings();
+            sparkDataConfig.NcoaSettings.PersonAliasId = CurrentPersonAliasId;
+            sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
+            Ncoa.SaveSettings( sparkDataConfig );
+            using ( RockContext rockContext = new RockContext() )
+            {
+                ServiceJob job = new ServiceJobService( rockContext ).Get( Rock.SystemGuid.ServiceJob.GET_NCOA.AsGuid() );
+                if ( job != null )
+                {
+                    var transaction = new Rock.Transactions.RunJobNowTransaction( job.Id );
+
+                    // Process the transaction on another thread
+                    System.Threading.Tasks.Task.Run( () => transaction.Execute() );
+
+                    mdGridWarning.Show( string.Format( "The '{0}' job has been started.", job.Name ), ModalAlertType.Information );
+                    lbStartNcoa.Enabled = false;
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -198,6 +227,15 @@ namespace RockWeb.Blocks.Administration
             nbRecurrenceInterval.Enabled = _sparkDataConfig.NcoaSettings.RecurringEnabled;
             nbRecurrenceInterval.Text = _sparkDataConfig.NcoaSettings.RecurrenceInterval.ToStringSafe();
             cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled;
+
+            if ( _sparkDataConfig.NcoaSettings.CurrentReportStatus.Contains( "Pending"))
+                {
+                lbStartNcoa.Enabled = false;
+            }
+            else
+            {
+                lbStartNcoa.Enabled = true;
+            }
         }
 
         /// <summary>

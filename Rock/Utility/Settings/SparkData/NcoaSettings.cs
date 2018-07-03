@@ -32,6 +32,14 @@ namespace Rock.Utility.Settings.SparkData
         public bool IsEnabled { get; set; }
 
         /// <summary>
+        /// Gets or sets the person alias identifier.
+        /// </summary>
+        /// <value>
+        /// The person alias identifier.
+        /// </value>
+        public int? PersonAliasId { get; set; }
+
+        /// <summary>
         /// Gets or sets the last NCOA run date.
         /// </summary>
         /// <value>

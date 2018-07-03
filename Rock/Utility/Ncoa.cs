@@ -35,19 +35,23 @@ using Rock.Utility.Settings.SparkData;
 
 namespace Rock.Utility
 {
+    /// <summary>
+    /// Make NCOA calls to get change of address information
+    /// </summary>
     public class Ncoa
     {
-        private readonly string SPARK_SERVER = "http://localhost:57822";
-        // private readonly string SPARK_SERVER = "http://www.rockrms.com";
+
+        #region Spark API
 
         /// <summary>
-        /// Checks the early access status of this organization.
+        /// Checks if the account is valid on the Spark server.
         /// </summary>
+        /// <param name="sparkDataApiKey">The spark data API key.</param>
         private void CheckAccount( string sparkDataApiKey )
         {
             try
             {
-                var client = new RestClient( SPARK_SERVER );
+                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
                 var request = new RestRequest( "api/SparkData/ValidateAccount", Method.GET );
                 request.RequestFormat = DataFormat.Json;
 
@@ -75,35 +79,33 @@ namespace Rock.Utility
         }
 
         /// <summary>
-        /// Initiates the report.
+        /// Initiates the report on the Spark server.
         /// </summary>
         /// <param name="sparkDataApiKey">The spark data API key.</param>
         /// <param name="numberRecords">The number records.</param>
         /// <param name="personAliasId">The person alias identifier.</param>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Could not authenticate Spark Data account: No valid credit card found in Spark account
-        /// or
-        /// </exception>
         private string IntiateReport( string sparkDataApiKey, int? numberRecords, int? personAliasId = null )
         {
             try
             {
-                var client = new RestClient( SPARK_SERVER );
-                var request = new RestRequest( $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords}", Method.POST );
-                request.RequestFormat = DataFormat.Json;
+                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
+                string url;
                 if ( personAliasId.HasValue )
                 {
-                    request.AddParameter( "personAliasId", personAliasId.Value );
+                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}/{personAliasId.Value}";
                 }
                 else
                 {
-                    request.AddParameter( "personAliasId", null );
+                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}";
                 }
+
+                var request = new RestRequest( url, Method.POST );
+                request.RequestFormat = DataFormat.Json;
 
                 IRestResponse response = client.Execute( request );
                 if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
                 {
-                    return response.Content;
+                    return response.Content.Trim( '"' );
                 }
                 else
                 {
@@ -120,20 +122,15 @@ namespace Rock.Utility
         }
 
         /// <summary>
-        /// Initiates the report.
+        /// Gets the credentials from the Spark server.
         /// </summary>
         /// <param name="sparkDataApiKey">The spark data API key.</param>
-        /// <param name="numberRecords">The number records.</param>
-        /// <param name="personAliasId">The person alias identifier.</param>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Could not authenticate Spark Data account: No valid credit card found in Spark account
-        /// or
-        /// </exception>
+        /// <returns>The username and password</returns>
         private UsernamePassword GetCredentials( string sparkDataApiKey )
         {
             try
             {
-                var client = new RestClient( SPARK_SERVER );
+                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
                 var request = new RestRequest( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}", Method.GET );
                 request.RequestFormat = DataFormat.Json;
 
@@ -158,28 +155,25 @@ namespace Rock.Utility
         }
 
         /// <summary>
-        /// Initiates the report.
+        /// Sent Complete report message to Spark server.
         /// </summary>
         /// <param name="sparkDataApiKey">The spark data API key.</param>
-        /// <param name="numberRecords">The number records.</param>
-        /// <param name="personAliasId">The person alias identifier.</param>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Could not authenticate Spark Data account: No valid credit card found in Spark account
-        /// or
-        /// </exception>
+        /// <param name="reportKey">The report key.</param>
+        /// <param name="exportFileKey">The export file key.</param>
+        /// <returns>Return true if successful</returns>
         private bool CompleteReport( string sparkDataApiKey, string reportKey, string exportFileKey )
         {
             try
             {
-                var client = new RestClient( SPARK_SERVER );
-                var request = new RestRequest( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}", Method.GET );
+                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
+                var request = new RestRequest( $"api/SparkData/Ncoa/CompleteReport/{sparkDataApiKey}/{reportKey}/{exportFileKey}", Method.POST );
                 request.RequestFormat = DataFormat.Json;
 
                 // IRestResponse response = client.Execute( request );
                 IRestResponse response = client.Execute( request );
                 if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
                 {
-                    return !response.Content.AsBoolean();
+                    return response.Content.AsBoolean();
                 }
                 else
                 {
@@ -194,6 +188,44 @@ namespace Rock.Utility
                 throw new AggregateException( "Could not complete Spark report", ex );
             }
         }
+
+        /// <summary>
+        /// Send a failed message to Spark server.
+        /// </summary>
+        /// <param name="sparkDataApiKey">The spark data API key.</param>
+        /// <param name="reportKey">The report key.</param>
+        /// <returns>Return true if successful</returns>
+        public static bool CompleteFailed( string sparkDataApiKey, string reportKey )
+        {
+            try
+            {
+                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
+                var request = new RestRequest( $"api/SparkData/Ncoa/CompleteFailed/{sparkDataApiKey}/{reportKey}", Method.POST );
+                request.RequestFormat = DataFormat.Json;
+
+                // IRestResponse response = client.Execute( request );
+                IRestResponse response = client.Execute( request );
+                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
+                {
+                    return response.Content.AsBoolean();
+                }
+                else
+                {
+                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
+                    {
+                        Content = new StringContent( response.Content )
+                    } );
+                }
+            }
+            catch ( Exception ex )
+            {
+                throw new AggregateException( "Could not send Spark report failed", ex );
+            }
+        }
+
+        #endregion
+
+        #region Get Addresses
 
         /// <summary>
         /// PeopleIds inside a DataView filter.
@@ -308,6 +340,8 @@ namespace Rock.Utility
             }
         }
 
+        #endregion
+
         /// <summary>
         /// Sends the notification that NCOA finished
         /// </summary>
@@ -350,19 +384,9 @@ namespace Rock.Utility
         /// <summary>
         /// Starts the NCOA request.
         /// </summary>
-        /// <param name="personAliasId">The person alias identifier.</param>
-        /// <param name="sparkDataConfig">The spark data configuration.</param>
-        public void Start( int? personAliasId = null, SparkDataConfig sparkDataConfig = null )
-        {
-            Start( sparkDataConfig, personAliasId );
-        }
-
-        /// <summary>
-        /// Starts the NCOA request.
-        /// </summary>
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         /// <param name="personAliasId">The person alias identifier.</param>
-        public void Start( SparkDataConfig sparkDataConfig, int? personAliasId = null )
+        public void Start( SparkDataConfig sparkDataConfig )
         {
             if ( sparkDataConfig == null )
             {
@@ -371,7 +395,7 @@ namespace Rock.Utility
 
             CheckAccount( sparkDataConfig.SparkDataApiKey );
             var addresses = GetAddresses( sparkDataConfig.NcoaSettings.PersonDataViewId );
-            sparkDataConfig.NcoaSettings.CurrentReportKey = IntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, personAliasId );
+            sparkDataConfig.NcoaSettings.CurrentReportKey = IntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
             var credentials = GetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
             trueNcoaApi.UploadAddresses( addresses, sparkDataConfig.NcoaSettings.CurrentReportKey );
@@ -379,6 +403,14 @@ namespace Rock.Utility
             trueNcoaApi.CreateReport( sparkDataConfig.NcoaSettings.CurrentReportKey );
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Report";
             SaveSettings( sparkDataConfig );
+
+            // Delete previous NcoaHistory entries
+            using ( RockContext rockContext = new RockContext() )
+            {
+                NcoaHistoryService ncoaHistoryService = new NcoaHistoryService( rockContext );
+                ncoaHistoryService.DeleteRange( ncoaHistoryService.Queryable() );
+                rockContext.SaveChanges();
+            }
         }
 
         /// <summary>
@@ -447,6 +479,7 @@ namespace Rock.Utility
             SentNotification( sparkDataConfig );
         }
 
+        #region Settings
         /// <summary>
         /// Gets the settings.
         /// </summary>
@@ -476,5 +509,8 @@ namespace Rock.Utility
         {
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, sparkDataConfig.ToJson() );
         }
+
+        #endregion
+
     }
 }

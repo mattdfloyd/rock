@@ -35,8 +35,8 @@ namespace Rock.Utility.NcoaApi
     {
         private string TRUE_NCOA_SERVER = "https://app.testing.truencoa.com"; // "https://app.truencoa.com/api/";
         private int _batchsize = 100;
-        private string _username = "gerhard@sparkdevnetwork.org";
-        private string _password = "testTrueNCOA";
+        private string _username;
+        private string _password;
         private RestClient _client = null;
         private string _id;
 
@@ -47,10 +47,10 @@ namespace Rock.Utility.NcoaApi
         /// <param name="id">The identifier.</param>
         public TrueNcoaApi( string id, UsernamePassword usernamePassword )
         {
-            CreateRestClient();
             _id = id;
             _username = usernamePassword.UserName;
             _password = usernamePassword.Password;
+            CreateRestClient();
         }
 
         /// <summary>
@@ -134,6 +134,7 @@ namespace Rock.Utility.NcoaApi
                 {
                     throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
                 }
+
                 if ( file.Status != "Mapped" )
                 {
                     throw new Exception( $"TrueNCOA is not in the correct state: {file.Status}" );
@@ -319,10 +320,11 @@ namespace Rock.Utility.NcoaApi
                     } );
                 }
 
+                Dictionary<string, object> obj = null;
                 try
                 {
-                    TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
-                    var obj = JObject.Parse( response.Content );
+                    obj = JObject.Parse( response.Content ).ToObject<Dictionary<string, object>>();
+
                     var recordsjson = (string)obj["Records"].ToString();
                     records = JsonConvert.DeserializeObject<List<TrueNcoaReturnRecord>>( recordsjson );
                     DateTime dt = DateTime.Now;
@@ -330,7 +332,14 @@ namespace Rock.Utility.NcoaApi
                 }
                 catch
                 {
-                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    if ( obj != null && obj.ContainsKey( "error" ) )
+                    {
+                        throw new Exception( $"TrueNCOA error response: {obj["error"]}" );
+                    }
+                    else
+                    {
+                        throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    }
                 }
             }
             catch ( Exception ex )

@@ -2,7 +2,7 @@
 
 <asp:UpdatePanel ID="upnlContent" runat="server">
     <ContentTemplate>
-
+        <Rock:ModalAlert ID="mdGridWarning" runat="server" />
         <div class="panel panel-block">
             <div class="panel-heading">
                 <h1 class="panel-title">
@@ -27,7 +27,7 @@
                                 <Rock:RockTextBox ID="txtSparkDataApiKey" runat="server" Label="Spark Data Api Key" Required="true" />
                             </div>
                             <div class="col-md-4">
-                                <Rock:GroupTypeGroupPicker ID="grpNotificationGroup" runat="server" Label="Global Notification Application Group" />
+                                <Rock:GroupPicker ID="grpNotificationGroup" runat="server" Label="Global Notification Application Group" />
                             </div>
                         </div>
                     </Rock:PanelWidget>
@@ -60,6 +60,11 @@
                                 </div>
                                 <div class="col-md-4">
                                     <Rock:NumberBox ID="nbRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" Required="true" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <asp:LinkButton ID="lbStartNcoa" runat="server" CssClass="btn btn-default" OnClick="btnStartNcoa_Click" ToolTip="Start NCOA"><i class="fa fa-play"></i> Start</asp:LinkButton>
                                 </div>
                             </div>
                         </asp:Panel>
