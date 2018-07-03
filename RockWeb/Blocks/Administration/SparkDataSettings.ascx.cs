@@ -227,8 +227,12 @@ namespace RockWeb.Blocks.Administration
             nbRecurrenceInterval.Enabled = _sparkDataConfig.NcoaSettings.RecurringEnabled;
             nbRecurrenceInterval.Text = _sparkDataConfig.NcoaSettings.RecurrenceInterval.ToStringSafe();
             cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled;
+            if ( _sparkDataConfig.NcoaSettings.CurrentReportStatus == null)
+            {
+                _sparkDataConfig.NcoaSettings.CurrentReportStatus = string.Empty;
+            }
 
-            if ( _sparkDataConfig.NcoaSettings.CurrentReportStatus.Contains( "Pending"))
+            if (  _sparkDataConfig.NcoaSettings.CurrentReportStatus.Contains( "Pending"))
                 {
                 lbStartNcoa.Enabled = false;
             }
@@ -249,12 +253,17 @@ namespace RockWeb.Blocks.Administration
             Rock.Web.SystemSettings.SetValue( SystemSetting.NCOA_SET_INVALID_AS_PREVIOUS, cbInvalidAddressAsPrevious.Checked.ToString() );
 
             // Save Spark Data
-            _sparkDataConfig = new SparkDataConfig();
+            _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
+
             _sparkDataConfig.GlobalNotificationApplicationGroupId = grpNotificationGroup.GroupId;
             _sparkDataConfig.SparkDataApiKey = txtSparkDataApiKey.Text;
 
             // Save NCOA settings
-            _sparkDataConfig.NcoaSettings = new NcoaSettings();
+            if ( _sparkDataConfig.NcoaSettings == null )
+            {
+                _sparkDataConfig.NcoaSettings = new NcoaSettings();
+            }
+
             _sparkDataConfig.NcoaSettings.PersonDataViewId = dvpPersonDataView.SelectedValue.AsIntegerOrNull();
             _sparkDataConfig.NcoaSettings.RecurringEnabled = cbRecurringEnabled.Checked;
             _sparkDataConfig.NcoaSettings.RecurrenceInterval = nbRecurrenceInterval.Text.AsInteger();

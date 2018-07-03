@@ -85,7 +85,7 @@ namespace Rock.Utility.NcoaApi
                     data.AppendFormat( "{0}={1}&", "address_line_2", personAddressItem.Street2 );
                     data.AppendFormat( "{0}={1}&", "address_city_name", personAddressItem.City );
                     data.AppendFormat( "{0}={1}&", "address_state_code", personAddressItem.State );
-                    data.AppendFormat( "{0}={1}", "address_postal_code", personAddressItem.PostalCode );
+                    data.AppendFormat( "{0}={1}&", "address_postal_code", personAddressItem.PostalCode );
                     // data.AppendFormat( "{0}={1}&", "address_country_code", personAddressItem.Country );
 
                     if ( i % _batchsize == 0 || i == addressArray.Length )
