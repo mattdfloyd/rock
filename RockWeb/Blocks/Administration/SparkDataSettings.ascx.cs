@@ -58,7 +58,6 @@ namespace RockWeb.Blocks.Administration
             this.BlockUpdated += Block_BlockUpdated;
             this.AddConfigurationUpdateTrigger( upnlContent );
             dvpPersonDataView.EntityTypeId = CacheEntityType.GetId<Rock.Model.Person>();
-
         }
 
         /// <summary>

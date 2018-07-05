@@ -801,9 +801,7 @@
     <Compile Include="Jobs\CalculatePersonSignals.cs" />
     <Compile Include="Jobs\CommunicationQueueAlert.cs" />
     <Compile Include="Jobs\DatabaseMaintenance.cs" />
-    <Compile Include="Jobs\GetNcoa.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Include="Jobs\GetNcoa.cs" />
     <Compile Include="Jobs\IndexRockSite.cs" />
     <Compile Include="Jobs\MigrateFamilyAlternateId.cs" />
     <Compile Include="Jobs\MigrateAttendanceOccurrenceData.cs" />
@@ -1669,7 +1667,8 @@
     <Compile Include="Utility\NcoaApi\TrueNcoaApi.cs" />
     <Compile Include="Utility\NcoaApi\TrueNcoaReturnRecord.cs" />
     <Compile Include="Utility\NcoaApi\TrueNcoResponse.cs" />
-    <Compile Include="Utility\NcoaApi\UsernamePassword.cs" />
+    <Compile Include="Utility\NcoaApi\GroupNameTransactionKey.cs" />
+    <Compile Include="Utility\SparkDataApi\UsernamePassword.cs" />
     <Compile Include="Utility\Settings\DataAutomation\InactivatePeople.cs" />
     <Compile Include="Utility\Settings\DataAutomation\InteractionItem.cs" />
     <Compile Include="Utility\Settings\DataAutomation\MoveAdultChildren.cs" />
@@ -1679,6 +1678,8 @@
     <Compile Include="Utility\Settings\DataAutomation\UpdateFamilyCampus.cs" />
     <Compile Include="Utility\Settings\SparkData\NcoaSettings.cs" />
     <Compile Include="Utility\Settings\SparkData\SparkDataConfig.cs" />
+    <Compile Include="Utility\SparkDataApi\SparkDataApi.cs" />
+    <Compile Include="Utility\SparkDataApi\SparkDataNcoaApi.cs" />
     <Compile Include="Utility\TextToWorkflow.cs" />
     <Compile Include="Web\Cache\AttributeCache.cs" />
     <Compile Include="Web\Cache\AttributeValueCache.cs" />

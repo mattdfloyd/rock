@@ -19,11 +19,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
 using System.Web.UI.WebControls;
-using RestSharp;
 using Rock;
 using Rock.Cache;
 using Rock.Communication;
@@ -32,6 +28,7 @@ using Rock.Model;
 using Rock.SystemKey;
 using Rock.Utility.NcoaApi;
 using Rock.Utility.Settings.SparkData;
+using Rock.Utility.SparkDataApi;
 
 namespace Rock.Utility
 {
@@ -40,191 +37,6 @@ namespace Rock.Utility
     /// </summary>
     public class Ncoa
     {
-
-        #region Spark API
-
-        /// <summary>
-        /// Checks if the account is valid on the Spark server.
-        /// </summary>
-        /// <param name="sparkDataApiKey">The spark data API key.</param>
-        private void CheckAccount( string sparkDataApiKey )
-        {
-            try
-            {
-                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
-                var request = new RestRequest( "api/SparkData/ValidateAccount", Method.GET );
-                request.RequestFormat = DataFormat.Json;
-
-                request.AddParameter( "sparkDataApiKey", sparkDataApiKey );
-                IRestResponse response = client.Execute( request );
-                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-                {
-                    if ( !response.Content.AsBoolean() )
-                    {
-                        throw new UnauthorizedAccessException( "No valid credit card found in Spark account" );
-                    }
-                }
-                else
-                {
-                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
-                    {
-                        Content = new StringContent( response.Content )
-                    } );
-                }
-            }
-            catch ( Exception ex )
-            {
-                throw new AggregateException( "Could not authenticate Spark Data account", ex );
-            }
-        }
-
-        /// <summary>
-        /// Initiates the report on the Spark server.
-        /// </summary>
-        /// <param name="sparkDataApiKey">The spark data API key.</param>
-        /// <param name="numberRecords">The number records.</param>
-        /// <param name="personAliasId">The person alias identifier.</param>
-        private string IntiateReport( string sparkDataApiKey, int? numberRecords, int? personAliasId = null )
-        {
-            try
-            {
-                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
-                string url;
-                if ( personAliasId.HasValue )
-                {
-                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}/{personAliasId.Value}";
-                }
-                else
-                {
-                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}";
-                }
-
-                var request = new RestRequest( url, Method.POST );
-                request.RequestFormat = DataFormat.Json;
-
-                IRestResponse response = client.Execute( request );
-                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-                {
-                    return response.Content.Trim( '"' );
-                }
-                else
-                {
-                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
-                    {
-                        Content = new StringContent( response.Content )
-                    } );
-                }
-            }
-            catch ( Exception ex )
-            {
-                throw new AggregateException( "Could not initiate Spark report", ex );
-            }
-        }
-
-        /// <summary>
-        /// Gets the credentials from the Spark server.
-        /// </summary>
-        /// <param name="sparkDataApiKey">The spark data API key.</param>
-        /// <returns>The username and password</returns>
-        private UsernamePassword GetCredentials( string sparkDataApiKey )
-        {
-            try
-            {
-                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
-                var request = new RestRequest( $"api/SparkData/Ncoa/GetCredentials/{sparkDataApiKey}", Method.GET );
-                request.RequestFormat = DataFormat.Json;
-
-                // IRestResponse response = client.Execute( request );
-                var response = client.Get<UsernamePassword>( request );
-                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-                {
-                    return response.Data;
-                }
-                else
-                {
-                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
-                    {
-                        Content = new StringContent( response.Content )
-                    } );
-                }
-            }
-            catch ( Exception ex )
-            {
-                throw new AggregateException( "Could not get credentials from Spark", ex );
-            }
-        }
-
-        /// <summary>
-        /// Sent Complete report message to Spark server.
-        /// </summary>
-        /// <param name="sparkDataApiKey">The spark data API key.</param>
-        /// <param name="reportKey">The report key.</param>
-        /// <param name="exportFileKey">The export file key.</param>
-        /// <returns>Return true if successful</returns>
-        private bool CompleteReport( string sparkDataApiKey, string reportKey, string exportFileKey )
-        {
-            try
-            {
-                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
-                var request = new RestRequest( $"api/SparkData/Ncoa/CompleteReport/{sparkDataApiKey}/{reportKey}/{exportFileKey}", Method.POST );
-                request.RequestFormat = DataFormat.Json;
-
-                // IRestResponse response = client.Execute( request );
-                IRestResponse response = client.Execute( request );
-                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-                {
-                    return response.Content.AsBoolean();
-                }
-                else
-                {
-                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
-                    {
-                        Content = new StringContent( response.Content )
-                    } );
-                }
-            }
-            catch ( Exception ex )
-            {
-                throw new AggregateException( "Could not complete Spark report", ex );
-            }
-        }
-
-        /// <summary>
-        /// Send a failed message to Spark server.
-        /// </summary>
-        /// <param name="sparkDataApiKey">The spark data API key.</param>
-        /// <param name="reportKey">The report key.</param>
-        /// <returns>Return true if successful</returns>
-        public static bool CompleteFailed( string sparkDataApiKey, string reportKey )
-        {
-            try
-            {
-                var client = new RestClient( SparkDataConfig.SPARK_SERVER );
-                var request = new RestRequest( $"api/SparkData/Ncoa/CompleteFailed/{sparkDataApiKey}/{reportKey}", Method.POST );
-                request.RequestFormat = DataFormat.Json;
-
-                // IRestResponse response = client.Execute( request );
-                IRestResponse response = client.Execute( request );
-                if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
-                {
-                    return response.Content.AsBoolean();
-                }
-                else
-                {
-                    throw new HttpResponseException( new HttpResponseMessage( response.StatusCode )
-                    {
-                        Content = new StringContent( response.Content )
-                    } );
-                }
-            }
-            catch ( Exception ex )
-            {
-                throw new AggregateException( "Could not send Spark report failed", ex );
-            }
-        }
-
-        #endregion
-
         #region Get Addresses
 
         /// <summary>
@@ -393,14 +205,31 @@ namespace Rock.Utility
                 sparkDataConfig = GetSettings();
             }
 
-            CheckAccount( sparkDataConfig.SparkDataApiKey );
+            SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
+            sparkDataNcoaApi.CheckAccount( sparkDataConfig.SparkDataApiKey );
             var addresses = GetAddresses( sparkDataConfig.NcoaSettings.PersonDataViewId );
-            sparkDataConfig.NcoaSettings.CurrentReportKey = IntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
-            var credentials = GetCredentials( sparkDataConfig.SparkDataApiKey );
+            if ( addresses.Count == 0)
+            {
+                sparkDataConfig.NcoaSettings.LastRunDate = RockDateTime.Now;
+                sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
+                SaveSettings( sparkDataConfig );
+                return;
+            }
+
+            GroupNameTransactionKey groupNameTransactionKey = sparkDataNcoaApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
+            sparkDataConfig.NcoaSettings.FileName = groupNameTransactionKey.TransactionKey;
+            var credentials = sparkDataNcoaApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
-            trueNcoaApi.UploadAddresses( addresses, sparkDataConfig.NcoaSettings.CurrentReportKey );
+
+            string id;
+            trueNcoaApi.CreateFile( sparkDataConfig.NcoaSettings.FileName, groupNameTransactionKey.GroupName, out id );
+            trueNcoaApi.Id = id;
+
+            trueNcoaApi.UploadAddresses( addresses, sparkDataConfig.NcoaSettings.FileName );
+
+            sparkDataConfig.NcoaSettings.CurrentReportKey = id;
             sparkDataConfig.NcoaSettings.CurrentUploadCount = addresses.Count;
-            trueNcoaApi.CreateReport( sparkDataConfig.NcoaSettings.CurrentReportKey );
+            trueNcoaApi.CreateReport( sparkDataConfig.NcoaSettings.FileName );
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Report";
             SaveSettings( sparkDataConfig );
 
@@ -424,15 +253,17 @@ namespace Rock.Utility
                 sparkDataConfig = GetSettings();
             }
 
-            var credentials = GetCredentials( sparkDataConfig.SparkDataApiKey );
+            SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
+            var credentials = sparkDataNcoaApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
-            if ( !trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.CurrentReportKey ) )
+            if ( !trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.FileName ) )
             {
                 return;
             }
 
             string exportFileId;
-            trueNcoaApi.CreateReportExport( sparkDataConfig.NcoaSettings.CurrentReportKey, out exportFileId );
+            trueNcoaApi.CreateReportExport( sparkDataConfig.NcoaSettings.FileName, out exportFileId );
+
             sparkDataConfig.NcoaSettings.CurrentReportExportKey = exportFileId;
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Export";
             SaveSettings( sparkDataConfig );
@@ -449,15 +280,18 @@ namespace Rock.Utility
                 sparkDataConfig = GetSettings();
             }
 
-            var credentials = GetCredentials( sparkDataConfig.SparkDataApiKey );
+            SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
+            var credentials = sparkDataNcoaApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
+
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
-            if ( !trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.CurrentReportExportKey ) )
+            if ( !trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.FileName ) )
             {
                 return;
             }
 
             List<TrueNcoaReturnRecord> trueNcoaReturnRecords;
             trueNcoaApi.DownloadExport( sparkDataConfig.NcoaSettings.CurrentReportExportKey, out trueNcoaReturnRecords );
+
             if ( trueNcoaReturnRecords != null && trueNcoaReturnRecords.Count != 0 )
             {
                 var ncoaHistoryList = trueNcoaReturnRecords.Select( r => r.ToNcoaHistory() );
@@ -473,7 +307,7 @@ namespace Rock.Utility
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
             SaveSettings( sparkDataConfig );
 
-            CompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+            sparkDataNcoaApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
 
             //Notify group
             SentNotification( sparkDataConfig );

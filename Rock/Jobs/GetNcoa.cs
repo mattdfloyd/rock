@@ -22,7 +22,7 @@ using Quartz;
 using Rock.Model;
 using Rock.Utility;
 using Rock.Utility.Settings.SparkData;
-using Rock.Web.UI;
+using Rock.Utility.SparkDataApi;
 
 namespace Rock.Jobs
 {
@@ -30,7 +30,7 @@ namespace Rock.Jobs
     /// Job to get a National Change of Address (NCOA) report for all active people's addresses.
     /// </summary>
     [DisallowConcurrentExecution]
-    public class GetNcoa : RockBlock, IJob
+    public class GetNcoa : IJob
     {
         /// <summary> 
         /// Empty constructor for job initialization
@@ -70,6 +70,7 @@ namespace Rock.Jobs
                     exceptions.Add( new Exception( $"SparkDataApiKey '{sparkDataConfig.SparkDataApiKey.ToStringSafe()}' is empty or invalid." ) );
                     return;
                 }
+
                 switch ( sparkDataConfig.NcoaSettings.CurrentReportStatus )
                 {
                     case "Start":
@@ -104,9 +105,10 @@ namespace Rock.Jobs
                     sparkDataConfig.NcoaSettings.CurrentReportStatus = "Failed";
                     Ncoa.SaveSettings( sparkDataConfig );
 
-                    if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhitespace() && sparkDataConfig.NcoaSettings.CurrentReportKey.IsNotNullOrWhitespace() )
+                    if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhitespace() && sparkDataConfig.NcoaSettings.FileName.IsNotNullOrWhitespace() )
                     {
-                        Ncoa.CompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportKey );
+                        SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
+                        sparkDataNcoaApi.NcoaCompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName );
                     }
 
                     Exception ex = new AggregateException( "One or more NCOA requirement failed ", exceptions );
@@ -147,7 +149,8 @@ namespace Rock.Jobs
         }
 
         /// <summary>
-        /// Current state is complete. Check if recurring is enabled and recurring interval have been reached.
+        /// Current state is complete. Check if recurring is enabled and recurring interval have been reached,
+        /// and if so set the state back to Start.
         /// </summary>
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusComplete( SparkDataConfig sparkDataConfig )

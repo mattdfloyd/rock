@@ -32,7 +32,8 @@ namespace Rock.Migrations
 
             #region Add GetNcoa Job
 
-            Sql( $@"
+            Sql( $@"IF NOT EXISTS(SELECT [Id] FROM [ServiceJob] WHERE [Class] = 'Rock.Jobs.GetNcoa')
+BEGIN
     INSERT INTO [dbo].[ServiceJob] (
          [IsSystem]
         ,[IsActive]
@@ -47,11 +48,12 @@ namespace Rock.Migrations
          0 
         ,0 
         ,'Get National Change of Address (NCOA)'
-        ,'Job that get NCOA data.'
+        ,'Job to get a National Change of Address (NCOA) report for all active people's addresses.'
         ,'Rock.Jobs.GetNcoa'
         ,'0 0/10 0 ? * * *'
         ,1
-        ,'{ServiceJob.GET_NCOA}')" );
+        ,'{ServiceJob.GET_NCOA}');
+END" );
 
             #endregion
 
@@ -73,7 +75,7 @@ namespace Rock.Migrations
 </p>
 
 <p>
-    {{ SparkDataService }} job have finished.
+    The '{{ SparkDataService }}' job has finished.
 </p>
 
 {{ 'Global' | Attribute:'EmailFooter' }}", "CBCBE0F0-67FB-6393-4D9C-592C839A2E54" );

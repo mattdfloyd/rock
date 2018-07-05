@@ -64,6 +64,14 @@ namespace Rock.Utility.Settings.SparkData
         public int RecurrenceInterval { get; set; } = 95;
 
         /// <summary>
+        /// Gets or sets the name of the TrueNCOA file.
+        /// </summary>
+        /// <value>
+        /// The name of the TrueNCOA file.
+        /// </value>
+        public string FileName { get; set; }
+
+        /// <summary>
         /// Gets or sets the current NCOA report key.
         /// </summary>
         /// <value>
