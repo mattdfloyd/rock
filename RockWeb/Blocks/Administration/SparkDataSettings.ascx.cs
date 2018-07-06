@@ -133,7 +133,8 @@ namespace RockWeb.Blocks.Administration
             pnlSparkDataEdit.Visible = true;
             pnlSignIn.Visible = false;
             pnlAccountStatus.Visible = false;
-            pnlNcoaConfiguration.Visible = false;
+            pwNcoaConfiguration.Visible = false;
+            bbtnSaveConfig.Visible = false;
         }
 
         /// <summary>
@@ -334,7 +335,8 @@ namespace RockWeb.Blocks.Administration
                 pnlSparkDataEdit.Visible = false;
                 pnlSignIn.Visible = true;
                 pnlAccountStatus.Visible = false;
-                pnlNcoaConfiguration.Visible = false;
+                pwNcoaConfiguration.Visible = false;
+                bbtnSaveConfig.Visible = false;
 
                 txtSparkDataApiKeyLogin.Text = _sparkDataConfig.SparkDataApiKey;
                 grpNotificationGroupLogin.GroupId = _sparkDataConfig.GlobalNotificationApplicationGroupId;
@@ -344,7 +346,8 @@ namespace RockWeb.Blocks.Administration
                 pnlSparkDataEdit.Visible = false;
                 pnlSignIn.Visible = false;
                 pnlAccountStatus.Visible = true;
-                pnlNcoaConfiguration.Visible = true;
+                pwNcoaConfiguration.Visible = true;
+                bbtnSaveConfig.Visible = true;
 
                 // Get Ncoa configuration settings
                 nbMinMoveDistance.Text = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_MINIMUM_MOVE_DISTANCE_TO_INACTIVATE );
