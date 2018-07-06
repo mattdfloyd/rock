@@ -107,8 +107,8 @@ namespace Rock.Jobs
 
                     if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhitespace() && sparkDataConfig.NcoaSettings.FileName.IsNotNullOrWhitespace() )
                     {
-                        SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
-                        sparkDataNcoaApi.NcoaCompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName );
+                        SparkDataApi sparkDataApi = new SparkDataApi();
+                        sparkDataApi.NcoaCompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName );
                     }
 
                     Exception ex = new AggregateException( "One or more NCOA requirement failed ", exceptions );

@@ -28,7 +28,6 @@ using Rock.Model;
 using Rock.SystemKey;
 using Rock.Utility.NcoaApi;
 using Rock.Utility.Settings.SparkData;
-using Rock.Utility.SparkDataApi;
 
 namespace Rock.Utility
 {
@@ -205,8 +204,24 @@ namespace Rock.Utility
                 sparkDataConfig = GetSettings();
             }
 
-            SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
-            sparkDataNcoaApi.CheckAccount( sparkDataConfig.SparkDataApiKey );
+            SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
+            var accountStatus = sparkDataApi.CheckAccount( sparkDataConfig.SparkDataApiKey );
+            switch ( accountStatus )
+            {
+                case SparkDataApi.SparkDataApi.AccountStatus.AccountNoName:
+                    throw new UnauthorizedAccessException( "Account does not have a name." );
+                case SparkDataApi.SparkDataApi.AccountStatus.AccountNotFound:
+                    throw new UnauthorizedAccessException( "Account not found." );
+                case SparkDataApi.SparkDataApi.AccountStatus.Disabled:
+                    throw new UnauthorizedAccessException( "Account is disabled." );
+                case SparkDataApi.SparkDataApi.AccountStatus.EnabledCardExpired:
+                    throw new UnauthorizedAccessException( "Credit card on Spark server expired." );
+                case SparkDataApi.SparkDataApi.AccountStatus.EnabledNoCard:
+                    throw new UnauthorizedAccessException( "No credit card found on Spark server." );
+                case SparkDataApi.SparkDataApi.AccountStatus.InvalidSparkDataKey:
+                    throw new UnauthorizedAccessException( "Invalid Spark Data Key." );
+            }
+
             var addresses = GetAddresses( sparkDataConfig.NcoaSettings.PersonDataViewId );
             if ( addresses.Count == 0)
             {
@@ -216,9 +231,9 @@ namespace Rock.Utility
                 return;
             }
 
-            GroupNameTransactionKey groupNameTransactionKey = sparkDataNcoaApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
+            GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
             sparkDataConfig.NcoaSettings.FileName = groupNameTransactionKey.TransactionKey;
-            var credentials = sparkDataNcoaApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
+            var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
 
             string id;
@@ -253,8 +268,8 @@ namespace Rock.Utility
                 sparkDataConfig = GetSettings();
             }
 
-            SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
-            var credentials = sparkDataNcoaApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
+            SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
+            var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
             if ( !trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.FileName ) )
             {
@@ -280,8 +295,8 @@ namespace Rock.Utility
                 sparkDataConfig = GetSettings();
             }
 
-            SparkDataNcoaApi sparkDataNcoaApi = new SparkDataNcoaApi();
-            var credentials = sparkDataNcoaApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
+            SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
+            var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
 
             var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
             if ( !trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.FileName ) )
@@ -307,7 +322,7 @@ namespace Rock.Utility
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
             SaveSettings( sparkDataConfig );
 
-            sparkDataNcoaApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+            sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
 
             //Notify group
             SentNotification( sparkDataConfig );

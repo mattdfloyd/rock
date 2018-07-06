@@ -111,5 +111,20 @@ namespace Rock.Utility.Settings.SparkData
         /// </value>
         public int? CurrentUploadCount { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is accepted terms.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is accepted terms; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsAcceptedTerms { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is acknowledging price.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is acknowledging price; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsAckPrice { get; set; }
     }
 }

@@ -1679,7 +1679,6 @@
     <Compile Include="Utility\Settings\SparkData\NcoaSettings.cs" />
     <Compile Include="Utility\Settings\SparkData\SparkDataConfig.cs" />
     <Compile Include="Utility\SparkDataApi\SparkDataApi.cs" />
-    <Compile Include="Utility\SparkDataApi\SparkDataNcoaApi.cs" />
     <Compile Include="Utility\TextToWorkflow.cs" />
     <Compile Include="Web\Cache\AttributeCache.cs" />
     <Compile Include="Web\Cache\AttributeValueCache.cs" />
