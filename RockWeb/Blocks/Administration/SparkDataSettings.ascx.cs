@@ -367,7 +367,6 @@ namespace RockWeb.Blocks.Administration
                 cbRecurringEnabled.Checked = _sparkDataConfig.NcoaSettings.RecurringEnabled;
                 nbRecurrenceInterval.Enabled = _sparkDataConfig.NcoaSettings.RecurringEnabled;
                 nbRecurrenceInterval.Text = _sparkDataConfig.NcoaSettings.RecurrenceInterval.ToStringSafe();
-                cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled;
                 cbAcceptTerms.Checked = _sparkDataConfig.NcoaSettings.IsAcceptedTerms;
                 cbAckPrice.Checked = _sparkDataConfig.NcoaSettings.IsAckPrice;
 
@@ -378,8 +377,6 @@ namespace RockWeb.Blocks.Administration
                     _sparkDataConfig.NcoaSettings.CurrentReportStatus = string.Empty;
                 }
 
-                SetStartNcoaEnabled();
-
                 if ( _sparkDataConfig.SparkDataApiKey.IsNullOrWhiteSpace() )
                 {
                     pnlSignIn.Visible = true;
@@ -389,6 +386,7 @@ namespace RockWeb.Blocks.Administration
                 else
                 {
                     pnlSignIn.Visible = false;
+                    bool accountValid = false;
 
                     SparkDataApi sparkDataApi = new SparkDataApi();
                     try
@@ -420,6 +418,7 @@ namespace RockWeb.Blocks.Administration
                             case SparkDataApi.AccountStatus.EnabledCard:
                                 hlAccountStatus.LabelType = LabelType.Success;
                                 hlAccountStatus.Text = "Enabled - Card on File";
+                                accountValid = true;
                                 break;
                             case SparkDataApi.AccountStatus.InvalidSparkDataKey:
                                 hlAccountStatus.LabelType = LabelType.Warning;
@@ -435,6 +434,10 @@ namespace RockWeb.Blocks.Administration
                         hlAccountStatus.LabelType = LabelType.Danger;
                         hlAccountStatus.Text = "Error Connecting to Spark Server";
                     }
+
+                    cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled && accountValid;
+                    cbNcoaConfiguration.Enabled = accountValid;
+                    SetStartNcoaEnabled();
                 }
             }
         }
