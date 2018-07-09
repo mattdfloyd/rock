@@ -14,8 +14,6 @@
 
                 <Rock:NotificationBox ID="nbMessage" runat="server" Visible="false" />
 
-                <asp:ValidationSummary ID="valSummary" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-validation" />
-
                 <fieldset>
 
                     <asp:Panel ID="pnlSignIn" runat="server" Visible="false">
@@ -34,15 +32,16 @@
                                             and ensure that a credit card is on file for use with paid services.</p>
                                             <p><a href="https://www.rockrms.com/">Sign-up Now</a></p>
                                         </div>
+                                        <asp:ValidationSummary ID="vsSignIn" runat="server" HeaderText="Please Correct the Following" ValidationGroup="SignInValidationGroup" CssClass="alert alert-validation" />
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <Rock:RockTextBox ID="txtSparkDataApiKeyLogin" runat="server" Label="Spark Data Api Key" Required="true" />
+                                                <Rock:RockTextBox ID="txtSparkDataApiKeyLogin" runat="server" Label="Spark Data Api Key" Required="true" ValidationGroup="SignInValidationGroup"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <Rock:GroupPicker ID="grpNotificationGroupLogin" runat="server" Label="Notification Group" Help="Members of this group will recieve notifications when specific jobs and tasks complete." />
                                             </div>
                                         </div>
-                                        <asp:LinkButton ID="btnSaveLogin" runat="server" CssClass="btn btn-primary" OnClick="btnSaveLogin_Click">Save</asp:LinkButton>
+                                        <asp:LinkButton ID="btnSaveLogin" runat="server" CssClass="btn btn-primary" OnClick="btnSaveLogin_Click" ValidationGroup="SignInValidationGroup" >Save</asp:LinkButton>
                                     </div>
                                 </div>
                             </div>
@@ -54,15 +53,16 @@
                         Rock RMS website.</p>
                         <p><a href="https://www.rockrms.com/">Organization Profile</a></p>
                         </div>
+                        <asp:ValidationSummary ID="vsSparkDataEdit" runat="server" HeaderText="Please Correct the Following" ValidationGroup="SparkDataEditValidationGroup" CssClass="alert alert-validation" />
                         <div class="row">
                             <div class="col-md-6">
-                                <Rock:RockTextBox ID="txtSparkDataApiKeyEdit" runat="server" Label="Spark Data Api Key" Required="true" />
+                                <Rock:RockTextBox ID="txtSparkDataApiKeyEdit" runat="server" Label="Spark Data Api Key" Required="true" ValidationGroup="SparkDataEditValidationGroup" />
                             </div>
                             <div class="col-md-6">
                                 <Rock:GroupPicker ID="grpNotificationGroupEdit" runat="server" Label="Notification Group" Help="Members of this group will recieve notifications when specific jobs and tasks complete." />
                             </div>
                         </div>
-                        <asp:LinkButton ID="btnSaveEdit" runat="server" CssClass="btn btn-primary" OnClick="btnSaveEdit_Click">Save</asp:LinkButton>
+                        <asp:LinkButton ID="btnSaveEdit" runat="server" CssClass="btn btn-primary" OnClick="btnSaveEdit_Click" ValidationGroup="SparkDataEditValidationGroup" >Save</asp:LinkButton>
                         <asp:LinkButton ID="btnCancelEdit" runat="server" CssClass="btn btn-default" OnClick="btnCancelEdit_Click">Cancel</asp:LinkButton>
                     </asp:Panel>
 
@@ -77,12 +77,13 @@
                     <Rock:PanelWidget ID="pwNcoaConfiguration" runat="server" Title="National Change of Address (NCOA)">
                         <Rock:NotificationBox ID="nbCreditCard" runat="server" NotificationBoxType="Warning"
                             Heading="Note" Text=" This service requires a credit card on file to process payments for running the files."/>
+                        <asp:ValidationSummary ID="vsNcoa" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-validation" ValidationGroup="NcoaValidationGroup" />
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="pull-left">
                                     <Rock:RockCheckBox ID="cbNcoaConfiguration" runat="server"
                                         Label="Enable" Text="Enable the automatic updating of change of addresses via NCOA services."
-                                        AutoPostBack="true" OnCheckedChanged="cbSparkDataEnabled_CheckedChanged" />
+                                        AutoPostBack="true" OnCheckedChanged="cbNcoaConfiguration_CheckedChanged" />
                                 </div>
                                 <div class="pull-right">
                                     <asp:LinkButton ID="lbStartNcoa" runat="server" CssClass="btn btn-default" OnClick="btnStartNcoa_Click" ToolTip="Start NCOA"><i class="fa fa-play"></i> Run Manually</asp:LinkButton>
@@ -100,7 +101,7 @@
                             <br />
                             <div class="row">
                                 <div class="col-md-4">
-                                    <Rock:DataViewPicker ID="dvpPersonDataView" runat="server" Label="Person Data View" Required="true" Help="Person data view filter to apply." />
+                                    <Rock:DataViewPicker ID="dvpPersonDataView" runat="server" Label="Person Data View" Required="true" ValidationGroup="NcoaValidationGroup" Help="Person data view filter to apply." />
                                 </div>
                             </div>
                             <div class="row">
@@ -122,20 +123,20 @@
                                     <Rock:RockCheckBox ID="cbRecurringEnabled" runat="server" Label="Recurring Enabled" OnCheckedChanged="cbRecurringEnabled_CheckedChanged" AutoPostBack="true" Help="Should the job run periodically"/>
                                 </div>
                                 <div class="col-md-4">
-                                    <Rock:NumberBox ID="nbRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" Required="true" Help="After how many days should the job automatically start after the last successful run" />
+                                    <Rock:NumberBox ID="nbRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" Required="true" ValidationGroup="NcoaValidationGroup" Help="After how many days should the job automatically start after the last successful run" />
                                 </div>
+                            </div>
+                            <div class="actions margin-t-lg">
+                                <Rock:BootstrapButton ID="bbtnSaveConfig" runat="server" CssClass="btn btn-primary" AccessKey="s" ToolTip="Alt+s" OnClick="bbtnSaveConfig_Click" Text="Save"
+                                    DataLoadingText="&lt;i class='fa fa-refresh fa-spin'&gt;&lt;/i&gt; Saving" ValidationGroup="NcoaValidationGroup"
+                                    CompletedText="Success" CompletedMessage="&nbsp;Changes Have Been Saved!" CompletedDuration="2">
+                                </Rock:BootstrapButton>
                             </div>
                         </asp:Panel>
                     </Rock:PanelWidget>
 
                 </fieldset>
 
-                <div class="actions margin-t-lg">
-                    <Rock:BootstrapButton ID="bbtnSaveConfig" runat="server" CssClass="btn btn-primary" AccessKey="s" ToolTip="Alt+s" OnClick="bbtnSaveConfig_Click" Text="Save"
-                        DataLoadingText="&lt;i class='fa fa-refresh fa-spin'&gt;&lt;/i&gt; Saving"
-                        CompletedText="Success" CompletedMessage="&nbsp;Changes Have Been Saved!" CompletedDuration="2">
-                    </Rock:BootstrapButton>
-                </div>
             </div>
         </div>
 

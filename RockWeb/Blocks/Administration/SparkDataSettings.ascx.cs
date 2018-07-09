@@ -73,7 +73,6 @@ namespace RockWeb.Blocks.Administration
             {
                 BindControls();
                 GetSettings();
-                SetPanels();
             }
         }
 
@@ -166,12 +165,17 @@ namespace RockWeb.Blocks.Administration
         }
 
         /// <summary>
-        /// Handles the CheckedChanged event when enabling/disabling a Spark Data option.
+        /// Handles the CheckedChanged event when enabling/disabling the NCOA option.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        protected void cbSparkDataEnabled_CheckedChanged( object sender, EventArgs e )
+        protected void cbNcoaConfiguration_CheckedChanged( object sender, EventArgs e )
         {
+            _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
+
+            _sparkDataConfig.NcoaSettings.IsEnabled = cbNcoaConfiguration.Checked;
+
+            Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
             SetPanels();
         }
 
@@ -438,6 +442,7 @@ namespace RockWeb.Blocks.Administration
                     cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled && accountValid;
                     cbNcoaConfiguration.Enabled = accountValid;
                     SetStartNcoaEnabled();
+                    SetPanels();
                 }
             }
         }
