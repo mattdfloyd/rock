@@ -225,6 +225,8 @@ namespace Rock.Jobs
                 personRockContext.SaveChanges();
             }
 
+            AddMissingAlternateIds();
+
             using ( var personRockContext = new Rock.Data.RockContext() )
             {
                 PersonService personService = new PersonService( personRockContext );
@@ -299,6 +301,44 @@ namespace Rock.Jobs
                 {
                     IsActive = false
                 } );
+            }
+        }
+
+        /// <summary>
+        /// Adds any missing person alternate ids
+        /// </summary>
+        private static void AddMissingAlternateIds()
+        {
+            using ( var personRockContext = new Rock.Data.RockContext() )
+            {
+                var personService = new PersonService( personRockContext );
+                int alternateValueId = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_SEARCH_KEYS_ALTERNATE_ID.AsGuid() ).Id;
+                var personSearchKeyService = new PersonSearchKeyService( personRockContext );
+                var alternateKeyQuery = personSearchKeyService.Queryable().Where( a => a.SearchTypeValueId == alternateValueId );
+
+                IQueryable<Person> personQuery = personService.Queryable( includeDeceased: true );
+
+                foreach ( var person in personQuery = personQuery
+                    .Where( p => !alternateKeyQuery.Any( f => f.PersonAlias.PersonId == p.Id ) )
+                    .Take( 500 ) )
+                {
+                    string alternateId = string.Empty;
+                    do
+                    {
+                        var randomId = Guid.NewGuid().ToString( "N" );
+                        alternateId = string.Format( "{0}-{1}", randomId.Substring( 0, 7 ), randomId.Substring( 7, 7 ) );
+
+                    } while ( personSearchKeyService.Queryable().Any( a => a.SearchTypeValueId == alternateValueId && a.SearchValue == alternateId ) );
+
+                    PersonSearchKey personSearchKey = new PersonSearchKey()
+                    {
+                        PersonAliasId = person.PrimaryAliasId,
+                        SearchTypeValueId = alternateValueId,
+                        SearchValue = alternateId
+                    };
+                    personSearchKeyService.Add( personSearchKey );
+                }
+                personRockContext.SaveChanges();
             }
         }
 
