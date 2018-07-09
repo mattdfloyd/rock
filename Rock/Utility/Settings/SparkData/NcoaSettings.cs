@@ -24,6 +24,20 @@ namespace Rock.Utility.Settings.SparkData
     public class NcoaSettings
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="NcoaSettings"/> class.
+        /// </summary>
+        public NcoaSettings()
+        {
+            IsEnabled = false;
+            RecurringEnabled = true;
+            FileName = string.Empty;
+            CurrentReportKey = string.Empty;
+            CurrentReportStatus = string.Empty;
+            IsAcceptedTerms = false;
+            IsAckPrice = false;
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this instance is enabled.
         /// </summary>
         /// <value>
