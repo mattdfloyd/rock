@@ -25,6 +25,16 @@ namespace Rock.Utility.Settings.SparkData
     public class SparkDataConfig
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="SparkDataConfig"/> class.
+        /// </summary>
+        public SparkDataConfig()
+        {
+            NcoaSettings = new NcoaSettings();
+            SparkDataApiKey = string.Empty;
+            Messages = new List<string>();
+        }
+
+        /// <summary>
         /// The spark server
         /// </summary>
         [JsonIgnore]
