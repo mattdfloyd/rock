@@ -52,7 +52,6 @@
                         <p> For more information about your account, or to update your payment information please visit your organization's profile on the
                         Rock RMS website.</p>
                         <p><a href="https://www.rockrms.com/">Organization Profile</a></p>
-                        </div>
                         <asp:ValidationSummary ID="vsSparkDataEdit" runat="server" HeaderText="Please Correct the Following" ValidationGroup="SparkDataEditValidationGroup" CssClass="alert alert-validation" />
                         <div class="row">
                             <div class="col-md-6">

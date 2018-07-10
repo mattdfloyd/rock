@@ -97,7 +97,7 @@ namespace Rock.SystemGuid
         public const string NOTE_APPROVAL_NOTIFICATION = "B2E3D75F-681E-430F-82C9-D0D681040FAF";
 
         /// <summary>
-        /// Gets the template guid for a note approval notification
+        /// Gets the template guid for a Spark Data notification
         /// </summary>
         public const string SPARK_DATA_NOTIFICATION = "CBCBE0F0-67FB-6393-4D9C-592C839A2E54";
     }

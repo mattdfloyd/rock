@@ -47,7 +47,7 @@ namespace Rock.Utility
         public Dictionary<int, int> DataViewPeopleDirectory( int dataViewId, RockContext rockContext )
         {
             var dataViewService = new DataViewService( rockContext );
-            var dataView = dataViewService.Get( dataViewId );
+            var dataView = dataViewService.GetNoTracking( dataViewId );
 
             // Verify that there is not a child filter that uses this view (would result in stack-overflow error)
             if ( dataViewService.IsViewInFilter( dataView.Id, dataView.DataViewFilter ) )
@@ -157,7 +157,7 @@ namespace Rock.Utility
         /// Sends the notification that NCOA finished
         /// </summary>
         /// <param name="sparkDataConfig">The spark data configuration.</param>
-        private void SentNotification( SparkDataConfig sparkDataConfig )
+        public void SentNotification( SparkDataConfig sparkDataConfig, string status )
         {
             if ( !sparkDataConfig.GlobalNotificationApplicationGroupId.HasValue || sparkDataConfig.GlobalNotificationApplicationGroupId.Value == 0 )
             {
@@ -167,7 +167,7 @@ namespace Rock.Utility
             var recipients = new List<RecipientData>();
             using ( RockContext rockContext = new RockContext() )
             {
-                Group group = new GroupService( rockContext ).Get( sparkDataConfig.GlobalNotificationApplicationGroupId.Value );
+                Group group = new GroupService( rockContext ).GetNoTracking( sparkDataConfig.GlobalNotificationApplicationGroupId.Value );
 
                 foreach ( var groupMember in group.Members )
                 {
@@ -179,12 +179,13 @@ namespace Rock.Utility
                         mergeFields.Add( "Group", groupMember.Group );
                         mergeFields.Add( "SparkDataService", "National Change of Address (NCOA)" );
                         mergeFields.Add( "SparkDataConfig", sparkDataConfig );
+                        mergeFields.Add( "Status", status );
                         recipients.Add( new RecipientData( groupMember.Person.Email, mergeFields ) );
                     }
                 }
 
                 SystemEmailService emailService = new SystemEmailService( rockContext );
-                SystemEmail systemEmail = emailService.Get( SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION.AsGuid() );
+                SystemEmail systemEmail = emailService.GetNoTracking( SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION.AsGuid() );
 
                 var emailMessage = new RockEmailMessage( systemEmail.Guid );
                 emailMessage.SetRecipients( recipients );
@@ -325,7 +326,7 @@ namespace Rock.Utility
             sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
 
             //Notify group
-            SentNotification( sparkDataConfig );
+            SentNotification( sparkDataConfig, "finished" );
         }
 
         #region Settings

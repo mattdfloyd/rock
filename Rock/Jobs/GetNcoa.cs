@@ -129,13 +129,9 @@ namespace Rock.Jobs
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusFailed( SparkDataConfig sparkDataConfig )
         {
-            if ( sparkDataConfig.NcoaSettings.RecurringEnabled )
-            {
-                sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
-                sparkDataConfig.NcoaSettings.PersonAliasId = null;
-                Ncoa.SaveSettings( sparkDataConfig );
-                StatusStart( sparkDataConfig );
-            }
+            // No action. Only notify group
+            var ncoa = new Ncoa();
+            ncoa.SentNotification( sparkDataConfig, "failed" );
         }
 
         /// <summary>

@@ -75,10 +75,11 @@ END" );
 </p>
 
 <p>
-    The '{{ SparkDataService }}' job has finished.
+    The '{{ SparkDataService }}' job has {{ Status }}.
 </p>
 
-{{ 'Global' | Attribute:'EmailFooter' }}", "CBCBE0F0-67FB-6393-4D9C-592C839A2E54" );
+{{ 'Global' | Attribute:'EmailFooter' }}", SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION );
+
             #endregion
 
         }
@@ -93,7 +94,7 @@ END" );
             RockMigrationHelper.DeleteBlockType( "6B6A429D-E42C-70B5-4A04-98E886C45E7A" );
             RockMigrationHelper.DeletePage( "0591e498-0ad6-45a5-b8ca-9bca5c771f03" );
             Sql( $@"DELETE FROM [dbo].[ServiceJob] WHERE [Guid] = '{ServiceJob.GET_NCOA}'" );
-            RockMigrationHelper.DeleteSystemEmail( "CBCBE0F0-67FB-6393-4D9C-592C839A2E54" );
+            RockMigrationHelper.DeleteSystemEmail( SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION );
         }
     }
 }
